@@ -11,4 +11,8 @@ public class SB {
 		qi = 0; //ver
 		vi = 0; //ver
 	}
+	
+	public boolean getBusy() {
+		return busy;
+	}
 }

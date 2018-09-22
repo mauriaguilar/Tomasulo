@@ -8,4 +8,8 @@ public class LB {
 		busy = false;
 		dir = 0; //ver
 	}
+	
+	public boolean getBusy() {
+		return busy;
+	}
 }

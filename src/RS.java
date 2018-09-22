@@ -16,6 +16,10 @@ public class RS {
 		qk = 0; //ver
 	}
 	
+	public boolean getBusy() {
+		return busy;
+	}	
+	
 	public String getOp() {
 		return op;
 	}

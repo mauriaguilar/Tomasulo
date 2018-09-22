@@ -1,7 +1,8 @@
 
-public class ADD {
+public class ADD implements Runnable{
 	
 	private RS[] add;
+	private boolean data;
 	
 	public ADD(int cap) {
 		add = new RS[cap];
@@ -15,6 +16,21 @@ public class ADD {
 		}
 		
 		return res;
+	}
+
+	@Override
+	public void run() {
+		while(getData()) {
+			System.out.print("ADD");
+		}
+	}
+	
+	public boolean getData() {
+		data = false;
+		for(int i=0; i<add.length; i++)
+			if(add[i].getBusy())
+				data = true;
+		return data;
 	}
 	
 }
