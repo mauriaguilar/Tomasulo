@@ -6,6 +6,9 @@ public class Store implements Runnable{
 	
 	public Store(int cap) {
 		store = new SB[cap];
+		for(int i=0; i<cap; i++) {
+			store[i] = new SB();
+		}
 	}
 	
 	private void calc(int origen, int dest) {

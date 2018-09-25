@@ -5,7 +5,11 @@ public class ADD implements Runnable{
 	private boolean data;
 	
 	public ADD(int cap) {
+		//System.out.println("Creando Add");
 		add = new RS[cap];
+		for(int i=0; i<cap; i++) {
+			add[i] = new RS();
+		}
 	}
 	
 	private float calc(int i) {

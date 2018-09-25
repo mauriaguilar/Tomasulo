@@ -5,7 +5,11 @@ public class MUL implements Runnable{
 	private boolean data;
 	
 	public MUL(int cap) {
+		//System.out.println("Creando Mul");
 		mul = new RS[cap];
+		for(int i=0; i<cap; i++) {
+			mul[i] = new RS();
+		}
 	}
 	
 	private float calc(int i) {

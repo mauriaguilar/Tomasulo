@@ -5,6 +5,7 @@ public class LB {
 	private int dir;
 	
 	public LB() {
+		//System.out.println("Creando LB");
 		busy = false;
 		dir = 0; //ver
 	}
