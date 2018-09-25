@@ -16,7 +16,12 @@ public class Instructions {
 	
 	public String[] getNext() {
 		//System.out.println("pc:"+pc+"   "+instructions[0]);
-		return instructions[pc++];
+		if(pc < instructions.length) {		//Primero consultamos si hay instrucciones en el buffer
+			return instructions[pc++];
+		}
+		else
+			System.out.println("No hay mas instrucciones en el buffer");
+			return null;
 	}
 	
 }

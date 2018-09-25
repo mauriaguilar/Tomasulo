@@ -1,5 +1,5 @@
 
-public class main {
+public class Main {
 
 	static Bus bus = new Bus();	
 	
