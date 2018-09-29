@@ -37,4 +37,29 @@ public class MUL implements Runnable{
 		return data;
 	}
 	
+	public int getPlaces() {
+		int cant = 0;
+		for(int i=0; i<mul.length; i++)
+			if(mul[i].getOp() == null)
+				cant++;
+		return cant;
+	}
+	
+	public void setData(boolean busy, String op, int vj, int vk, int qj, int qk) {
+		int pos = -1;
+		for(int i=0; i<mul.length; i++) {
+			if(mul[i].getOp() == null)
+				pos = i;
+		}
+		if(pos >= 0) {
+			mul[pos].setBusy(busy);
+			mul[pos].setOp(op);
+			mul[pos].setQj(qj);
+			mul[pos].setQk(qk);
+			mul[pos].setVj(vj);
+			mul[pos].setVk(vk);
+		}
+		else
+			System.out.println("ERROR EN setData() de Load");
+	}
 }

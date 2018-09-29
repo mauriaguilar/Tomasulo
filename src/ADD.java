@@ -37,4 +37,29 @@ public class ADD implements Runnable{
 		return data;
 	}
 	
+	public int getPlaces() {
+		int cant = 0;
+		for(int i=0; i<add.length; i++)
+			if(add[i].getOp() == null)
+				cant++;
+		return cant;
+	}
+	
+	public void setData(boolean busy, String op, int vj, int vk, int qj, int qk) {
+		int pos = -1;
+		for(int i=0; i<add.length; i++) {
+			if(add[i].getOp() == null)
+				pos = i;
+		}
+		if(pos >= 0) {
+			add[pos].setBusy(busy);
+			add[pos].setOp(op);
+			add[pos].setQj(qj);
+			add[pos].setQk(qk);
+			add[pos].setVj(vj);
+			add[pos].setVk(vk);
+		}
+		else
+			System.out.println("ERROR EN setData() de ADD");
+	}
 }

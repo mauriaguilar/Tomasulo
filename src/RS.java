@@ -2,12 +2,14 @@
 
 public class RS {
 	
+	private int dest;
 	private boolean busy;
 	private String op;
 	private int vj,vk;
 	private int qj,qk;
 	
 	public RS() {
+		dest = -1;
 		busy = false;
 		op = null;
 		vj = 0; //ver
@@ -30,5 +32,33 @@ public class RS {
 	
 	public int getVk() {
 		return vk;
+	}
+	
+	public void setDest(int dest) {
+		this.dest = dest;
+	}
+	
+	public void setBusy(boolean busy) {
+		this.busy = busy;
+	}
+	
+	public void setOp(String op) {
+		this.op = op;
+	}
+	
+	public void setVj(int vj) {
+		this.vj = vj;
+	}
+	
+	public void setVk(int vk) {
+		this.vk = vk;
+	}
+	
+	public void setQj(int qj) {
+		this.qj = qj;
+	}
+	
+	public void setQk(int qk) {
+		this.qk = qk;
 	}
 }
