@@ -6,7 +6,7 @@ public class RS {
 	private boolean busy;
 	private String op;
 	private int vj,vk;
-	private int qj,qk;
+	private String qj,qk;
 	
 	public RS() {
 		dest = -1;
@@ -14,8 +14,8 @@ public class RS {
 		op = null;
 		vj = 0; //ver
 		vk = 0; //ver
-		qj = 0; //ver
-		qk = 0; //ver
+		qj = null; //ver
+		qk = null; //ver
 	}
 	
 	public boolean getBusy() {
@@ -54,11 +54,11 @@ public class RS {
 		this.vk = vk;
 	}
 	
-	public void setQj(int qj) {
+	public void setQj(String qj) {
 		this.qj = qj;
 	}
 	
-	public void setQk(int qk) {
+	public void setQk(String qk) {
 		this.qk = qk;
 	}
 }

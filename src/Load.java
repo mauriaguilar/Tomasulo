@@ -1,5 +1,5 @@
 
-public class Load implements Runnable{
+public class Load extends Station implements Runnable{
 	
 	private LB[] load;
 	private boolean data;
@@ -42,18 +42,20 @@ public class Load implements Runnable{
 		return cant;
 	}
 	
-	public void setData(boolean busy, int dir) {
+	public void setData(int dest, boolean busy, int dir) {
 		int pos = -1;
 		for(int i=0; i<load.length; i++) {
 			if(load[i].getDir() == -1)
 				pos = i;
 		}
 		if(pos >= 0) {
+			load[pos].setDest(dest);
 			load[pos].setBusy(busy);
 			load[pos].setDir(dir);
 		}
 		else
 			System.out.println("ERROR EN setData() de Load");
 	}
+
 
 }

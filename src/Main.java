@@ -8,8 +8,9 @@ public class Main {
 	static Store store = new Store(3);
 	static ADD add = new ADD(3);
 	static MUL mul = new MUL(3);
-	static ROB rob = new ROB(6);
-	static Instructions instructions = new Instructions(ndb,load,add,mul,rob);
+	static ROB rob = new ROB(6,cdb);
+	static Registers reg = new Registers(9);
+	static Instructions instructions = new Instructions(ndb,load,add,mul,rob,reg);
 	
 	static Thread thLoad = new Thread(load);
 	static Thread thStore = new Thread(store);

@@ -1,5 +1,5 @@
 
-public class MUL implements Runnable{
+public class MUL extends Station implements Runnable{
 	
 	private RS[] mul;
 	private boolean data;
@@ -45,13 +45,14 @@ public class MUL implements Runnable{
 		return cant;
 	}
 	
-	public void setData(boolean busy, String op, int vj, int vk, int qj, int qk) {
+	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk) {
 		int pos = -1;
 		for(int i=0; i<mul.length; i++) {
 			if(mul[i].getOp() == null)
 				pos = i;
 		}
 		if(pos >= 0) {
+			mul[pos].setDest(dest);
 			mul[pos].setBusy(busy);
 			mul[pos].setOp(op);
 			mul[pos].setQj(qj);

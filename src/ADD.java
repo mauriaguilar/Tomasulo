@@ -1,5 +1,5 @@
 
-public class ADD implements Runnable{
+public class ADD extends Station implements Runnable{
 	
 	private RS[] add;
 	private boolean data;
@@ -45,13 +45,14 @@ public class ADD implements Runnable{
 		return cant;
 	}
 	
-	public void setData(boolean busy, String op, int vj, int vk, int qj, int qk) {
+	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk) {
 		int pos = -1;
 		for(int i=0; i<add.length; i++) {
 			if(add[i].getOp() == null)
 				pos = i;
 		}
 		if(pos >= 0) {
+			add[pos].setDest(dest);
 			add[pos].setBusy(busy);
 			add[pos].setOp(op);
 			add[pos].setQj(qj);
