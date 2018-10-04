@@ -3,17 +3,19 @@ import java.util.concurrent.Semaphore;
 public class Load extends Station implements Runnable{
 	
 	private Semaphore clk;
-	private LB[] load;
+	private Load_Entry[] load;
 	private boolean data;
 	private Memory memory;
 	private Registers registers;
 	private Bus cdb;
+	private Semaphore resource;
 	
 	public Load(Semaphore clk, int cap, Memory memory, Bus bus) {
 		this.clk = clk;
-		load = new LB[cap];
+		resource = new Semaphore(cap);
+		load = new Load_Entry[cap];
 		for(int i=0; i<cap; i++) {
-			load[i] = new LB();
+			load[i] = new Load_Entry();
 		}
 		this.memory = memory;
 		cdb = bus;
@@ -22,7 +24,7 @@ public class Load extends Station implements Runnable{
 
 	@Override
 	public void run() {
-		int index, base, value;
+		int index, base, value,i=0;
 		
 		while(true) {
 			
@@ -32,28 +34,25 @@ public class Load extends Station implements Runnable{
 				e.printStackTrace();
 			}
 			
-			index = check();
+			index = check(i,load.length);
+			if(index == -1) 
+				index = check(0,i-1);
 			
 			// If an LD instruction exists
 			if(index >= 0) {
-				value = calc(index);
-				try {
-					cdb.acquire();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				if(cdb.tryAcquire()) {
+					value = calc(index);
+					System.out.println("Load writing CDB...");
+					cdb.set(value, "ROB"+load[index].getDest());
+					delete(index);
 				}
-				System.out.println("Load writing CDB...");
-				cdb.set(value, "ROB"+load[index].getDest());
-				delete(index);
 			}
-			
 		}
-
 	}
 
-	public int check() {
+	public int check(int ini, int fin) {
 		int i;
-		for(i=0; i<load.length; i++)
+		for(i=ini; i<fin; i++)
 			if(load[i].getBusy() == true)
 				return i;
 		return -1;
@@ -80,6 +79,10 @@ public class Load extends Station implements Runnable{
 		return cant;
 	}
 	
+	public void getResource() throws InterruptedException {
+		resource.acquire();
+	}
+	
 	public void setData(int dest, boolean busy, int dir) {
 		System.out.println("Writing in Load Station...");
 		int pos = -1;
@@ -97,6 +100,6 @@ public class Load extends Station implements Runnable{
 	}
 
 	private void delete(int index) {
-		load[index] = new LB();
+		load[index] = new Load_Entry();
 	}
 }

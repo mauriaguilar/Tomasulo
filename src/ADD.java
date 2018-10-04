@@ -3,69 +3,73 @@ import java.util.concurrent.Semaphore;
 public class ADD extends Station implements Runnable{
 	
 	private Semaphore clk;
-	private RS[] add;
+	private RS_Entry[] add;
 	private boolean data;
 	private Bus cdb;
+	private Semaphore resource;
 	
 	public ADD(Semaphore clk, int cap, Bus bus) {
 		this.clk = clk;
+		resource = new Semaphore(cap);
 		//System.out.println("Creando Add");
-		add = new RS[cap];
+		add = new RS_Entry[cap];
 		for(int i=0; i<cap; i++) {
-			add[i] = new RS();
+			add[i] = new RS_Entry();
 		}
 		cdb = bus;
 	}
 	
 	@Override
 	public void run() {
-		int index, result;
-		
+		int index, i=0;
+		boolean cdbWrited;
 		while(true) {
-
+			
 			try {
 				clk.acquire();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 			
+			System.out.println("Calculating instructions...");
+			cdbWrited = tryCalculate(i,add.length);
+			if(!cdbWrited)
+				tryCalculate(0,i-1);
+			
 			System.out.println("Reemplacing operands...");
 			// Read data bus and replace operands
-			for(int i=0; i<add.length; i++){
-				if( add[i].getBusy() ) {
-					if( cdb.getTag().equals(add[i].getQj()) ){
-						add[i].setQj("");
-						add[i].setVj(cdb.getData());
+			for(int j=0; j<add.length; j++){
+				if( add[j].getBusy() ) {
+					if( cdb.getTag().equals(add[j].getQj()) ){
+						add[j].setQj("");
+						add[j].setVj(cdb.getData());
 					}
-					if( cdb.getTag().equals(add[i].getQk()) ){
-						add[i].setQk("");
-						add[i].setVk(cdb.getData());
+					if( cdb.getTag().equals(add[j].getQk()) ){
+						add[j].setQk("");
+						add[j].setVk(cdb.getData());
 					}
 				}
-			}
-			
-			System.out.println("Calculating instructions...");
-			// Calculate instructions
-			for(int i=0; i<add.length; i++)
-				
-				// If an ADD instruction exists
-				if( add[i].getBusy() ) {
-					if(checkOperands(i)) {
+			}			
+		}
+	}
+
+	private boolean tryCalculate(int ini,int fin) {
+		int result;
+		// Try calculate instructions
+		for(int i=ini; i<fin; i++)
+			// If an ADD instruction exists
+			if( add[i].getBusy() ) {
+				if(checkOperands(i)) {
+					if(cdb.tryAcquire()) {
 						result = calc(i);
-						try {
-							cdb.acquire();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
 						System.out.println("ADD writing CDB...");
 						cdb.set(result, "ROB"+add[i].getDest());
 						delete(i);
-						break; // ver si el remplazo de los operandos se hace en todos los clocks
+						return true;
 					}
 				}
-			
-		}
-	
+			}
+		return false;
 	}
 
 	private boolean checkOperands(int i) {
@@ -90,7 +94,8 @@ public class ADD extends Station implements Runnable{
 	}
 	
 	private void delete(int index) {
-		add[index] = new RS();
+		add[index] = new RS_Entry();
+		resource.release();
 	}
 	
 	public boolean getData() {
@@ -107,6 +112,10 @@ public class ADD extends Station implements Runnable{
 			if(add[i].getOp() == null)
 				cant++;
 		return cant;
+	}
+	
+	public void getResource() throws InterruptedException {
+		resource.acquire();
 	}
 	
 	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk) {

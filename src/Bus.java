@@ -17,6 +17,10 @@ public class Bus {
 		mutex.acquire();
 	}
 	
+	public boolean tryAcquire() {
+		return mutex.tryAcquire();
+	}
+	
 	public void release() {
 		mutex.release();
 	}

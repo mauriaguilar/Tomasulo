@@ -43,7 +43,7 @@ public class Instructions implements Runnable{
 				e.printStackTrace();
 			}
 			
-			String dest, result;
+			String dest, result = null;
 			
 			// 1) Get Instruction
 			instruction = getNext();
@@ -55,7 +55,12 @@ public class Instructions implements Runnable{
 				dest = decode_instruction();
 				
 				// 3) Verify availables slots, renaming and allocate
-				result = checkEmptyes(dest);
+				try {
+					result = checkEmptyes(dest);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
 				System.out.println("Loading instruction: " + result);
 			}
 			else {
@@ -97,57 +102,42 @@ public class Instructions implements Runnable{
 			return null;
 	}
 	
-	private String checkEmptyes(String dest) {
-		Boolean isFreeRS = false;
-		Boolean isFreeROB = false;
+	private String checkEmptyes(String dest) throws InterruptedException {
 		int index_operand1;
 		int index_operand2;
 		Station rs = null;
 		int index = -1;
 		
 		// If there is an empty slot in the ROB
-		if(rob.getPlaces() >= 1) {
-			isFreeROB = true;
-			index = rob.getIndex();
-			
-			switch (dest) {
-				case "ADD": 
-					// If there is an empty slot in the ADD RS
-					if(add.getPlaces() >= 1) {	
-						isFreeRS = true;
-						allocate(add,index);
-						allocateROB();
-					}else
-						return "NoEmpty(ADD)";
-					break;
-				case "MUL":
-					// If there is an empty slot in the MUL RS
-					if(mul.getPlaces() >= 1) {	
-						isFreeRS = true;
-						allocate(mul,index);
-						allocateROB();
-					}else
-						return "NoEmpty(MUL)";
-					break;
-				case "LD":
-					// If there is an empty slot in the LD RS
-					if(load.getPlaces() >= 1) {	
-						isFreeRS = true;
-						String register_index = instruction[3].valueOf(1);	//Obtiene el valor del registro
-						int valor = reg.getData(Integer.parseInt(register_index));	//Convierte el numero a int y lo pasa como argumento
-						int direction = Integer.parseInt(instruction[2]) + valor;
-						load.setData(index, true, direction);
-						allocateROB();
-					}else
-						return "NoEmpty(LD)";
-					break;
-			}
-		}
-		else {
-			return "NoEmpty(ROB)";
+		//if(rob.getPlaces() >= 1) {
+		rob.getResource();	//Blocks waiting ROB's places
+		index = rob.getIndex();
+		
+		switch (dest) {
+			case "ADD": 
+				// If there is an empty slot in the ADD RS
+				add.getResource();
+				allocate(add,index);
+				allocateROB();
+				break;
+			case "MUL":
+				// If there is an empty slot in the MUL RS	
+				mul.getResource();
+				allocate(mul,index);
+				allocateROB();
+				break;
+			case "LD":
+				// If there is an empty slot in the LD RS
+				load.getResource();
+				String register_index = instruction[3].valueOf(1);	//Obtiene el valor del registro
+				int valor = reg.getData(Integer.parseInt(register_index));	//Convierte el numero a int y lo pasa como argumento
+				int direction = Integer.parseInt(instruction[2]) + valor;
+				load.setData(index, true, direction);
+				allocateROB();
+				break;
 		}
 		
-		return "Checked";
+		return "ROB and "+dest+" allocated";
 		
 		//PARA REGISTROS DE 2 DIGITOS -> VERIFICAR SI EXISTE UN valueOf(2) --> ver si es NULL
 

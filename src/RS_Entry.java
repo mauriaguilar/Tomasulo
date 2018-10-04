@@ -1,6 +1,6 @@
 //Estacion de Reserva
 
-public class RS {
+public class RS_Entry {
 	
 	private int dest;
 	private boolean busy;
@@ -8,7 +8,7 @@ public class RS {
 	private int vj,vk;
 	private String qj,qk;
 	
-	public RS() {
+	public RS_Entry() {
 		dest = -1;
 		busy = false;
 		op = null;

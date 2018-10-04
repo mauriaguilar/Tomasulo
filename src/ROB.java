@@ -3,20 +3,23 @@ import java.util.concurrent.Semaphore;
 public class ROB implements Runnable{
 	
 	private Semaphore clk;
-	private ROB_Slot [] rob;
+	private Semaphore resource;
+	private ROB_Entry [] rob;
 	private Bus cdb;
 	private int put_index;	//Indice donde se escriben las instrucciones
 	private int remove_index;	//Indice que indica instruccion a sacar
 	
+	
 	public ROB(Semaphore clk, int cap, Bus bus) {
 		this.clk = clk;
+		resource = new Semaphore(cap);
 		System.out.println("Creando ROB Slot");
 		cdb = bus;
 		put_index = 0;
 		remove_index = 0;
-		rob = new ROB_Slot[cap];
+		rob = new ROB_Entry[cap];
 		for(int i=0; i<cap; i++) {
-			rob[i] = new ROB_Slot();
+			rob[i] = new ROB_Entry();
 		}
 	}
 	
@@ -50,6 +53,14 @@ public class ROB implements Runnable{
 			if(rob[i].getType() == null)
 				cant++;
 		return cant;
+	}
+	
+	public void getResource() throws InterruptedException {
+		resource.acquire();
+	}
+	
+	public void delete() {
+		resource.release();
 	}
 
 	public int getIndex() {

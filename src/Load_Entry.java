@@ -1,11 +1,11 @@
 
-public class LB {
+public class Load_Entry {
 	
 	private int dest;
 	private boolean busy;
 	private int dir;
 	
-	public LB() {
+	public Load_Entry() {
 		//System.out.println("Creando LB");
 		dest = -1;
 		busy = false;

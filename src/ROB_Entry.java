@@ -1,11 +1,11 @@
 
-public class ROB_Slot {
+public class ROB_Entry {
 	private String dest;
 	private int value;
 	private String type; //CONSULTAR
 	private boolean ready;
 	
-	public ROB_Slot() {
+	public ROB_Entry() {
 		dest = "-1";
 		value = -1;
 		type = null;
