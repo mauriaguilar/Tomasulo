@@ -14,8 +14,8 @@ public class RS {
 		op = null;
 		vj = 0; //ver
 		vk = 0; //ver
-		qj = null; //ver
-		qk = null; //ver
+		qj = ""; //ver
+		qk = ""; //ver
 	}
 	
 	public boolean getBusy() {
@@ -60,5 +60,17 @@ public class RS {
 	
 	public void setQk(String qk) {
 		this.qk = qk;
+	}
+
+	public String getQj() {
+		return qj;
+	}
+
+	public String getQk() {
+		return qk;
+	}
+
+	public int getDest() {
+		return dest;
 	}
 }

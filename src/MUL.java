@@ -1,19 +1,23 @@
+import java.util.concurrent.Semaphore;
 
 public class MUL extends Station implements Runnable{
-	
+
+	private Semaphore clk;
 	private RS[] mul;
 	private boolean data;
+	private Bus cdb;
 	
-	public MUL(int cap) {
-		//System.out.println("Creando Mul");
+	public MUL(Semaphore clk, int cap, Bus bus) {
+		this.clk = clk;
 		mul = new RS[cap];
 		for(int i=0; i<cap; i++) {
 			mul[i] = new RS();
 		}
+		cdb = bus;
 	}
 	
-	private float calc(int i) {
-		float res = 0;
+	private int calc(int i) {
+		int res = 0;
 		
 		if(mul[i].getOp() == "mul") {
 			res = mul[i].getVj() * mul[i].getVk();
@@ -27,6 +31,14 @@ public class MUL extends Station implements Runnable{
 		while(getData()) {
 			System.out.print("MUL");
 		}
+	}
+	
+	public int check() {
+		int i;
+		for(i=0; i<mul.length; i++)
+			if(mul[i].getBusy() == true)
+				return i;
+		return -1;
 	}
 
 	public boolean getData() {
@@ -46,6 +58,7 @@ public class MUL extends Station implements Runnable{
 	}
 	
 	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk) {
+		System.out.println("Writing in MUL Station...");
 		int pos = -1;
 		for(int i=0; i<mul.length; i++) {
 			if(mul[i].getOp() == null)

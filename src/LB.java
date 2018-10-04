@@ -31,4 +31,8 @@ public class LB {
 	public void setDir(int dir) {
 		this.dir = dir;
 	}
+
+	public int getDest() {
+		return dest;
+	}
 }

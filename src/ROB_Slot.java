@@ -6,7 +6,7 @@ public class ROB_Slot {
 	private boolean ready;
 	
 	public ROB_Slot() {
-		dest = null;
+		dest = "-1";
 		value = -1;
 		type = null;
 		ready = false;

@@ -1,13 +1,16 @@
+import java.util.concurrent.Semaphore;
 
 public class ROB implements Runnable{
 	
+	private Semaphore clk;
 	private ROB_Slot [] rob;
 	private Bus cdb;
 	private int put_index;	//Indice donde se escriben las instrucciones
 	private int remove_index;	//Indice que indica instruccion a sacar
 	
-	public ROB(int cap, Bus bus) {
-		//System.out.println("Creando ROB Slot");
+	public ROB(Semaphore clk, int cap, Bus bus) {
+		this.clk = clk;
+		System.out.println("Creando ROB Slot");
 		cdb = bus;
 		put_index = 0;
 		remove_index = 0;
@@ -19,7 +22,26 @@ public class ROB implements Runnable{
 	
 	@Override
 	public void run() {
+		String tag;
+		int index;
 		
+		while(true) {
+			
+			try {
+				clk.acquire();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			tag = cdb.getTag();
+			if( tag.contains("ROB") ) {
+				System.out.println("CDB TAG: "+tag);
+				// Calculate index of ROB and save
+				index = Integer.parseInt( tag.valueOf(3) );
+				rob[index].setValue( cdb.getData() );
+			}
+			
+		}
 	}
 	
 	public int getPlaces() {
@@ -44,6 +66,15 @@ public class ROB implements Runnable{
 	}
 	
 	public void setData(String dest, int value, String type, boolean ready) {
-		//COMPLETAR
+		System.out.println("Writing in ROB Station...");
+		
+		int i;
+		for(i=0; i<rob.length; i++)
+			if(rob[i].getType() == null)
+				break;
+		rob[i].setDest(dest);
+		rob[i].setType(type);
+		rob[i].setValue(value);
+		rob[i].setReady(ready);
 	}
 }
