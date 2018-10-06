@@ -35,6 +35,12 @@ public class MUL extends Station implements Runnable{
 			if(!cdbWrited)
 				tryCalculate(0,i-1);
 			
+			try {
+				cdb.write_ready();
+				cdb.read_acquire("M");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			System.out.println("Reemplacing operands...");
 			// Read data bus and replace operands
 			for(int j=0; j<mul.length; j++){
@@ -61,15 +67,21 @@ public class MUL extends Station implements Runnable{
 			// If an ADD instruction exists
 			if( mul[i].getBusy() ) {
 				if(checkOperands(i)) {
-					if(cdb.tryAcquire()) {
+					if(cdb.write_tryAcquire()) {
 						result = calc(i);
 						System.out.println("ADD writing CDB...");
 						cdb.set(result, "ROB"+mul[i].getDest());
 						delete(i);
 						return true;
 					}
+					else
+						System.out.println("CDB is Busy. Waiting...");
 				}
+				else
+					System.out.println("mul["+i+"] haven't operands");
 			}
+			else
+				System.out.println("mul["+i+"] is False");
 		return false;
 	}
 

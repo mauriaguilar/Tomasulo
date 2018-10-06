@@ -51,21 +51,23 @@ public class Main {
 			System.out.println("PC: "+pc+" -----------------");
 			pc++;
 			clk.acquire();
-			
 			clkInstruction.release();
 			clkLoad.release();
 			clkROB.release();
 			clkADD.release();
-			cdb.release();
+			cdb.write_release();
 			
 			//  Time of one clock of execution
 			Thread.sleep(3 * 1000);
 			
-			if(!HLT)
+			HLT = instructions.isHLT() && rob.isEmpty();
+			if(!HLT) {
 				clk.release();
+			}
+			else {
+				System.out.println("That's all");
+				break;
+			}
 		}
-		
-    }
-	
-	
+    }	
 }

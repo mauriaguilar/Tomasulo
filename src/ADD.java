@@ -22,7 +22,7 @@ public class ADD extends Station implements Runnable{
 	@Override
 	public void run() {
 		int index, i=0;
-		boolean cdbWrited;
+		boolean cdbWrited=false;
 		while(true) {
 			
 			try {
@@ -35,7 +35,13 @@ public class ADD extends Station implements Runnable{
 			cdbWrited = tryCalculate(i,add.length);
 			if(!cdbWrited)
 				tryCalculate(0,i-1);
-			
+				
+			try {
+				cdb.write_ready();
+				cdb.read_acquire("A");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			System.out.println("Reemplacing operands...");
 			// Read data bus and replace operands
 			for(int j=0; j<add.length; j++){
@@ -49,26 +55,33 @@ public class ADD extends Station implements Runnable{
 						add[j].setVk(cdb.getData());
 					}
 				}
-			}			
+			}
 		}
 	}
 
-	private boolean tryCalculate(int ini,int fin) {
+	private boolean tryCalculate(int ini,int fin){
 		int result;
 		// Try calculate instructions
 		for(int i=ini; i<fin; i++)
 			// If an ADD instruction exists
 			if( add[i].getBusy() ) {
 				if(checkOperands(i)) {
-					if(cdb.tryAcquire()) {
+					if(cdb.write_tryAcquire()) {
+					//cdb.acquire();
 						result = calc(i);
 						System.out.println("ADD writing CDB...");
 						cdb.set(result, "ROB"+add[i].getDest());
 						delete(i);
 						return true;
 					}
+					else
+						System.out.println("CDB is Busy. Waiting...");
 				}
+				else
+					System.out.println("add["+i+"] haven't operands");
 			}
+			else
+				System.out.println("add["+i+"] is False");
 		return false;
 	}
 

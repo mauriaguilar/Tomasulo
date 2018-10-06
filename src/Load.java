@@ -40,13 +40,14 @@ public class Load extends Station implements Runnable{
 			
 			// If an LD instruction exists
 			if(index >= 0) {
-				if(cdb.tryAcquire()) {
+				if(cdb.write_tryAcquire()) {
 					value = calc(index);
 					System.out.println("Load writing CDB...");
 					cdb.set(value, "ROB"+load[index].getDest());
 					delete(index);
 				}
 			}
+			cdb.write_ready(); //escribe o no
 		}
 	}
 

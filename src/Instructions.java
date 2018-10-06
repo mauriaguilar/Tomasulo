@@ -9,8 +9,9 @@ public class Instructions implements Runnable{
 	private String instructions[][] = {
 			{"ADD", "F0", "R1", "R2"},
 			{"LD", "F1", "1", "R2"},
-			{"ADD", "F0", "R1", "R2"},
-			{"ADD", "F0", "R1", "R2"}
+			{"ADD", "F2", "R3", "R4"},
+			{"ADD", "F3", "R4", "R5"},
+			{"MUL", "F4", "R5", "R6"},
 	};
 	private Bus ndb;
 	private Load load;
@@ -67,10 +68,8 @@ public class Instructions implements Runnable{
 				System.out.println("HLT");
 				break;
 			}
-				
-			
-
 		}
+		
 	}
 	
 	public String[] getNext() {
@@ -81,6 +80,13 @@ public class Instructions implements Runnable{
 		else
 			System.out.println("No hay mas instrucciones en el buffer");
 			return null;
+	}
+	
+	public boolean isHLT() {
+		if(instruction == null) {
+			return true;
+		}
+		return false;
 	}
 	
 	private String decode_instruction() {

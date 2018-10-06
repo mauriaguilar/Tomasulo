@@ -36,6 +36,11 @@ public class ROB implements Runnable{
 				e.printStackTrace();
 			}
 			
+			try {
+				cdb.read_acquire("R");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			tag = cdb.getTag();
 			if( tag.contains("ROB") ) {
 				System.out.println("CDB TAG: "+tag);
@@ -53,6 +58,13 @@ public class ROB implements Runnable{
 			if(rob[i].getType() == null)
 				cant++;
 		return cant;
+	}
+	
+	public boolean isEmpty() {
+		if(getPlaces() == rob.length) {
+			return true;
+		}
+		return false;
 	}
 	
 	public void getResource() throws InterruptedException {
