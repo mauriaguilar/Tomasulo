@@ -30,19 +30,17 @@ public class ROB implements Runnable{
 		int index;
 		
 		while(true) {
-			//System.out.println("_______________________ROB_____________________________");
 			try {
 				clk.acquire();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 			
-			//System.out.println("remove_index "+remove_index+"  rob "+rob[remove_index]+"  result "+rob[remove_index].getReady());
 			if(rob[remove_index].getReady()) {
 				index = Integer.parseInt( rob[remove_index].getDest().valueOf(1) );
 				reg.setData(index, rob[remove_index].getValue());
 				delete();
-				System.out.println("  GET READY  "+remove_index);
+				//System.out.println("  GET READY  "+remove_index);
 				if(remove_index == rob.length)
 					remove_index = 0;
 				else
@@ -109,6 +107,7 @@ public class ROB implements Runnable{
 	}
 	
 	public void setData(String dest, int value, String type, boolean ready) {
+		System.out.println("Instructions Writing in ROB["+put_index+"] Station...");
 		rob[put_index].setDest(dest);
 		rob[put_index].setType(type);
 		rob[put_index].setValue(value);
@@ -133,10 +132,13 @@ public class ROB implements Runnable{
 	
 	public void print() {
 		String table = "\nROB\n";
-		table += "N\tDEST\tVALUE\tTYPE\tREADY";
+		table += "N\t|DEST\t|VALUE\t|TYPE\t|READY";
 		for(int i=0; i<rob.length; i++)
-			table += ("\n" + i + "\t" + rob[i].getDest() + "\t" + rob[i].getValue() + "\t"
-						+ rob[i].getType() + "\t" + rob[i].getReady() );
+			if(rob[i].getDest() != "-1") {
+				table += ("\n" + i + "\t|" + rob[i].getDest() + "\t|" + rob[i].getValue() + "\t|"
+						+ rob[i].getType() + "\t|" + rob[i].getReady() );
+			}
 		System.out.println(table);
+		System.out.println("===============================================================");
 	}
 }

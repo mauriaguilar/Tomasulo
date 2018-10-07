@@ -10,8 +10,8 @@ public class Instructions implements Runnable{
 			{"ADD", "F0", "R1", "R2"},
 			{"LD", "F1", "1", "R2"},
 			{"ADD", "F2", "R1", "R4"},
-			{"ADD", "F3", "R4", "R5"},
 			{"MUL", "F4", "R5", "R6"},
+			{"ADD", "F3", "R4", "R5"},
 	};
 	
 	private Load load;

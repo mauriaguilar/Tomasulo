@@ -31,7 +31,7 @@ public class Main {
 	public static void main (String [ ] args) throws InterruptedException {
 		//System.out.println("Tomasulo begging...");
 		boolean HLT = false;
-		
+
 		clkInstruction.acquire();
 		clkLoad.acquire();
 		clkADD.acquire();
@@ -65,7 +65,7 @@ public class Main {
 			add.print();
 			mul.print();
 			load.print();
-			rob.print();
+			rob.print(); 
 			
 			HLT = instructions.isHLT() && rob.isEmpty();
 			if(!HLT) {
@@ -76,5 +76,6 @@ public class Main {
 				break;
 			}
 		}
+				
     }	
 }

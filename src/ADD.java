@@ -39,13 +39,15 @@ public class ADD extends Station implements Runnable{
 				tryCalculate(0,pos-1);
 				
 			try {
+				System.out.println("ADD WRITE READY");
 				cdb.write_ready();
+				System.out.println("ADD READ ACQUIRE");
 				cdb.read_acquire("A");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 			
-			System.out.println("ADD reading CDB...");
+			System.out.println("ADD reading CDB..."+Main.clocks);
 			// Read data bus and replace operands
 			for(int j=0; j<add.length; j++){
 				if( add[j].getBusy() ) {
@@ -76,7 +78,7 @@ public class ADD extends Station implements Runnable{
 					if(cdb.write_tryAcquire()) {
 					//cdb.acquire();
 						result = calc(i);
-						System.out.println("ADD writing CDB..."+i);
+						System.out.println("ADD["+i+"] writing CDB...");
 						cdb.set(result, "ROB"+add[i].getDest());
 						delete(i);
 						return true;
@@ -84,8 +86,6 @@ public class ADD extends Station implements Runnable{
 					else
 						System.out.println("CDB is Busy. Waiting...");
 				}
-				else
-					System.out.println("add["+i+"] haven't operands");
 			}
 		}
 			//else
@@ -140,9 +140,9 @@ public class ADD extends Station implements Runnable{
 	}
 	
 	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk, int clock) {
-		System.out.println("Instructions Writing in ADD Station...");
 		for(int i=0; i<add.length; i++) {
 			if(add[i].getOp().equals("")) {
+				System.out.println("Instructions Writing in ADD["+i+"] Station...");
 				add[i].setDest(dest);
 				add[i].setBusy(busy);
 				add[i].setOp(op);
@@ -157,12 +157,17 @@ public class ADD extends Station implements Runnable{
 	}
 	
 	public void print() {
+		System.out.print("===============================================================");
 		String table = "\nADD\n";
-		table += "N\tDEST\tOP\tVj\tVk\tQj\tQk\tBusy";
+		table += "N\t|DEST\t|OP\t|Vj\t|Vk\t|Qj\t|Qk\t|Busy";
 		for(int i=0; i<rs.length; i++)
-			table += ("\n" + i + "\t" + rs[i].getDest() + "\t" + rs[i].getOp() + "\t"
-						+ rs[i].getVj() + "\t" + rs[i].getVk() 
-						+ "\t" + rs[i].getQk() + "\t" + rs[i].getQk() + "\t" + rs[i].getBusy());
+			if(rs[i].getBusy()) {
+				table += ("\n" + i + "\t|" + rs[i].getDest() + "\t|" + rs[i].getOp() + "\t|"
+						+ rs[i].getVj() + "\t|" + rs[i].getVk() 
+						+ "\t|" + rs[i].getQk() + "\t|" + rs[i].getQk() + "\t|" + rs[i].getBusy());
+			}
+			//else
+			//	table += ("\n" + i + "\t|\t|\t|\t|\t|\t|\t|");
 		System.out.println(table);
 	}
 }

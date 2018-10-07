@@ -36,7 +36,7 @@ public class Load extends Station implements Runnable{
 				e.printStackTrace();
 			}
 			
-			System.out.println("LOAD Calculating instructions...");
+			//System.out.println("LOAD Calculating instructions...");
 			index = check(pos,load.length);
 			if(index == -1) 
 				index = check(0,pos-1);		
@@ -44,11 +44,12 @@ public class Load extends Station implements Runnable{
 			if(index >= 0  && (Main.clocks > load[index].getClock())) {
 				if(cdb.write_tryAcquire()) {
 					value = calc(index);
-					System.out.println("LOAD writing CDB..."+1);
+					System.out.println("LOAD["+index+"] writing CDB...");
 					cdb.set(value, "ROB"+load[index].getDest());
 					delete(index);
 				}
 			}
+			System.out.println("LOAD WRITE READY");
 			cdb.write_ready(); //escribe o no
 		}
 	}
@@ -89,9 +90,9 @@ public class Load extends Station implements Runnable{
 	}
 	
 	public void setData(int dest, boolean busy, int dir, int clock) {
-		System.out.println("Instructions Writing in Load Station...");
 		for(int i=0; i<load.length; i++) {
 			if(load[i].getDir() == -1)
+				System.out.println("Instructions Writing in Load["+i+"] Station...");
 				load[i].setDest(dest);
 				load[i].setBusy(busy);
 				load[i].setDir(dir);
@@ -107,10 +108,12 @@ public class Load extends Station implements Runnable{
 
 	public void print() {
 		String table = "\nLOAD\n";
-		table += "N\tDEST\tDIR\tBusy";
+		table += "N\t|DEST\t|DIR\t|Busy";
 		for(int i=0; i<load.length; i++)
-			table += ("\n" + i + "\t" + load[i].getDest() + "\t" 
-					+ load[i].getDir() + "\t" + load[i].getBusy());
+			if(load[i].getBusy()) {
+				table += ("\n" + i + "\t|" + load[i].getDest() + "\t|" 
+					+ load[i].getDir() + "\t|" + load[i].getBusy());
+			}
 		System.out.println(table);
 	}
 }
