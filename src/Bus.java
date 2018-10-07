@@ -33,6 +33,7 @@ public class Bus {
 	}
 	
 	public boolean write_tryAcquire() {
+		System.out.println("BUS tryAcquire() ");
 		return sem_write.tryAcquire();
 	}
 	

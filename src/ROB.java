@@ -8,12 +8,12 @@ public class ROB implements Runnable{
 	private Bus cdb;
 	private int put_index;	//Indice donde se escriben las instrucciones
 	private int remove_index;	//Indice que indica instruccion a sacar
+	private Registers reg;
 	
 	
-	public ROB(Semaphore clk, int cap, Bus bus) {
+	public ROB(Semaphore clk, int cap, Bus bus, Registers reg) {
 		this.clk = clk;
 		resource = new Semaphore(cap);
-		System.out.println("Creando ROB Slot");
 		cdb = bus;
 		put_index = 0;
 		remove_index = 0;
@@ -21,6 +21,7 @@ public class ROB implements Runnable{
 		for(int i=0; i<cap; i++) {
 			rob[i] = new ROB_Entry();
 		}
+		this.reg = reg;
 	}
 	
 	@Override
@@ -29,11 +30,23 @@ public class ROB implements Runnable{
 		int index;
 		
 		while(true) {
-			
+			//System.out.println("_______________________ROB_____________________________");
 			try {
 				clk.acquire();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			}
+			
+			//System.out.println("remove_index "+remove_index+"  rob "+rob[remove_index]+"  result "+rob[remove_index].getReady());
+			if(rob[remove_index].getReady()) {
+				index = Integer.parseInt( rob[remove_index].getDest().valueOf(1) );
+				reg.setData(index, rob[remove_index].getValue());
+				delete();
+				System.out.println("  GET READY  "+remove_index);
+				if(remove_index == rob.length)
+					remove_index = 0;
+				else
+					remove_index++;
 			}
 			
 			try {
@@ -41,12 +54,14 @@ public class ROB implements Runnable{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			
+			System.out.println("ROB reading CDB...");
 			tag = cdb.getTag();
 			if( tag.contains("ROB") ) {
-				System.out.println("CDB TAG: "+tag);
 				// Calculate index of ROB and save
-				index = Integer.parseInt( tag.valueOf(3) );
+				index = Character.getNumericValue( tag.charAt(3) );
 				rob[index].setValue( cdb.getData() );
+				rob[index].setReady(true);
 			}
 			
 		}
@@ -55,8 +70,11 @@ public class ROB implements Runnable{
 	public int getPlaces() {
 		int cant = 0;
 		for(int i=0; i<rob.length; i++)
-			if(rob[i].getType() == null)
+			if(rob[i].getType().equals(""))
 				cant++;
+			else
+				System.out.println("ROB NO VACIO " + rob[i].getType() + " --- "+rob[i].getDest());
+		System.out.println("CANT "+cant);
 		return cant;
 	}
 	
@@ -72,6 +90,8 @@ public class ROB implements Runnable{
 	}
 	
 	public void delete() {
+		rob[remove_index] = new ROB_Entry();
+		System.out.println("ELIMINANDO "+remove_index);
 		resource.release();
 	}
 
@@ -89,15 +109,34 @@ public class ROB implements Runnable{
 	}
 	
 	public void setData(String dest, int value, String type, boolean ready) {
-		System.out.println("Writing in ROB Station...");
-		
-		int i;
-		for(i=0; i<rob.length; i++)
-			if(rob[i].getType() == null)
+		rob[put_index].setDest(dest);
+		rob[put_index].setType(type);
+		rob[put_index].setValue(value);
+		rob[put_index].setReady(ready);
+		if(put_index == rob.length)
+			put_index = 0;
+		else
+			put_index++;
+		/*
+		for(int i=0; i<rob.length; i++)
+			if(rob[i].getType() == null) {
+				System.out.println("Instructions Writing in ROB Station..."+i);
+				rob[i].setDest(dest);
+				rob[i].setType(type);
+				rob[i].setValue(value);
+				rob[i].setReady(ready);
 				break;
-		rob[i].setDest(dest);
-		rob[i].setType(type);
-		rob[i].setValue(value);
-		rob[i].setReady(ready);
+			}
+		*/
+		
+	}
+	
+	public void print() {
+		String table = "\nROB\n";
+		table += "N\tDEST\tVALUE\tTYPE\tREADY";
+		for(int i=0; i<rob.length; i++)
+			table += ("\n" + i + "\t" + rob[i].getDest() + "\t" + rob[i].getValue() + "\t"
+						+ rob[i].getType() + "\t" + rob[i].getReady() );
+		System.out.println(table);
 	}
 }

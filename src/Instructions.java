@@ -9,22 +9,20 @@ public class Instructions implements Runnable{
 	private String instructions[][] = {
 			{"ADD", "F0", "R1", "R2"},
 			{"LD", "F1", "1", "R2"},
-			{"ADD", "F2", "R3", "R4"},
+			{"ADD", "F2", "R1", "R4"},
 			{"ADD", "F3", "R4", "R5"},
 			{"MUL", "F4", "R5", "R6"},
 	};
-	private Bus ndb;
+	
 	private Load load;
 	private ADD add;
 	private MUL mul;
 	private ROB rob;
 	private Registers reg;
 	
-	public Instructions(Semaphore clk, Bus bus, Load load, ADD add, MUL mul, ROB rob, Registers reg) {
+	public Instructions(Semaphore clk, Load load, ADD add, MUL mul, ROB rob, Registers reg) {
 		this.clk = clk;
-		System.out.println("Creando Instructions...");
 		pc = 0;
-		ndb = bus;
 		instruction = null;
 		this.load = load;
 		this.add = add;
@@ -62,10 +60,9 @@ public class Instructions implements Runnable{
 					e.printStackTrace();
 				}
 				
-				System.out.println("Loading instruction: " + result);
 			}
 			else {
-				System.out.println("HLT");
+				System.out.println("Instructions HLT");
 				break;
 			}
 		}
@@ -84,6 +81,7 @@ public class Instructions implements Runnable{
 	
 	public boolean isHLT() {
 		if(instruction == null) {
+			System.out.println("instruccion NULLLL");
 			return true;
 		}
 		return false;
@@ -138,7 +136,7 @@ public class Instructions implements Runnable{
 				String register_index = instruction[3].valueOf(1);	//Obtiene el valor del registro
 				int valor = reg.getData(Integer.parseInt(register_index));	//Convierte el numero a int y lo pasa como argumento
 				int direction = Integer.parseInt(instruction[2]) + valor;
-				load.setData(index, true, direction);
+				load.setData(index, true, direction, Main.clocks);
 				allocateROB();
 				break;
 		}
@@ -177,10 +175,14 @@ public class Instructions implements Runnable{
 		}
 		
 		// dest, busy, operation, value j, value k, index qj, index qk
-		rs.setData(index,true, instruction[0], vj, vk, qj, qk);
+		rs.setData(index,true, instruction[0], vj, vk, qj, qk, Main.clocks);
 	}
 
 	private void allocateROB() {
 		rob.setData(instruction[1], -1, instruction[0], false);
+	}
+
+	public int getPC() {
+		return pc;
 	}
 }

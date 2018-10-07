@@ -12,4 +12,8 @@ public class Registers {
 	public int getData(int index) {
 		return registers[index].getVi();
 	}
+
+	public void setData(int index, int value) {
+		registers[index].setVi(value);
+	}
 }

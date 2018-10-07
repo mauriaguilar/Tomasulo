@@ -7,21 +7,23 @@ public class ADD extends Station implements Runnable{
 	private boolean data;
 	private Bus cdb;
 	private Semaphore resource;
+	private int pos;
+	private RS_Entry[] rs;
 	
 	public ADD(Semaphore clk, int cap, Bus bus) {
 		this.clk = clk;
 		resource = new Semaphore(cap);
-		//System.out.println("Creando Add");
 		add = new RS_Entry[cap];
 		for(int i=0; i<cap; i++) {
 			add[i] = new RS_Entry();
 		}
 		cdb = bus;
+		pos = 0;
+		rs = add;
 	}
 	
 	@Override
 	public void run() {
-		int index, i=0;
 		boolean cdbWrited=false;
 		while(true) {
 			
@@ -31,10 +33,10 @@ public class ADD extends Station implements Runnable{
 				e.printStackTrace();
 			}
 			
-			System.out.println("Calculating instructions...");
-			cdbWrited = tryCalculate(i,add.length);
+			System.out.println("ADD Calculating instructions... in clock "+Main.clocks);
+			cdbWrited = tryCalculate(pos,add.length);
 			if(!cdbWrited)
-				tryCalculate(0,i-1);
+				tryCalculate(0,pos-1);
 				
 			try {
 				cdb.write_ready();
@@ -42,7 +44,8 @@ public class ADD extends Station implements Runnable{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			System.out.println("Reemplacing operands...");
+			
+			System.out.println("ADD reading CDB...");
 			// Read data bus and replace operands
 			for(int j=0; j<add.length; j++){
 				if( add[j].getBusy() ) {
@@ -56,20 +59,24 @@ public class ADD extends Station implements Runnable{
 					}
 				}
 			}
+			
 		}
 	}
 
 	private boolean tryCalculate(int ini,int fin){
+		//System.out.println("ini "+ini+" fin "+fin);
 		int result;
 		// Try calculate instructions
-		for(int i=ini; i<fin; i++)
+		for(int i=ini; i<fin; i++) {
+			pos = i+1; // Save the next index
+			//System.out.println("....."+i);
 			// If an ADD instruction exists
 			if( add[i].getBusy() ) {
-				if(checkOperands(i)) {
+				if(checkOperands(i) && (Main.clocks > add[i].getClock())) {
 					if(cdb.write_tryAcquire()) {
 					//cdb.acquire();
 						result = calc(i);
-						System.out.println("ADD writing CDB...");
+						System.out.println("ADD writing CDB..."+i);
 						cdb.set(result, "ROB"+add[i].getDest());
 						delete(i);
 						return true;
@@ -80,8 +87,9 @@ public class ADD extends Station implements Runnable{
 				else
 					System.out.println("add["+i+"] haven't operands");
 			}
-			else
-				System.out.println("add["+i+"] is False");
+		}
+			//else
+			//	System.out.println("add["+i+"] is False");
 		return false;
 	}
 
@@ -131,23 +139,30 @@ public class ADD extends Station implements Runnable{
 		resource.acquire();
 	}
 	
-	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk) {
-		System.out.println("Writing in ADD Station...");
-		int pos = -1;
+	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk, int clock) {
+		System.out.println("Instructions Writing in ADD Station...");
 		for(int i=0; i<add.length; i++) {
-			if(add[i].getOp() == null)
-				pos = i;
+			if(add[i].getOp().equals("")) {
+				add[i].setDest(dest);
+				add[i].setBusy(busy);
+				add[i].setOp(op);
+				add[i].setQj(qj);
+				add[i].setQk(qk);
+				add[i].setVj(vj);
+				add[i].setVk(vk);
+				add[i].setClock(clock);
+				break;
+			}
 		}
-		if(pos >= 0) {
-			add[pos].setDest(dest);
-			add[pos].setBusy(busy);
-			add[pos].setOp(op);
-			add[pos].setQj(qj);
-			add[pos].setQk(qk);
-			add[pos].setVj(vj);
-			add[pos].setVk(vk);
-		}
-		else
-			System.out.println("ERROR EN setData() de ADD");
+	}
+	
+	public void print() {
+		String table = "\nADD\n";
+		table += "N\tDEST\tOP\tVj\tVk\tQj\tQk\tBusy";
+		for(int i=0; i<rs.length; i++)
+			table += ("\n" + i + "\t" + rs[i].getDest() + "\t" + rs[i].getOp() + "\t"
+						+ rs[i].getVj() + "\t" + rs[i].getVk() 
+						+ "\t" + rs[i].getQk() + "\t" + rs[i].getQk() + "\t" + rs[i].getBusy());
+		System.out.println(table);
 	}
 }

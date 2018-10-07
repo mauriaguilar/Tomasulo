@@ -7,15 +7,17 @@ public class RS_Entry {
 	private String op;
 	private int vj,vk;
 	private String qj,qk;
+	private int clock;
 	
 	public RS_Entry() {
 		dest = -1;
 		busy = false;
-		op = null;
+		op = "";
 		vj = 0; //ver
 		vk = 0; //ver
 		qj = ""; //ver
 		qk = ""; //ver
+		clock = 0;
 	}
 	
 	public boolean getBusy() {
@@ -73,4 +75,13 @@ public class RS_Entry {
 	public int getDest() {
 		return dest;
 	}
+	
+	public void setClock(int value) {
+		clock = value;
+	}
+	
+	public int getClock() {
+		return clock;
+	}
+
 }

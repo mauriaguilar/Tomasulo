@@ -3,24 +3,25 @@ import java.util.concurrent.Semaphore;
 public class MUL extends Station implements Runnable{
 
 	private Semaphore clk;
-	private RS_Entry[] mul;
 	private boolean data;
 	private Bus cdb;
 	private Semaphore resource;
+	private int pos;
+	private RS_Entry[] rs;
 	
 	public MUL(Semaphore clk, int cap, Bus bus) {
 		this.clk = clk;
 		resource = new Semaphore(cap);
-		mul = new RS_Entry[cap];
+		rs = new RS_Entry[cap];
 		for(int i=0; i<cap; i++) {
-			mul[i] = new RS_Entry();
+			rs[i] = new RS_Entry();
 		}
 		cdb = bus;
+		pos = 0;
 	}
 	
 	@Override
 	public void run() {
-		int index, i=0;
 		boolean cdbWrited;
 		while(true) {
 			
@@ -30,10 +31,10 @@ public class MUL extends Station implements Runnable{
 				e.printStackTrace();
 			}
 			
-			System.out.println("Calculating instructions...");
-			cdbWrited = tryCalculate(i,mul.length);
+			System.out.println("MUL Calculating instructions...");
+			cdbWrited = tryCalculate(pos,rs.length);
 			if(!cdbWrited)
-				tryCalculate(0,i-1);
+				tryCalculate(0,pos-1);
 			
 			try {
 				cdb.write_ready();
@@ -41,17 +42,17 @@ public class MUL extends Station implements Runnable{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			System.out.println("Reemplacing operands...");
+			System.out.println("MUL reading CDB...");
 			// Read data bus and replace operands
-			for(int j=0; j<mul.length; j++){
-				if( mul[j].getBusy() ) {
-					if( cdb.getTag().equals(mul[j].getQj()) ){
-						mul[j].setQj("");
-						mul[j].setVj(cdb.getData());
+			for(int j=0; j<rs.length; j++){
+				if( rs[j].getBusy() ) {
+					if( cdb.getTag().equals(rs[j].getQj()) ){
+						rs[j].setQj("");
+						rs[j].setVj(cdb.getData());
 					}
-					if( cdb.getTag().equals(mul[j].getQk()) ){
-						mul[j].setQk("");
-						mul[j].setVk(cdb.getData());
+					if( cdb.getTag().equals(rs[j].getQk()) ){
+						rs[j].setQk("");
+						rs[j].setVk(cdb.getData());
 					}
 				}
 			}			
@@ -60,17 +61,18 @@ public class MUL extends Station implements Runnable{
 	
 
 
-	private boolean tryCalculate(int ini,int fin) {
+	private boolean tryCalculate(int ini,int fin)  {
 		int result;
 		// Try calculate instructions
-		for(int i=ini; i<fin; i++)
+		for(int i=ini; i<fin; i++) {
+			pos = i+1;
 			// If an ADD instruction exists
-			if( mul[i].getBusy() ) {
-				if(checkOperands(i)) {
+			if( rs[i].getBusy() ) {
+				if(checkOperands(i) && (Main.clocks > rs[i].getClock())) {
 					if(cdb.write_tryAcquire()) {
 						result = calc(i);
-						System.out.println("ADD writing CDB...");
-						cdb.set(result, "ROB"+mul[i].getDest());
+						System.out.println("MUL writing CDB..."+i);
+						cdb.set(result, "ROB"+rs[i].getDest());
 						delete(i);
 						return true;
 					}
@@ -80,18 +82,19 @@ public class MUL extends Station implements Runnable{
 				else
 					System.out.println("mul["+i+"] haven't operands");
 			}
-			else
-				System.out.println("mul["+i+"] is False");
+			//else
+			//	System.out.println("mul["+i+"] is False");
+		}
 		return false;
 	}
 
 	private void delete(int index) {
-		mul[index] = new RS_Entry();	
+		rs[index] = new RS_Entry();	
 		resource.release();
 	}
 
 	private boolean checkOperands(int i) {
-		if(mul[i].getQj().equals("") && mul[i].getQk().equals(""))
+		if(rs[i].getQj().equals("") && rs[i].getQk().equals(""))
 			return true;
 		else
 			return false;
@@ -99,8 +102,8 @@ public class MUL extends Station implements Runnable{
 
 	public int check() {
 		int i;
-		for(i=0; i<mul.length; i++)
-			if(mul[i].getBusy() == true)
+		for(i=0; i<rs.length; i++)
+			if(rs[i].getBusy() == true)
 				return i;
 		return -1;
 	}
@@ -108,8 +111,8 @@ public class MUL extends Station implements Runnable{
 	private int calc(int i) {
 		int res = 0;
 		
-		if(mul[i].getOp() == "mul") {
-			res = mul[i].getVj() * mul[i].getVk();
+		if(rs[i].getOp() == "mul") {
+			res = rs[i].getVj() * rs[i].getVk();
 		}
 		
 		return res;
@@ -117,16 +120,16 @@ public class MUL extends Station implements Runnable{
 
 	public boolean getData() {
 		data = false;
-		for(int i=0; i<mul.length; i++)
-			if(mul[i].getBusy())
+		for(int i=0; i<rs.length; i++)
+			if(rs[i].getBusy())
 				data = true;
 		return data;
 	}
 	
 	public int getPlaces() {
 		int cant = 0;
-		for(int i=0; i<mul.length; i++)
-			if(mul[i].getOp() == null)
+		for(int i=0; i<rs.length; i++)
+			if(rs[i].getOp() == null)
 				cant++;
 		return cant;
 	}
@@ -135,23 +138,30 @@ public class MUL extends Station implements Runnable{
 		resource.acquire();
 	}
 	
-	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk) {
-		System.out.println("Writing in MUL Station...");
-		int pos = -1;
-		for(int i=0; i<mul.length; i++) {
-			if(mul[i].getOp() == null)
-				pos = i;
+	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk, int clock) {
+		System.out.println("Instructions Writing in MUL Station...");
+		for(int i=0; i<rs.length; i++) {
+			if(rs[i].getOp().equals("")) {
+				rs[i].setDest(dest);
+				rs[i].setBusy(busy);
+				rs[i].setOp(op);
+				rs[i].setQj(qj);
+				rs[i].setQk(qk);
+				rs[i].setVj(vj);
+				rs[i].setVk(vk);
+				rs[i].setClock(clock);
+				break;
+			}
 		}
-		if(pos >= 0) {
-			mul[pos].setDest(dest);
-			mul[pos].setBusy(busy);
-			mul[pos].setOp(op);
-			mul[pos].setQj(qj);
-			mul[pos].setQk(qk);
-			mul[pos].setVj(vj);
-			mul[pos].setVk(vk);
-		}
-		else
-			System.out.println("ERROR EN setData() de Load");
+	}
+	
+	public void print() {
+		String table = "\nMUL\n";
+		table += "N\tDEST\tOP\tVj\tVk\tQj\tQk\tBusy";
+		for(int i=0; i<rs.length; i++)
+			table += ("\n" + i + "\t" + rs[i].getDest() + "\t" + rs[i].getOp() + "\t"
+						+ rs[i].getVj() + "\t" + rs[i].getVk() 
+						+ "\t" + rs[i].getQk() + "\t" + rs[i].getQk() + "\t" + rs[i].getBusy());
+		System.out.println(table);
 	}
 }

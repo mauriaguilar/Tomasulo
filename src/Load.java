@@ -9,6 +9,7 @@ public class Load extends Station implements Runnable{
 	private Registers registers;
 	private Bus cdb;
 	private Semaphore resource;
+	private int pos;
 	
 	public Load(Semaphore clk, int cap, Memory memory, Bus bus) {
 		this.clk = clk;
@@ -19,6 +20,7 @@ public class Load extends Station implements Runnable{
 		}
 		this.memory = memory;
 		cdb = bus;
+		pos = 0;
 	}
 
 
@@ -34,15 +36,15 @@ public class Load extends Station implements Runnable{
 				e.printStackTrace();
 			}
 			
-			index = check(i,load.length);
+			System.out.println("LOAD Calculating instructions...");
+			index = check(pos,load.length);
 			if(index == -1) 
-				index = check(0,i-1);
-			
+				index = check(0,pos-1);		
 			// If an LD instruction exists
-			if(index >= 0) {
+			if(index >= 0  && (Main.clocks > load[index].getClock())) {
 				if(cdb.write_tryAcquire()) {
 					value = calc(index);
-					System.out.println("Load writing CDB...");
+					System.out.println("LOAD writing CDB..."+1);
 					cdb.set(value, "ROB"+load[index].getDest());
 					delete(index);
 				}
@@ -53,9 +55,11 @@ public class Load extends Station implements Runnable{
 
 	public int check(int ini, int fin) {
 		int i;
-		for(i=ini; i<fin; i++)
+		for(i=ini; i<fin; i++) {
+			pos = i+1;
 			if(load[i].getBusy() == true)
 				return i;
+		}
 		return -1;
 	}
 	
@@ -84,23 +88,29 @@ public class Load extends Station implements Runnable{
 		resource.acquire();
 	}
 	
-	public void setData(int dest, boolean busy, int dir) {
-		System.out.println("Writing in Load Station...");
-		int pos = -1;
+	public void setData(int dest, boolean busy, int dir, int clock) {
+		System.out.println("Instructions Writing in Load Station...");
 		for(int i=0; i<load.length; i++) {
 			if(load[i].getDir() == -1)
-				pos = i;
+				load[i].setDest(dest);
+				load[i].setBusy(busy);
+				load[i].setDir(dir);
+				load[i].setClock(clock);
+				break;
 		}
-		if(pos >= 0) {
-			load[pos].setDest(dest);
-			load[pos].setBusy(busy);
-			load[pos].setDir(dir);
-		}
-		else
-			System.out.println("ERROR EN setData() de Load");
 	}
 
 	private void delete(int index) {
 		load[index] = new Load_Entry();
+		resource.release();
+	}
+
+	public void print() {
+		String table = "\nLOAD\n";
+		table += "N\tDEST\tDIR\tBusy";
+		for(int i=0; i<load.length; i++)
+			table += ("\n" + i + "\t" + load[i].getDest() + "\t" 
+					+ load[i].getDir() + "\t" + load[i].getBusy());
+		System.out.println(table);
 	}
 }

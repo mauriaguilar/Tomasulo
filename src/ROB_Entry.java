@@ -8,7 +8,7 @@ public class ROB_Entry {
 	public ROB_Entry() {
 		dest = "-1";
 		value = -1;
-		type = null;
+		type = "";
 		ready = false;
 	}
 	
@@ -34,6 +34,14 @@ public class ROB_Entry {
 	
 	public void setReady(boolean ready) {
 		this.ready = ready;
+	}
+
+	public boolean getReady() {
+		return ready;
+	}
+
+	public int getValue() {
+		return value;
 	}
 	
 }
