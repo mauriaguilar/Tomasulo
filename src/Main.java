@@ -4,6 +4,11 @@ public class Main {
 
 	public static Integer clocks = 0;
 	
+	static int cycles_add = 2;
+	static int cycles_load = 2;
+	static int cycles_mul = 5;
+	static int cycles_sub = 2;
+	
 	static Semaphore clk = new Semaphore(1);
 	static Semaphore clkInstruction = new Semaphore(1);
 	static Semaphore clkLoad = new Semaphore(1);
@@ -15,9 +20,9 @@ public class Main {
 	
 	static Memory mem = new Memory(9);
 	static Registers reg = new Registers(9);
-	static Load load = new Load(clkLoad, 3, mem, cdb);
-	static ADD add = new ADD(clkADD, 3, cdb);
-	static MUL mul = new MUL(clkMUL, 3, cdb);
+	static Load load = new Load(clkLoad, 3, mem, cdb, cycles_load);
+	static ADD add = new ADD(clkADD, 3, cdb, cycles_add, cycles_sub);
+	static MUL mul = new MUL(clkMUL, 3, cdb, cycles_mul);
 	static ROB rob = new ROB(clkROB, 9,cdb, reg);
 	static Instructions instructions = new Instructions(clkInstruction,load,add,mul,rob,reg);
 
@@ -72,7 +77,8 @@ public class Main {
 				clk.release();
 			}
 			else {
-				System.out.println("That's all");
+				reg.print();
+				System.out.println("\n\nThat's all");
 				break;
 			}
 		}

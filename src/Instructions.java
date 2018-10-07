@@ -7,11 +7,11 @@ public class Instructions implements Runnable{
 	private int pc;
 	private String [] instruction;
 	private String instructions[][] = {
-			{"ADD", "F0", "R1", "R2"},
-			{"LD", "F1", "1", "R2"},
-			{"ADD", "F2", "R1", "R4"},
-			{"MUL", "F4", "R5", "R6"},
-			{"ADD", "F3", "R4", "R5"},
+			{"ADD", "R0", "R1", "R2"},			// R0 = R1 + R2 = 1 + 2 = 3
+			{"LD", "R1", "1", "R2"},			// R1 = 1 + (R2) = 1 + 2 = M(3) = 3 
+			{"ADD", "R2", "R1", "R4"},			// R2 = 3 + 4 = 7
+			{"MUL", "R4", "R6", "R2"},			// R4 = 6 * 7 = 42
+			{"ADD", "R3", "R4", "R5"},			// R3 = 42 + 5 = 47
 	};
 	
 	private Load load;
@@ -81,7 +81,7 @@ public class Instructions implements Runnable{
 	
 	public boolean isHLT() {
 		if(instruction == null) {
-			System.out.println("instruccion NULLLL");
+			//System.out.println("instruccion NULLLL");
 			return true;
 		}
 		return false;
@@ -133,8 +133,8 @@ public class Instructions implements Runnable{
 			case "LD":
 				// If there is an empty slot in the LD RS
 				load.getResource();
-				String register_index = instruction[3].valueOf(1);	//Obtiene el valor del registro
-				int valor = reg.getData(Integer.parseInt(register_index));	//Convierte el numero a int y lo pasa como argumento
+				int register_index = Character.getNumericValue( instruction[3].charAt(1) );
+				int valor = reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
 				int direction = Integer.parseInt(instruction[2]) + valor;
 				load.setData(index, true, direction, Main.clocks);
 				allocateROB();
@@ -159,16 +159,18 @@ public class Instructions implements Runnable{
 		int index_operand2 = rob.compareOperand(instruction[3]);
 		
 		if(index_operand1 == -1) {
-			String register_index = instruction[2].valueOf(1);	//Obtiene el valor del registro
-			vj = reg.getData(Integer.parseInt(register_index));	//Convierte el numero a int y lo pasa como argumento
+			int register_index = Character.getNumericValue( instruction[2].charAt(1) );
+			vj = reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
+			System.out.println("Register_index: "+register_index+ " --------------- vj: "+vj);
 		}
 		else {
+			System.out.println("Renombrado*******************************");
 			qj = "ROB" + index_operand1;
 		}
 		
 		if(index_operand2 == -1) {
-			String register_index = instruction[3].valueOf(1);	//Obtiene el valor del registro
-			vk = reg.getData(Integer.parseInt(register_index));	//Convierte el numero a int y lo pasa como argumento
+			int register_index = Character.getNumericValue( instruction[3].charAt(1) );
+			vk= reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
 		}
 		else {
 			qk = "ROB" + index_operand2;

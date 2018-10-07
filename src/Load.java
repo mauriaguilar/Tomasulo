@@ -10,8 +10,9 @@ public class Load extends Station implements Runnable{
 	private Bus cdb;
 	private Semaphore resource;
 	private int pos;
+	private int cycles_load;
 	
-	public Load(Semaphore clk, int cap, Memory memory, Bus bus) {
+	public Load(Semaphore clk, int cap, Memory memory, Bus bus, int cycles_load) {
 		this.clk = clk;
 		resource = new Semaphore(cap);
 		load = new Load_Entry[cap];
@@ -21,6 +22,7 @@ public class Load extends Station implements Runnable{
 		this.memory = memory;
 		cdb = bus;
 		pos = 0;
+		this.cycles_load = cycles_load;
 	}
 
 
@@ -41,7 +43,7 @@ public class Load extends Station implements Runnable{
 			if(index == -1) 
 				index = check(0,pos-1);		
 			// If an LD instruction exists
-			if(index >= 0  && (Main.clocks > load[index].getClock())) {
+			if(index >= 0  && (Main.clocks > ( load[index].getClock()+cycles_load ))) {
 				if(cdb.write_tryAcquire()) {
 					value = calc(index);
 					System.out.println("LOAD["+index+"] writing CDB...");
@@ -49,7 +51,7 @@ public class Load extends Station implements Runnable{
 					delete(index);
 				}
 			}
-			System.out.println("LOAD WRITE READY");
+			//System.out.println("LOAD WRITE READY");
 			cdb.write_ready(); //escribe o no
 		}
 	}

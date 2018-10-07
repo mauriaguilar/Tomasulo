@@ -9,8 +9,10 @@ public class ADD extends Station implements Runnable{
 	private Semaphore resource;
 	private int pos;
 	private RS_Entry[] rs;
+	private int cycles_add;
+	private int cycles_sub;
 	
-	public ADD(Semaphore clk, int cap, Bus bus) {
+	public ADD(Semaphore clk, int cap, Bus bus, int cycles_add, int cycles_sub) {
 		this.clk = clk;
 		resource = new Semaphore(cap);
 		add = new RS_Entry[cap];
@@ -20,6 +22,8 @@ public class ADD extends Station implements Runnable{
 		cdb = bus;
 		pos = 0;
 		rs = add;
+		this.cycles_add = cycles_add;
+		this.cycles_sub = cycles_sub;
 	}
 	
 	@Override
@@ -39,9 +43,9 @@ public class ADD extends Station implements Runnable{
 				tryCalculate(0,pos-1);
 				
 			try {
-				System.out.println("ADD WRITE READY");
+				//System.out.println("ADD WRITE READY");
 				cdb.write_ready();
-				System.out.println("ADD READ ACQUIRE");
+				//System.out.println("ADD READ ACQUIRE");
 				cdb.read_acquire("A");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -74,7 +78,7 @@ public class ADD extends Station implements Runnable{
 			//System.out.println("....."+i);
 			// If an ADD instruction exists
 			if( add[i].getBusy() ) {
-				if(checkOperands(i) && (Main.clocks > add[i].getClock())) {
+				if(checkOperands(i) && (Main.clocks > ( add[i].getClock()+cycles_add ))) {
 					if(cdb.write_tryAcquire()) {
 					//cdb.acquire();
 						result = calc(i);
@@ -164,7 +168,7 @@ public class ADD extends Station implements Runnable{
 			if(rs[i].getBusy()) {
 				table += ("\n" + i + "\t|" + rs[i].getDest() + "\t|" + rs[i].getOp() + "\t|"
 						+ rs[i].getVj() + "\t|" + rs[i].getVk() 
-						+ "\t|" + rs[i].getQk() + "\t|" + rs[i].getQk() + "\t|" + rs[i].getBusy());
+						+ "\t|" + rs[i].getQj() + "\t|" + rs[i].getQk() + "\t|" + rs[i].getBusy());
 			}
 			//else
 			//	table += ("\n" + i + "\t|\t|\t|\t|\t|\t|\t|");

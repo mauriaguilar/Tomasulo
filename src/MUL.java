@@ -8,8 +8,9 @@ public class MUL extends Station implements Runnable{
 	private Semaphore resource;
 	private int pos;
 	private RS_Entry[] rs;
+	private int cycles_mul;
 	
-	public MUL(Semaphore clk, int cap, Bus bus) {
+	public MUL(Semaphore clk, int cap, Bus bus, int cycles_mul) {
 		this.clk = clk;
 		resource = new Semaphore(cap);
 		rs = new RS_Entry[cap];
@@ -18,6 +19,7 @@ public class MUL extends Station implements Runnable{
 		}
 		cdb = bus;
 		pos = 0;
+		this.cycles_mul = cycles_mul;
 	}
 	
 	@Override
@@ -37,7 +39,7 @@ public class MUL extends Station implements Runnable{
 				tryCalculate(0,pos-1);
 			
 			try {
-				System.out.println("MUL WRITE READY");
+				//System.out.println("MUL WRITE READY");
 				cdb.write_ready();
 				cdb.read_acquire("M");
 			} catch (InterruptedException e) {
@@ -69,10 +71,10 @@ public class MUL extends Station implements Runnable{
 			pos = i+1;
 			// If an ADD instruction exists
 			if( rs[i].getBusy() ) {
-				if(checkOperands(i) && (Main.clocks > rs[i].getClock())) {
+				if(checkOperands(i) && (Main.clocks > (rs[i].getClock()+cycles_mul))) {
 					if(cdb.write_tryAcquire()) {
 						result = calc(i);
-						System.out.println("MUL["+i+"] writing CDB...");
+						System.out.println("MUL["+i+"] writing CDB...result "+ result);
 						cdb.set(result, "ROB"+rs[i].getDest());
 						delete(i);
 						return true;
@@ -110,7 +112,7 @@ public class MUL extends Station implements Runnable{
 	private int calc(int i) {
 		int res = 0;
 		
-		if(rs[i].getOp() == "mul") {
+		if(rs[i].getOp() == "MUL") {
 			res = rs[i].getVj() * rs[i].getVk();
 		}
 		
@@ -161,7 +163,7 @@ public class MUL extends Station implements Runnable{
 			if(rs[i].getBusy()) {
 				table += ("\n" + i + "\t|" + rs[i].getDest() + "\t|" + rs[i].getOp() + "\t|"
 						+ rs[i].getVj() + "\t|" + rs[i].getVk() 
-						+ "\t|" + rs[i].getQk() + "\t|" + rs[i].getQk() + "\t|" + rs[i].getBusy());
+						+ "\t|" + rs[i].getQj() + "\t|" + rs[i].getQk() + "\t|" + rs[i].getBusy());
 			}
 		System.out.println(table);
 	}

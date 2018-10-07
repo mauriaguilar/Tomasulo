@@ -37,7 +37,7 @@ public class ROB implements Runnable{
 			}
 			
 			if(rob[remove_index].getReady()) {
-				index = Integer.parseInt( rob[remove_index].getDest().valueOf(1) );
+				index = Character.getNumericValue( rob[remove_index].getDest().charAt(1) );
 				reg.setData(index, rob[remove_index].getValue());
 				delete();
 				//System.out.println("  GET READY  "+remove_index);
@@ -70,9 +70,9 @@ public class ROB implements Runnable{
 		for(int i=0; i<rob.length; i++)
 			if(rob[i].getType().equals(""))
 				cant++;
-			else
-				System.out.println("ROB NO VACIO " + rob[i].getType() + " --- "+rob[i].getDest());
-		System.out.println("CANT "+cant);
+			//else
+			//	System.out.println("ROB NO VACIO " + rob[i].getType() + " --- "+rob[i].getDest());
+		//System.out.println("CANT "+cant);
 		return cant;
 	}
 	
@@ -89,7 +89,7 @@ public class ROB implements Runnable{
 	
 	public void delete() {
 		rob[remove_index] = new ROB_Entry();
-		System.out.println("ELIMINANDO "+remove_index);
+		//System.out.println("ELIMINANDO "+remove_index);
 		resource.release();
 	}
 
@@ -99,8 +99,10 @@ public class ROB implements Runnable{
 
 	public int compareOperand(String operand) {
 		for(int i=0; i<rob.length; i++) {
-			if(rob[i].getDest().equals(operand))
+			if(rob[i].getDest().equals(operand)) {
+				System.out.println("Comparacion entre: "+operand+" y "+rob[i].getDest());
 				return i;
+			}
 		}
 		return -1;
 		

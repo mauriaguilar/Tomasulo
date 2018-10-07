@@ -25,7 +25,7 @@ public class Bus {
 		}
 		counter = 0;
 		data = 0;
-		tag = "";
+		tag = "null";
 	}
 	
 	public void write_acquire() throws InterruptedException {
@@ -44,9 +44,9 @@ public class Bus {
 	public void read_acquire(String unit) throws InterruptedException {
 		switch (unit) {
 		case "A":
-			System.out.println("SEM READ ADD LISTO PARA LEER");
+			//System.out.println("SEM READ ADD LISTO PARA LEER");
 			sem_read_add.acquire();
-			System.out.println("SEM READ ADD COMENZANDO A LEER");
+			//System.out.println("SEM READ ADD COMENZANDO A LEER");
 			break;
 		case "M":
 			sem_read_mul.acquire();
