@@ -49,22 +49,18 @@ public class RS_Entry {
 	}
 	
 	public void setVj(int vj) {
-		System.out.println("---------------Modificando VJ: "+vj);
 		this.vj = vj;
 	}
 	
 	public void setVk(int vk) {
-		System.out.println("---------------Modificando VK: "+vk);
 		this.vk = vk;
 	}
 	
 	public void setQj(String qj) {
-		//System.out.println("Modificando qj: "+qj);
 		this.qj = qj;
 	}
 	
 	public void setQk(String qk) {
-		//System.out.println("Modificando qk: "+qk);
 		this.qk = qk;
 	}
 

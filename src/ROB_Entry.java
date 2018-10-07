@@ -1,13 +1,13 @@
 
 public class ROB_Entry {
 	private String dest;
-	private int value;
+	private String value;
 	private String type; //CONSULTAR
 	private boolean ready;
 	
 	public ROB_Entry() {
 		dest = "-1";
-		value = -1;
+		value = "-1";
 		type = "";
 		ready = false;
 	}
@@ -24,7 +24,7 @@ public class ROB_Entry {
 		this.dest = dest;
 	}
 	
-	public void setValue(int value) {
+	public void setValue(String value) {
 		this.value = value;
 	}
 	
@@ -40,7 +40,7 @@ public class ROB_Entry {
 		return ready;
 	}
 
-	public int getValue() {
+	public String getValue() {
 		return value;
 	}
 	

@@ -9,9 +9,10 @@ public class ROB implements Runnable{
 	private int put_index;	//Indice donde se escriben las instrucciones
 	private int remove_index;	//Indice que indica instruccion a sacar
 	private Registers reg;
+	private Memory mem;
 	
 	
-	public ROB(Semaphore clk, int cap, Bus bus, Registers reg) {
+	public ROB(Semaphore clk, int cap, Bus bus, Registers reg, Memory mem) {
 		this.clk = clk;
 		resource = new Semaphore(cap);
 		cdb = bus;
@@ -22,6 +23,7 @@ public class ROB implements Runnable{
 			rob[i] = new ROB_Entry();
 		}
 		this.reg = reg;
+		this.mem = mem;
 	}
 	
 	@Override
@@ -36,9 +38,16 @@ public class ROB implements Runnable{
 				e.printStackTrace();
 			}
 			
+			//Write in REG
 			if(rob[remove_index].getReady()) {
-				index = Character.getNumericValue( rob[remove_index].getDest().charAt(1) );
-				reg.setData(index, rob[remove_index].getValue());
+				if(rob[remove_index].getDest().contains("R")) {
+					index = Character.getNumericValue( rob[remove_index].getDest().charAt(1) );
+					reg.setData(index, Integer.parseInt(rob[remove_index].getValue()));
+				}
+				else {
+					index = Character.getNumericValue( rob[remove_index].getDest().charAt(0) );
+					mem.setValue(index, Integer.parseInt(rob[remove_index].getValue()));
+				}
 				delete();
 				//System.out.println("  GET READY  "+remove_index);
 				if(remove_index == rob.length)
@@ -48,6 +57,7 @@ public class ROB implements Runnable{
 			}
 			
 			try {
+				System.out.println("ROB READ ACQUIRE");
 				cdb.read_acquire("R");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -58,9 +68,12 @@ public class ROB implements Runnable{
 			if( tag.contains("ROB") ) {
 				// Calculate index of ROB and save
 				index = Character.getNumericValue( tag.charAt(3) );
-				rob[index].setValue( cdb.getData() );
+				rob[index].setValue( ""+cdb.getData() );
 				rob[index].setReady(true);
+				compareValue();
 			}
+			
+			
 			
 		}
 	}
@@ -100,15 +113,28 @@ public class ROB implements Runnable{
 	public int compareOperand(String operand) {
 		for(int i=0; i<rob.length; i++) {
 			if(rob[i].getDest().equals(operand)) {
-				System.out.println("Comparacion entre: "+operand+" y "+rob[i].getDest());
+				//System.out.println("Comparacion entre: "+operand+" y "+rob[i].getDest());
 				return i;
 			}
 		}
 		return -1;
-		
 	}
 	
-	public void setData(String dest, int value, String type, boolean ready) {
+	private void compareValue() {
+		int index;
+		for(int i=0; i<rob.length; i++) {
+			if(rob[i].getValue().contains("ROB")) {
+				index = Character.getNumericValue( rob[i].getValue().charAt(3) );
+				if(rob[index].getReady()) {
+					rob[i].setValue(rob[index].getValue());
+					rob[i].setReady(true);
+					break;
+				}
+			}
+		}
+	}
+	
+	public void setData(String dest, String value, String type, boolean ready) {
 		System.out.println("Instructions Writing in ROB["+put_index+"] Station...");
 		rob[put_index].setDest(dest);
 		rob[put_index].setType(type);

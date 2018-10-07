@@ -7,7 +7,6 @@ public class Main {
 	static int cycles_add = 2;
 	static int cycles_load = 2;
 	static int cycles_mul = 5;
-	static int cycles_sub = 2;
 	
 	static Semaphore clk = new Semaphore(1);
 	static Semaphore clkInstruction = new Semaphore(1);
@@ -21,9 +20,9 @@ public class Main {
 	static Memory mem = new Memory(9);
 	static Registers reg = new Registers(9);
 	static Load load = new Load(clkLoad, 3, mem, cdb, cycles_load);
-	static ADD add = new ADD(clkADD, 3, cdb, cycles_add, cycles_sub);
+	static ADD add = new ADD(clkADD, 3, cdb, cycles_add);
 	static MUL mul = new MUL(clkMUL, 3, cdb, cycles_mul);
-	static ROB rob = new ROB(clkROB, 9,cdb, reg);
+	static ROB rob = new ROB(clkROB, 9,cdb, reg, mem);
 	static Instructions instructions = new Instructions(clkInstruction,load,add,mul,rob,reg);
 
 	static Thread thInstruction = new Thread(instructions);
@@ -78,10 +77,11 @@ public class Main {
 			}
 			else {
 				reg.print();
+				mem.print();
 				System.out.println("\n\nThat's all");
 				break;
 			}
 		}
-				
+		System.exit(0);		
     }	
 }

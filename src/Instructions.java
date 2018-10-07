@@ -10,6 +10,7 @@ public class Instructions implements Runnable{
 			{"ADD", "R0", "R1", "R2"},			// R0 = R1 + R2 = 1 + 2 = 3
 			{"LD", "R1", "1", "R2"},			// R1 = 1 + (R2) = 1 + 2 = M(3) = 3 
 			{"ADD", "R2", "R1", "R4"},			// R2 = 3 + 4 = 7
+			{"ST", "1", "R4", "R1"},			// M5 = 3
 			{"MUL", "R4", "R6", "R2"},			// R4 = 6 * 7 = 42
 			{"ADD", "R3", "R4", "R5"},			// R3 = 42 + 5 = 47
 	};
@@ -97,8 +98,8 @@ public class Instructions implements Runnable{
 				case "MUL":	return "MUL";
 				case "DIV":	return "MUL";
 				case "LD":	return "LD";
-				case "ST":	return "ROB"; // ver
-				case "BNE":	return "ROB"; // ver
+				case "ST":	return "ST"; // ver
+				//case "BNE":	return "ROB"; // ver
 				default: return null;
 			}
 		}
@@ -139,6 +140,9 @@ public class Instructions implements Runnable{
 				load.setData(index, true, direction, Main.clocks);
 				allocateROB();
 				break;
+			case "ST":
+				allocateSTinROB();
+				break;
 		}
 		
 		return "ROB and "+dest+" allocated";
@@ -161,10 +165,10 @@ public class Instructions implements Runnable{
 		if(index_operand1 == -1) {
 			int register_index = Character.getNumericValue( instruction[2].charAt(1) );
 			vj = reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
-			System.out.println("Register_index: "+register_index+ " --------------- vj: "+vj);
+			//System.out.println("Register_index: "+register_index+ " --------------- vj: "+vj);
 		}
 		else {
-			System.out.println("Renombrado*******************************");
+			//System.out.println("Renombrado*******************************");
 			qj = "ROB" + index_operand1;
 		}
 		
@@ -181,7 +185,33 @@ public class Instructions implements Runnable{
 	}
 
 	private void allocateROB() {
-		rob.setData(instruction[1], -1, instruction[0], false);
+		rob.setData(instruction[1], "-1", instruction[0], false);
+	}
+	
+	private void allocateSTinROB() {
+		// ST 10,R3,R5
+		int register_index1,register_index2;
+		int register_value1;
+		String register_value2;
+		String dest;
+		
+		int index_operand = rob.compareOperand(instruction[3]);
+		
+		if(index_operand == -1) {
+			//Get value
+			register_index2 = Character.getNumericValue( instruction[3].charAt(1) );
+			register_value2 = ""+reg.getData(register_index2);	//Convierte el numero a int y lo pasa como argumento			
+		}
+		else {
+			register_value2 = "ROB" + index_operand;
+		}
+		
+		//Get dest
+		register_index1 = Character.getNumericValue( instruction[2].charAt(1) );
+		register_value1 = reg.getData(register_index1);	//Convierte el numero a int y lo pasa como argumento
+		dest = ""+ (register_value1 + Character.getNumericValue( instruction[1].charAt(0) ));	
+		
+		rob.setData(dest, register_value2, instruction[0], false);
 	}
 
 	public int getPC() {
