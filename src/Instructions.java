@@ -109,9 +109,6 @@ public class Instructions implements Runnable{
 	}
 	
 	private String checkEmptyes(String dest) throws InterruptedException {
-		int index_operand1;
-		int index_operand2;
-		Station rs = null;
 		int index = -1;
 		
 		// If there is an empty slot in the ROB
@@ -147,10 +144,6 @@ public class Instructions implements Runnable{
 		}
 		
 		return "ROB and "+dest+" allocated";
-		
-		//PARA REGISTROS DE 2 DIGITOS -> VERIFICAR SI EXISTE UN valueOf(2) --> ver si es NULL
-
-
 	}
 	
 	private void allocate(Station rs, int index) {
