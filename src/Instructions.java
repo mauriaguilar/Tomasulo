@@ -6,14 +6,15 @@ public class Instructions implements Runnable{
 	private Semaphore clk;
 	private int pc;
 	private String [] instruction;
-	private String instructions[][] = {
+	private static String instructions[][];
+	/*= {
 			{"ADD", "R0", "R1", "R2"},			// R0 = R1 + R2 = 1 + 2 = 3
 			{"LD", "R1", "1", "R2"},			// R1 = 1 + (R2) = 1 + 2 = M(3) = 3 
 			{"ADD", "R2", "R1", "R4"},			// R2 = 3 + 4 = 7
 			{"ST", "1", "R4", "R1"},			// M5 = 3
 			{"MUL", "R4", "R6", "R2"},			// R4 = 6 * 7 = 42
 			{"ADD", "R3", "R4", "R5"},			// R3 = 42 + 5 = 47
-	};
+	};*/
 	
 	private Load load;
 	private ADD add;
@@ -216,5 +217,10 @@ public class Instructions implements Runnable{
 
 	public int getPC() {
 		return pc;
+	}
+
+	public static void setInstruction(String[][] instructions_list) {
+		instructions = instructions_list;
+		//System.out.println(instructions);
 	}
 }

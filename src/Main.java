@@ -1,3 +1,4 @@
+import java.io.FileNotFoundException;
 import java.util.concurrent.Semaphore;
 
 public class Main {
@@ -32,10 +33,15 @@ public class Main {
 	static Thread thROB = new Thread(rob);
 	
 
-	public static void main (String [ ] args) throws InterruptedException {
+	public static void main (String [ ] args) throws InterruptedException, FileNotFoundException {
 		//System.out.println("Tomasulo begging...");
 		boolean HLT = false;
 
+		ProgramLoader program = new ProgramLoader();
+		String[][] instructions_list = program.getInstrucions(1);
+		Instructions.setInstruction(instructions_list);
+		Thread.sleep(3 * 1000);
+		
 		clkInstruction.acquire();
 		clkLoad.acquire();
 		clkADD.acquire();
