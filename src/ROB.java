@@ -57,7 +57,7 @@ public class ROB implements Runnable{
 			}
 			
 			try {
-				System.out.println("ROB READ ACQUIRE");
+				//System.out.println("ROB READ ACQUIRE");
 				cdb.read_acquire("R");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -83,9 +83,6 @@ public class ROB implements Runnable{
 		for(int i=0; i<rob.length; i++)
 			if(rob[i].getType().equals(""))
 				cant++;
-			//else
-			//	System.out.println("ROB NO VACIO " + rob[i].getType() + " --- "+rob[i].getDest());
-		//System.out.println("CANT "+cant);
 		return cant;
 	}
 	
@@ -102,6 +99,10 @@ public class ROB implements Runnable{
 	
 	public void delete() {
 		rob[remove_index] = new ROB_Entry();
+		rob[remove_index].setDest("-1");
+		rob[remove_index].setReady(false);
+		rob[remove_index].setType("");
+		rob[remove_index].setValue("-1");
 		//System.out.println("ELIMINANDO "+remove_index);
 		resource.release();
 	}
@@ -156,6 +157,10 @@ public class ROB implements Runnable{
 			}
 		*/
 		
+	}
+	
+	public ROB_Entry getROB(int i) {
+		return rob[i];
 	}
 	
 	public void print() {

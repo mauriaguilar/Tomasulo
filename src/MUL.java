@@ -39,9 +39,9 @@ public class MUL extends Station implements Runnable{
 				tryCalculate(0,pos-1);
 			
 			try {
-				System.out.println("MUL WRITE READY");
+				//System.out.println("MUL WRITE READY");
 				cdb.write_ready();
-				System.out.println("MUL READ ACQUIRE");
+				//System.out.println("MUL READ ACQUIRE");
 				cdb.read_acquire("M");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -113,7 +113,7 @@ public class MUL extends Station implements Runnable{
 	private int calc(int i) {
 		int res = 0;
 		
-		if(rs[i].getOp() == "MUL") {
+		if(rs[i].getOp().equals("MUL")) {
 			res = rs[i].getVj() * rs[i].getVk();
 		}
 		

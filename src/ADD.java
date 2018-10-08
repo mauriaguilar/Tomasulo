@@ -41,9 +41,9 @@ public class ADD extends Station implements Runnable{
 				tryCalculate(0,pos-1);
 				
 			try {
-				System.out.println("ADD WRITE READY");
+				//System.out.println("ADD WRITE READY");
 				cdb.write_ready();
-				System.out.println("ADD READ ACQUIRE");
+				//System.out.println("ADD READ ACQUIRE");
 				cdb.read_acquire("A");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -80,7 +80,7 @@ public class ADD extends Station implements Runnable{
 					if(cdb.write_tryAcquire()) {
 					//cdb.acquire();
 						result = calc(i);
-						System.out.println("ADD["+i+"] writing CDB...");
+						System.out.println("ADD["+i+"] writing CDB..."+ result);
 						cdb.set(result, "ROB"+add[i].getDest());
 						delete(i);
 						return true;
@@ -105,11 +105,11 @@ public class ADD extends Station implements Runnable{
 	private int calc(int i) {
 		int res = 0;
 		
-		if(add[i].getOp() == "ADD") {
+		if(add[i].getOp().equals("ADD")) {
 			res = add[i].getVj() + add[i].getVk();
 		}
 		
-		if(add[i].getOp() == "SUB") {
+		if(add[i].getOp().equals("SUB")) {
 			res = add[i].getVj() - add[i].getVk();
 		}
 		
@@ -171,5 +171,9 @@ public class ADD extends Station implements Runnable{
 			//else
 			//	table += ("\n" + i + "\t|\t|\t|\t|\t|\t|\t|");
 		System.out.println(table);
+	}
+	
+	public RS_Entry getRS(int i) {
+		return add[i];
 	}
 }

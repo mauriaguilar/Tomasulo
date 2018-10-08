@@ -33,7 +33,7 @@ public class Bus {
 	}
 	
 	public boolean write_tryAcquire() {
-		System.out.println("BUS tryAcquire() ");
+		//System.out.println("BUS tryAcquire() ");
 		return sem_write.tryAcquire();
 	}
 	
@@ -44,19 +44,19 @@ public class Bus {
 	public void read_acquire(String unit) throws InterruptedException {
 		switch (unit) {
 		case "A":
-			System.out.println("SEM READ ADD LISTO PARA LEER");
+			//System.out.println("SEM READ ADD LISTO PARA LEER");
 			sem_read_add.acquire();
-			System.out.println("SEM READ ADD COMENZANDO A LEER");
+			//System.out.println("SEM READ ADD COMENZANDO A LEER");
 			break;
 		case "M":
-			System.out.println("SEM READ MUL LISTO PARA LEER");
+			//System.out.println("SEM READ MUL LISTO PARA LEER");
 			sem_read_mul.acquire();
-			System.out.println("SEM READ MUL COMENZANDO A LEER");
+			//System.out.println("SEM READ MUL COMENZANDO A LEER");
 			break;
 		case "R":
-			System.out.println("SEM READ ROB LISTO PARA LEER");
+			//System.out.println("SEM READ ROB LISTO PARA LEER");
 			sem_read_rob.acquire();
-			System.out.println("SEM READ ROB COMENZANDO A LEER");
+			//System.out.println("SEM READ ROB COMENZANDO A LEER");
 			break;
 		}
 		//counter--;

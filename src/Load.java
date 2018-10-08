@@ -51,7 +51,7 @@ public class Load extends Station implements Runnable{
 					delete(index);
 				}
 			}
-			System.out.println("LOAD WRITE READY");
+			//System.out.println("LOAD WRITE READY");
 			cdb.write_ready(); //escribe o no
 		}
 	}

@@ -25,4 +25,6 @@ public class Registers {
 			table += ("\n" + i + "\t|" + registers[i].getVi());
 		System.out.println(table);
 	}
+	
+	
 }

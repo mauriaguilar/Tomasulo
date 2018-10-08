@@ -39,6 +39,7 @@ public class Main {
 
 		ProgramLoader program = new ProgramLoader();
 		String[][] instructions_list = program.getInstrucions(1);
+		//String[][] instructions_list = program.getInstrucions(2);
 		Instructions.setInstruction(instructions_list);
 		Thread.sleep(3 * 1000);
 		
@@ -90,4 +91,8 @@ public class Main {
 		}
 		System.exit(0);		
     }	
+	
+	public Registers getRegister() {
+		return reg;
+	}
 }
