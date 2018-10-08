@@ -5,7 +5,7 @@ public class Main {
 
 	public static Integer clocks = 0;
 	
-	static int cycles_add = 2;
+	static int cycles_add = 3;
 	static int cycles_load = 2;
 	static int cycles_mul = 5;
 	
@@ -38,8 +38,8 @@ public class Main {
 		boolean HLT = false;
 
 		ProgramLoader program = new ProgramLoader();
-		String[][] instructions_list = program.getInstrucions(1);
-		//String[][] instructions_list = program.getInstrucions(2);
+		//String[][] instructions_list = program.getInstrucions(1);
+		String[][] instructions_list = program.getInstrucions(2);
 		Instructions.setInstruction(instructions_list);
 		Thread.sleep(3 * 1000);
 		
