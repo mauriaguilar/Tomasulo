@@ -118,10 +118,10 @@ class tests {
 		System.out.println(add.getRS(1).getQj());
 		assertTrue(add.getRS(1).getQj().equals("ROB1"));
 	}
-	
+
 	@Test
 	void testRegisters( ) throws InterruptedException, FileNotFoundException {
-		/*System.out.println("\n\nTest de escritura en registros");
+		System.out.println("\n\nTest de escritura en registros");
 		Semaphore clk = new Semaphore(1);
 		Semaphore clkInstruction = new Semaphore(1);
 		Semaphore clkLoad = new Semaphore(1);
@@ -159,7 +159,7 @@ class tests {
 		Main main = new Main();
 		main.setClock(0);
 		while(counter < 14) {
-			main.setClock(counter);
+			main.setClock(counter+1);
 			//clk.acquire();
 			
 			clkInstruction.release();
@@ -173,22 +173,25 @@ class tests {
 			clk.release();
 			counter++;
 		}
-		*/
 		
+		/*
 		Main main = new Main();
 		String [] args = {};
 		Main.main(args);
-		Registers reg = main.getRegister();
+		Registers reg = main.getRegister();*/
 		reg.print();
-		assertTrue(reg.getData(0)==0);
+		
+		assertTrue(reg.getData(0)==3);
 		assertTrue(reg.getData(1)==3);
-		assertTrue(reg.getData(2)==3);
-		assertTrue(reg.getData(3)==42);
-		assertTrue(reg.getData(4)==47);
+		assertTrue(reg.getData(2)==7);
+		assertTrue(reg.getData(3)==47);
+		assertTrue(reg.getData(4)==42);
 		assertTrue(reg.getData(5)==5);
 		assertTrue(reg.getData(6)==6);
 		assertTrue(reg.getData(7)==7);
 		assertTrue(reg.getData(8)==8);
+		//System.exit(0);
+		
 	}
 	
 }

@@ -95,4 +95,8 @@ public class Main {
 	public Registers getRegister() {
 		return reg;
 	}
+	
+	public void setClock(int i) {
+		clocks = i;
+	}
 }
