@@ -8,13 +8,11 @@ public class Load extends Station implements Runnable{
 	private Memory memory;
 	private Registers registers;
 	private Bus cdb;
-	private Semaphore resource;
 	private int pos;
 	private int cycles_load;
 	
 	public Load(Semaphore clk, int cap, Memory memory, Bus bus, int cycles_load) {
 		this.clk = clk;
-		resource = new Semaphore(cap);
 		load = new Load_Entry[cap];
 		for(int i=0; i<cap; i++) {
 			load[i] = new Load_Entry();
@@ -87,8 +85,11 @@ public class Load extends Station implements Runnable{
 		return cant;
 	}
 	
-	public void getResource() throws InterruptedException {
-		resource.acquire();
+	public int getFree() {
+		for(int i=0;i<load.length;i++)
+			if(load[i].getDir() == -1)
+				return i;
+		return -1;
 	}
 	
 	public void setData(int dest, boolean busy, int dir, int clock) {
@@ -105,7 +106,7 @@ public class Load extends Station implements Runnable{
 
 	private void delete(int index) {
 		load[index] = new Load_Entry();
-		resource.release();
+		load[index].release();
 	}
 
 	public void print() {
@@ -117,5 +118,9 @@ public class Load extends Station implements Runnable{
 					+ load[i].getDir() + "\t|" + load[i].getBusy());
 			}
 		System.out.println(table);
+	}
+	
+	public Load_Entry getRS(int i) {
+		return load[i];
 	}
 }

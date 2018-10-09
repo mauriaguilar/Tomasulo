@@ -6,14 +6,12 @@ public class ADD extends Station implements Runnable{
 	private RS_Entry[] add;
 	private boolean data;
 	private Bus cdb;
-	private Semaphore resource;
 	private int pos;
 	private RS_Entry[] rs;
 	private int cycles_add;
 	
 	public ADD(Semaphore clk, int cap, Bus bus, int cycles_add) {
 		this.clk = clk;
-		resource = new Semaphore(cap);
 		add = new RS_Entry[cap];
 		for(int i=0; i<cap; i++) {
 			add[i] = new RS_Entry();
@@ -118,7 +116,7 @@ public class ADD extends Station implements Runnable{
 	
 	private void delete(int index) {
 		add[index] = new RS_Entry();
-		resource.release();
+		add[index].release();
 	}
 	
 	public boolean getData() {
@@ -131,14 +129,19 @@ public class ADD extends Station implements Runnable{
 	
 	public int getPlaces() {
 		int cant = 0;
-		for(int i=0; i<add.length; i++)
-			if(add[i].getOp() == null)
+		for(int i=0; i<rs.length; i++)
+			if(!rs[i].getBusy())
 				cant++;
 		return cant;
 	}
 	
-	public void getResource() throws InterruptedException {
-		resource.acquire();
+	public int getFree() {
+		for(int i=0;i<rs.length;i++)
+			if(!rs[i].getBusy()) {
+				//System.out.println("NULL");
+				return i;
+			}
+		return -1;
 	}
 	
 	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk, int clock) {

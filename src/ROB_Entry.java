@@ -1,17 +1,27 @@
+import java.util.concurrent.Semaphore;
 
 public class ROB_Entry {
 	private String dest;
 	private String value;
 	private String type; //CONSULTAR
 	private boolean ready;
+	private Semaphore sem;
 	
 	public ROB_Entry() {
 		dest = "-1";
 		value = "-1";
 		type = "";
 		ready = false;
+		sem = new Semaphore(1);
 	}
 	
+	public void acquire() throws InterruptedException {
+		sem.acquire();
+	}
+	
+	public void release() {
+		sem.release();
+	}
 	public String getType() {
 		return type;
 	}

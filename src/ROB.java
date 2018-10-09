@@ -3,7 +3,6 @@ import java.util.concurrent.Semaphore;
 public class ROB implements Runnable{
 	
 	private Semaphore clk;
-	private Semaphore resource;
 	private ROB_Entry [] rob;
 	private Bus cdb;
 	private int put_index;	//Indice donde se escriben las instrucciones
@@ -14,7 +13,6 @@ public class ROB implements Runnable{
 	
 	public ROB(Semaphore clk, int cap, Bus bus, Registers reg, Memory mem) {
 		this.clk = clk;
-		resource = new Semaphore(cap);
 		cdb = bus;
 		put_index = 0;
 		remove_index = 0;
@@ -93,18 +91,10 @@ public class ROB implements Runnable{
 		return false;
 	}
 	
-	public void getResource() throws InterruptedException {
-		resource.acquire();
-	}
-	
 	public void delete() {
 		rob[remove_index] = new ROB_Entry();
-		rob[remove_index].setDest("-1");
-		rob[remove_index].setReady(false);
-		rob[remove_index].setType("");
-		rob[remove_index].setValue("-1");
 		//System.out.println("ELIMINANDO "+remove_index);
-		resource.release();
+		rob[remove_index].release();
 	}
 
 	public int getIndex() {

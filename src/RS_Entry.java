@@ -1,3 +1,5 @@
+import java.util.concurrent.Semaphore;
+
 //Estacion de Reserva
 
 public class RS_Entry {
@@ -8,6 +10,7 @@ public class RS_Entry {
 	private int vj,vk;
 	private String qj,qk;
 	private int clock;
+	private Semaphore sem;
 	
 	public RS_Entry() {
 		dest = -1;
@@ -18,6 +21,15 @@ public class RS_Entry {
 		qj = ""; //ver
 		qk = ""; //ver
 		clock = 0;
+		sem = new Semaphore(1);
+	}
+	
+	public void acquire() throws InterruptedException {
+		sem.acquire();
+	}
+	
+	public void release() {
+		sem.release();
 	}
 	
 	public boolean getBusy() {

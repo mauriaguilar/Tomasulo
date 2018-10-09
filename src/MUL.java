@@ -5,14 +5,12 @@ public class MUL extends Station implements Runnable{
 	private Semaphore clk;
 	private boolean data;
 	private Bus cdb;
-	private Semaphore resource;
 	private int pos;
 	private RS_Entry[] rs;
 	private int cycles_mul;
 	
 	public MUL(Semaphore clk, int cap, Bus bus, int cycles_mul) {
 		this.clk = clk;
-		resource = new Semaphore(cap);
 		rs = new RS_Entry[cap];
 		for(int i=0; i<cap; i++) {
 			rs[i] = new RS_Entry();
@@ -92,7 +90,7 @@ public class MUL extends Station implements Runnable{
 
 	private void delete(int index) {
 		rs[index] = new RS_Entry();	
-		resource.release();
+		rs[index].release();
 	}
 
 	private boolean checkOperands(int i) {
@@ -131,13 +129,16 @@ public class MUL extends Station implements Runnable{
 	public int getPlaces() {
 		int cant = 0;
 		for(int i=0; i<rs.length; i++)
-			if(rs[i].getOp() == null)
+			if(!rs[i].getBusy())
 				cant++;
 		return cant;
 	}
 	
-	public void getResource() throws InterruptedException {
-		resource.acquire();
+	public int getFree() {
+		for(int i=0;i<rs.length;i++)
+			if(!rs[i].getBusy())
+				return i;
+		return -1;
 	}
 	
 	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk, int clock) {
@@ -167,5 +168,9 @@ public class MUL extends Station implements Runnable{
 						+ "\t|" + rs[i].getQj() + "\t|" + rs[i].getQk() + "\t|" + rs[i].getBusy());
 			}
 		System.out.println(table);
+	}
+	
+	public RS_Entry getRS(int i) {
+		return rs[i];
 	}
 }

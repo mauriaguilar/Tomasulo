@@ -109,29 +109,44 @@ public class Instructions implements Runnable{
 	}
 	
 	private String checkEmptyes(String dest) throws InterruptedException {
-		int index = -1;
+		//int index = -1;
 		
 		// If there is an empty slot in the ROB
 		//if(rob.getPlaces() >= 1) {
-		rob.getResource();	//Blocks waiting ROB's places
-		index = rob.getIndex();
+		int index = rob.getIndex();
+		rob.getROB(index).acquire();	//Blocks waiting ROB's places
 		
 		switch (dest) {
 			case "ADD": 
 				// If there is an empty slot in the ADD RS
-				add.getResource();
+				while(add.getFree() == -1) {
+					continue;
+				}
+				//System.out.println("Voy a ACQUIRE-- "+ add.getPlaces() );
+				
+				add.getRS(add.getFree()).acquire();
+				//System.out.println("Ya hice ACQUIRE");
+				//add.getResource();
 				allocate(add,index);
 				allocateROB();
 				break;
 			case "MUL":
 				// If there is an empty slot in the MUL RS	
-				mul.getResource();
+				while(mul.getFree() == -1) {
+					continue;
+				}
+				mul.getRS(add.getFree()).acquire();
+				//mul.getResource();
 				allocate(mul,index);
 				allocateROB();
 				break;
 			case "LD":
 				// If there is an empty slot in the LD RS
-				load.getResource();
+				while(load.getFree() == -1) {
+					continue;
+				}
+				load.getRS(load.getFree()).acquire();
+				//load.getResource();
 				int register_index = Character.getNumericValue( instruction[3].charAt(1) );
 				int valor = reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
 				int direction = Integer.parseInt(instruction[2]) + valor;

@@ -1,3 +1,4 @@
+import java.util.concurrent.Semaphore;
 
 public class Load_Entry {
 	
@@ -5,6 +6,7 @@ public class Load_Entry {
 	private boolean busy;
 	private int dir;
 	private int clock;
+	private Semaphore sem;
 	
 	public Load_Entry() {
 		//System.out.println("Creando LB");
@@ -12,6 +14,15 @@ public class Load_Entry {
 		busy = false;
 		dir = -1; //ver
 		clock = 0;
+		sem = new Semaphore(1);
+	}
+	
+	public void acquire() throws InterruptedException {
+		sem.acquire();
+	}
+	
+	public void release() {
+		sem.release();
 	}
 	
 	public boolean getBusy() {
