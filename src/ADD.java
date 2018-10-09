@@ -33,7 +33,7 @@ public class ADD extends Station implements Runnable{
 				e.printStackTrace();
 			}
 			
-			System.out.println("ADD Calculating instructions... in clock "+Main.clocks);
+			System.out.println("ADD Calculating instructions...");
 			cdbWrited = tryCalculate(pos,add.length);
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
@@ -47,7 +47,7 @@ public class ADD extends Station implements Runnable{
 				e.printStackTrace();
 			}
 			
-			System.out.println("ADD reading CDB..."+Main.clocks);
+			System.out.println("ADD reading CDB...");
 			// Read data bus and replace operands
 			for(int j=0; j<add.length; j++){
 				if( add[j].getBusy() ) {
@@ -78,7 +78,7 @@ public class ADD extends Station implements Runnable{
 					if(cdb.write_tryAcquire()) {
 					//cdb.acquire();
 						result = calc(i);
-						System.out.println("ADD["+i+"] writing CDB..."+ result);
+						System.out.println("ADD["+i+"] writing "+result+" CDB...");
 						cdb.set(result, "ROB"+add[i].getDest());
 						delete(i);
 						return true;

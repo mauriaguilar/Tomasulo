@@ -73,7 +73,7 @@ public class MUL extends Station implements Runnable{
 				if(checkOperands(i) && (Main.clocks > (rs[i].getClock()+cycles_mul))) {
 					if(cdb.write_tryAcquire()) {
 						result = calc(i);
-						System.out.println("MUL["+i+"] writing CDB...result "+ result);
+						System.out.println("MUL["+i+"] writing "+result+" CDB...");
 						cdb.set(result, "ROB"+rs[i].getDest());
 						delete(i);
 						return true;

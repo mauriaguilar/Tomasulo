@@ -26,10 +26,15 @@ public class Bus {
 		counter = 0;
 		data = 0;
 		tag = "null";
+		write_acquire();
 	}
 	
-	public void write_acquire() throws InterruptedException {
-		sem_write.acquire();
+	public void write_acquire() {
+		try {
+			sem_write.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public boolean write_tryAcquire() {

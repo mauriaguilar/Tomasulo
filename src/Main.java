@@ -6,7 +6,7 @@ public class Main {
 	// Cycles counter
 	public static Integer clocks = 0;
 	
-	// Cycles min for RS
+	// Minimun Cycles for RS
 	static int cycles_add = 3;
 	static int cycles_load = 2;
 	static int cycles_mul = 5;
@@ -21,7 +21,7 @@ public class Main {
 	static Memory mem = new Memory(9);
 	static Registers reg = new Registers(9);
 	
-	//  Objects of RS, ROB and Instruction
+	// Objects of RS, ROB and Instruction
 	static Load load = new Load(clock.clkLoad(), 3, mem, cdb, cycles_load);
 	static ADD add = new ADD(clock.clkADD(), 3, cdb, cycles_add);
 	static MUL mul = new MUL(clock.clkMUL(), 3, cdb, cycles_mul);
@@ -36,17 +36,12 @@ public class Main {
 	static Thread thROB = new Thread(rob);
 	
 	public static void main (String [ ] args) throws InterruptedException, FileNotFoundException {
-		//System.out.println("Tomasulo begging...");
+		
 		boolean HLT = false;
-
 		ProgramLoader program = new ProgramLoader();
 		String[][] instructions_list = program.getInstrucions(1);
-		//String[][] instructions_list = program.getInstrucions(2);
 		Instructions.setInstruction(instructions_list);
 		Thread.sleep(3 * 1000);
-		
-		clock.takeClocks();
-		cdb.write_acquire();
 
 		thInstruction.start();
 		thLoad.start();
@@ -56,42 +51,38 @@ public class Main {
 		
 		while(true) {
 			clocks++;
-			System.out.println("\nPC: "+instructions.getPC()+" --------Clocks: "+clocks+"-----------------");
-			//Acquire main clock
-			clock.takeMainClk();
-			
-			//Release all clocks
-			clock.freeClocks();
+			System.out.println("\n---------------------Clock: "+clocks+"   PC: "+instructions.getPC()+"---------------------");
+
+			//Enable the execution of a clock
+			clock.take();
 
 			//Release CDB
 			cdb.write_release();
 			
-			//  Time of one clock of execution
+			//Time of execution of one clock 
 			Thread.sleep(1 * 1000);
 			
 			//Print tables
-			add.print();
-			mul.print();
-			load.print();
-			rob.print(); 
+			printTables();
 			
 			HLT = instructions.isHLT() && rob.isEmpty();
 			if(!HLT) {
-				//Release main clock
-				clock.freeMainClk();
+				//Release clock
+				clock.release();
 			}
 			else {
 				//Print Registers and Memory tables
-				reg.print();
-				mem.print();
+				printMemories();
 				System.out.println("\n\nThat's all");
-				System.out.println("***********************************************************************************");
+				System.out.println("************************************************************");
 				break;
 			}
 		}
 		System.exit(0);		
-    }	
+    }
 	
+	
+
 	public Registers getRegister() {
 		return reg;
 	}
@@ -99,4 +90,17 @@ public class Main {
 	public void setClock(int i) {
 		clocks = i;
 	}
+	
+	private static void printTables() {
+		add.print();
+		mul.print();
+		load.print();
+		rob.print(); 
+	}
+	
+	private static void printMemories() {
+		reg.print();
+		mem.print();
+	}
+	
 }

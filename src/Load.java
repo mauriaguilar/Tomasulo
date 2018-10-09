@@ -44,7 +44,7 @@ public class Load extends Station implements Runnable{
 			if(index >= 0  && (Main.clocks > ( load[index].getClock()+cycles_load ))) {
 				if(cdb.write_tryAcquire()) {
 					value = calc(index);
-					System.out.println("LOAD["+index+"] writing CDB...");
+					System.out.println("LOAD["+i+"] writing "+value+" CDB...");
 					cdb.set(value, "ROB"+load[index].getDest());
 					delete(index);
 				}

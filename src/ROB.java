@@ -134,19 +134,7 @@ public class ROB implements Runnable{
 		if(put_index == rob.length)
 			put_index = 0;
 		else
-			put_index++;
-		/*
-		for(int i=0; i<rob.length; i++)
-			if(rob[i].getType() == null) {
-				System.out.println("Instructions Writing in ROB Station..."+i);
-				rob[i].setDest(dest);
-				rob[i].setType(type);
-				rob[i].setValue(value);
-				rob[i].setReady(ready);
-				break;
-			}
-		*/
-		
+			put_index++;		
 	}
 	
 	public ROB_Entry getROB(int i) {
@@ -158,8 +146,11 @@ public class ROB implements Runnable{
 		table += "N\t|DEST\t|VALUE\t|TYPE\t|READY";
 		for(int i=0; i<rob.length; i++)
 			if(rob[i].getDest() != "-1") {
-				table += ("\n" + i + "\t|" + rob[i].getDest() + "\t|" + rob[i].getValue() + "\t|"
-						+ rob[i].getType() + "\t|" + rob[i].getReady() );
+				table += ("\n" + i + "\t|" + rob[i].getDest() + "\t|");
+				if(!rob[i].getValue().equals("-1")) {
+					table += rob[i].getValue();
+				}
+				table	+= ( "\t|" + rob[i].getType() + "\t|" + rob[i].getReady() );
 			}
 		System.out.println(table);
 		System.out.println("===============================================================");

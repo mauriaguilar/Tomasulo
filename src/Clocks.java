@@ -16,14 +16,19 @@ public class Clocks {
 		clkADD = new Semaphore(1);
 		clkMUL = new Semaphore(1);
 		clkROB = new Semaphore(1);
+		takeClocks();
 	}
 	
-	public void takeClocks() throws InterruptedException {
-		clkInstruction.acquire();
-		clkLoad.acquire();
-		clkADD.acquire();
-		clkMUL.acquire();
-		clkROB.acquire();
+	private void takeClocks() {
+		try {
+			clkInstruction.acquire();
+			clkLoad.acquire();
+			clkADD.acquire();
+			clkMUL.acquire();
+			clkROB.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void freeClocks() {
@@ -34,11 +39,13 @@ public class Clocks {
 		clkROB.release();
 	}
 	
-	public void takeMainClk() throws InterruptedException {
+	public void take() throws InterruptedException {
 		clk.acquire();
+		//Release all clocks
+		freeClocks();
 	}
 	
-	public void freeMainClk() {
+	public void release() {
 		clk.release();
 	}
 	
