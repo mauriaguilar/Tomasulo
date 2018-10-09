@@ -38,8 +38,8 @@ public class Bus {
 	}
 	
 	public boolean write_tryAcquire() {
-		//System.out.println("BUS tryAcquire() ");
-		return sem_write.tryAcquire();
+		boolean result = sem_write.tryAcquire();
+		return result;
 	}
 	
 	public void write_release() {
@@ -49,22 +49,15 @@ public class Bus {
 	public void read_acquire(String unit) throws InterruptedException {
 		switch (unit) {
 		case "A":
-			//System.out.println("SEM READ ADD LISTO PARA LEER");
 			sem_read_add.acquire();
-			//System.out.println("SEM READ ADD COMENZANDO A LEER");
 			break;
 		case "M":
-			//System.out.println("SEM READ MUL LISTO PARA LEER");
 			sem_read_mul.acquire();
-			//System.out.println("SEM READ MUL COMENZANDO A LEER");
 			break;
 		case "R":
-			//System.out.println("SEM READ ROB LISTO PARA LEER");
 			sem_read_rob.acquire();
-			//System.out.println("SEM READ ROB COMENZANDO A LEER");
 			break;
 		}
-		//counter--;
 	}
 	
 	public void write_ready() {
@@ -75,23 +68,7 @@ public class Bus {
 			sem_read_rob.release();
 			counter=0;
 		}
-	}
-	
-	/*public void read_release(String unit) {
-		switch (unit) {
-		case "A":
-			sem_read_add.release();
-			break;
-		case "M":
-			sem_read_mul.release();
-			break;
-		case "L":
-			sem_read_rob.release();
-			break;
-		}
-	}*/
-	
-	
+	}	
 	
 	public void set(int data, String tag) {
 		this.data = data;
@@ -104,5 +81,10 @@ public class Bus {
 	
 	public String getTag() {
 		return tag;
+	}
+
+	public boolean haveAvailables() {
+		if(sem_write.availablePermits() > 0) return true;
+		else return false;
 	}
 }

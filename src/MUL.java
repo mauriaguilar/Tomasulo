@@ -1,23 +1,20 @@
 import java.util.concurrent.Semaphore;
 
-public class MUL extends Station implements Runnable{
+public class MUL implements Runnable{
 
 	private Semaphore clk;
 	private boolean data;
 	private Bus cdb;
 	private int pos;
-	private RS_Entry[] rs;
-	private int cycles_mul;
+	private RS rs;
+	private int cycles;
 	
-	public MUL(Semaphore clk, int cap, Bus bus, int cycles_mul) {
+	public MUL(Semaphore clk, RS bufferMUL, Bus bus, int cycles_mul) {
 		this.clk = clk;
-		rs = new RS_Entry[cap];
-		for(int i=0; i<cap; i++) {
-			rs[i] = new RS_Entry();
-		}
+		rs = bufferMUL;
 		cdb = bus;
 		pos = 0;
-		this.cycles_mul = cycles_mul;
+		cycles = cycles_mul;
 	}
 	
 	@Override
@@ -25,56 +22,76 @@ public class MUL extends Station implements Runnable{
 		boolean cdbWrited;
 		while(true) {
 			
-			try {
-				clk.acquire();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			waitClock();
 			
 			//System.out.println("MUL Calculating instructions...");
-			cdbWrited = tryCalculate(pos,rs.length);
+			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
 			
-			try {
-				//System.out.println("MUL WRITE READY");
-				cdb.write_ready();
-				//System.out.println("MUL READ ACQUIRE");
-				cdb.read_acquire("M");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			System.out.println("MUL reading CDB...");
+			String UF = "M";
+			writingReady();
+			waitToRead(UF);
+			
 			// Read data bus and replace operands
-			for(int j=0; j<rs.length; j++){
-				if( rs[j].getBusy() ) {
-					if( cdb.getTag().equals(rs[j].getQj()) ){
-						rs[j].setQj("");
-						rs[j].setVj(cdb.getData());
-					}
-					if( cdb.getTag().equals(rs[j].getQk()) ){
-						rs[j].setQk("");
-						rs[j].setVk(cdb.getData());
-					}
-				}
-			}			
+			System.out.println("MUL reading CDB...");
+			readAndReplace();		
 		}
 	}
 	
 
+	private void waitClock() {
+		try {
+			clk.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void writingReady() {
+		//System.out.println("ADD WRITE READY");
+		cdb.write_ready();
+	}
+	
 
-	private boolean tryCalculate(int ini,int fin)  {
+	private void waitToRead(String UF) {
+		try {
+			//System.out.println("ADD READ ACQUIRE");
+			cdb.read_acquire(UF);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void readAndReplace() {
+		for(int j=0; j<rs.length(); j++){
+			if( rs.get(j).getBusy() ) {
+				if( cdb.getTag().equals(rs.get(j).getQj()) ){
+					rs.get(j).setQj("");
+					rs.get(j).setVj(cdb.getData());
+				}
+				if( cdb.getTag().equals(rs.get(j).getQk()) ){
+					rs.get(j).setQk("");
+					rs.get(j).setVk(cdb.getData());
+				}
+			}
+		}
+	}
+
+
+	private boolean tryCalculate(int ini,int fin){
 		int result;
 		// Try calculate instructions
 		for(int i=ini; i<fin; i++) {
-			pos = i+1;
-			// If an ADD instruction exists
-			if( rs[i].getBusy() ) {
-				if(checkOperands(i) && (Main.clocks > (rs[i].getClock()+cycles_mul))) {
+			pos = i+1; // Save the next index
+			// If an instruction exists
+			if( rs.get(i).getBusy() ) {
+				if(checkOperands(i) && (Main.clocks > ( rs.get(i).getClock()+cycles ))) {
 					if(cdb.write_tryAcquire()) {
 						result = calc(i);
-						System.out.println("MUL["+i+"] writing "+result+" CDB...");
-						cdb.set(result, "ROB"+rs[i].getDest());
+						System.out.println("ADD["+i+"] writing "+result+" CDB...");
+						cdb.set(result, "ROB"+rs.get(i).getDest());
 						delete(i);
 						return true;
 					}
@@ -82,37 +99,26 @@ public class MUL extends Station implements Runnable{
 						System.out.println("CDB is Busy. Waiting...");
 				}
 			}
-			//else
-			//	System.out.println("mul["+i+"] is False");
 		}
 		return false;
 	}
 
 	private void delete(int index) {
-		rs[index] = new RS_Entry();	
-		rs[index].release();
+		rs.del(index);
 	}
 
 	private boolean checkOperands(int i) {
-		if(rs[i].getQj().equals("") && rs[i].getQk().equals(""))
+		if(rs.get(i).getQj().equals("") && rs.get(i).getQk().equals(""))
 			return true;
 		else
 			return false;
 	}
 
-	public int check() {
-		int i;
-		for(i=0; i<rs.length; i++)
-			if(rs[i].getBusy() == true)
-				return i;
-		return -1;
-	}
-
 	private int calc(int i) {
 		int res = 0;
 		
-		if(rs[i].getOp().equals("MUL")) {
-			res = rs[i].getVj() * rs[i].getVk();
+		if(rs.get(i).getOp().equals("MUL")) {
+			res = rs.get(i).getVj() * rs.get(i).getVk();
 		}
 		
 		return res;
@@ -120,57 +126,33 @@ public class MUL extends Station implements Runnable{
 
 	public boolean getData() {
 		data = false;
-		for(int i=0; i<rs.length; i++)
-			if(rs[i].getBusy())
+		for(int i=0; i<rs.length(); i++)
+			if(rs.get(i).getBusy())
 				data = true;
 		return data;
 	}
 	
 	public int getPlaces() {
 		int cant = 0;
-		for(int i=0; i<rs.length; i++)
-			if(!rs[i].getBusy())
+		for(int i=0; i<rs.length(); i++)
+			if(!rs.get(i).getBusy())
 				cant++;
 		return cant;
 	}
 	
-	public int getFree() {
-		for(int i=0;i<rs.length;i++)
-			if(!rs[i].getBusy())
-				return i;
-		return -1;
-	}
-	
-	public void setData(int dest, boolean busy, String op, int vj, int vk, String qj, String qk, int clock) {
-		for(int i=0; i<rs.length; i++) {
-			if(rs[i].getOp().equals("")) {
-				System.out.println("Instructions Writing in MUL["+i+"] Station...");
-				rs[i].setDest(dest);
-				rs[i].setBusy(busy);
-				rs[i].setOp(op);
-				rs[i].setQj(qj);
-				rs[i].setQk(qk);
-				rs[i].setVj(vj);
-				rs[i].setVk(vk);
-				rs[i].setClock(clock);
-				break;
-			}
-		}
-	}
-	
 	public void print() {
+		System.out.print("===============================================================");
 		String table = "\nMUL\n";
 		table += "N\t|DEST\t|OP\t|Vj\t|Vk\t|Qj\t|Qk\t|Busy";
-		for(int i=0; i<rs.length; i++)
-			if(rs[i].getBusy()) {
-				table += ("\n" + i + "\t|" + rs[i].getDest() + "\t|" + rs[i].getOp() + "\t|"
-						+ rs[i].getVj() + "\t|" + rs[i].getVk() 
-						+ "\t|" + rs[i].getQj() + "\t|" + rs[i].getQk() + "\t|" + rs[i].getBusy());
+		for(int i=0; i<rs.length(); i++)
+			if(rs.get(i).getBusy()) {
+				table += ("\n" + i + "\t|" + rs.get(i).getDest() + "\t|" + rs.get(i).getOp() + "\t|"
+						+ rs.get(i).getVj() + "\t|" + rs.get(i).getVk() 
+						+ "\t|" + rs.get(i).getQj() + "\t|" + rs.get(i).getQk() + "\t|" + rs.get(i).getBusy());
 			}
+			//else
+			//	table += ("\n" + i + "\t|\t|\t|\t|\t|\t|\t|");
 		System.out.println(table);
 	}
 	
-	public RS_Entry getRS(int i) {
-		return rs[i];
-	}
 }

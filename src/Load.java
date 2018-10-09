@@ -1,126 +1,117 @@
 import java.util.concurrent.Semaphore;
 
-public class Load extends Station implements Runnable{
+public class Load implements Runnable{
 	
 	private Semaphore clk;
-	private Load_Entry[] load;
+	private LS load;
 	private boolean data;
 	private Memory memory;
 	private Registers registers;
 	private Bus cdb;
 	private int pos;
-	private int cycles_load;
+	private int cycles;
 	
-	public Load(Semaphore clk, int cap, Memory memory, Bus bus, int cycles_load) {
+	public Load(Semaphore clk, LS bufferLOAD, Memory memory, Bus bus, int cycles_load) {
 		this.clk = clk;
-		load = new Load_Entry[cap];
-		for(int i=0; i<cap; i++) {
-			load[i] = new Load_Entry();
-		}
+		load = bufferLOAD;
 		this.memory = memory;
 		cdb = bus;
 		pos = 0;
-		this.cycles_load = cycles_load;
+		cycles = cycles_load;
 	}
 
 
 	@Override
 	public void run() {
-		int index, base, value,i=0;
 		
 		while(true) {
 			
-			try {
-				clk.acquire();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			waitClock();
 			
 			//System.out.println("LOAD Calculating instructions...");
-			index = check(pos,load.length);
-			if(index == -1) 
-				index = check(0,pos-1);		
-			// If an LD instruction exists
-			if(index >= 0  && (Main.clocks > ( load[index].getClock()+cycles_load ))) {
-				if(cdb.write_tryAcquire()) {
-					value = calc(index);
-					System.out.println("LOAD["+i+"] writing "+value+" CDB...");
-					cdb.set(value, "ROB"+load[index].getDest());
-					delete(index);
-				}
-			}
-			//System.out.println("LOAD WRITE READY");
-			cdb.write_ready(); //escribe o no
+			tryCalculate();
+
+			writingReady();
 		}
 	}
 
+	private void waitClock() {
+		try {
+			clk.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void tryCalculate() {
+		int index, value,i=0;
+		
+		// Get position of instruction, if exists
+		index = check(pos,load.length());
+		if(index == -1) 
+			index = check(0,pos-1);		
+		
+		// If an instruction exists
+		if(index >= 0  && (Main.clocks > ( load.get(index).getClock()+cycles ))) {
+			if(cdb.write_tryAcquire()) {
+				value =  calc(index);
+				System.out.println("LOAD["+i+"] writing "+value+" CDB...");
+				cdb.set(value, "ROB"+load.get(index).getDest());
+				delete(index);
+			}
+		}
+		
+	}
+
+	private void writingReady() {
+		//System.out.println("ADD WRITE READY");
+		cdb.write_ready();
+	}
+	
 	public int check(int ini, int fin) {
 		int i;
 		for(i=ini; i<fin; i++) {
 			pos = i+1;
-			if(load[i].getBusy() == true)
+			if(load.get(i).getBusy() == true)
 				return i;
 		}
 		return -1;
 	}
 	
 	private int calc(int index) {
-		int dir = load[index].getDir();
+		int dir = load.get(index).getDir();
 		return memory.getValue( dir );
 	}
 	
 	public boolean getData() {
 		data = false;
-		for(int i=0; i<load.length; i++)
-			if(load[i].getBusy() == false)
+		for(int i=0; i<load.length(); i++)
+			if(load.get(i).getBusy() == false)
 				data = true;
 		return data;
 	}
 	
 	public int getPlaces() {
 		int cant = 0;
-		for(int i=0; i<load.length; i++)
-			if(load[i].getDir() == -1)
+		for(int i=0; i<load.length(); i++)
+			if(load.get(i).getDir() == -1)
 				cant++;
 		return cant;
 	}
-	
-	public int getFree() {
-		for(int i=0;i<load.length;i++)
-			if(load[i].getDir() == -1)
-				return i;
-		return -1;
-	}
-	
-	public void setData(int dest, boolean busy, int dir, int clock) {
-		for(int i=0; i<load.length; i++) {
-			if(load[i].getDir() == -1)
-				System.out.println("Instructions Writing in Load["+i+"] Station...");
-				load[i].setDest(dest);
-				load[i].setBusy(busy);
-				load[i].setDir(dir);
-				load[i].setClock(clock);
-				break;
-		}
-	}
 
 	private void delete(int index) {
-		load[index] = new Load_Entry();
-		load[index].release();
+		load.del(index);
 	}
 
 	public void print() {
 		String table = "\nLOAD\n";
 		table += "N\t|DEST\t|DIR\t|Busy";
-		for(int i=0; i<load.length; i++)
-			if(load[i].getBusy()) {
-				table += ("\n" + i + "\t|" + load[i].getDest() + "\t|" 
-					+ load[i].getDir() + "\t|" + load[i].getBusy());
+		for(int i=0; i<load.length(); i++)
+			if(load.get(i).getBusy()) {
+				table += ("\n" + i + "\t|" + load.get(i).getDest() + "\t|" 
+					+ load.get(i).getDir() + "\t|" + load.get(i).getBusy());
 			}
 		System.out.println(table);
-	}
-	
-	public Load_Entry getRS(int i) {
-		return load[i];
 	}
 }

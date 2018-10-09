@@ -16,19 +16,19 @@ public class Instructions implements Runnable{
 			{"ADD", "R3", "R4", "R5"},			// R3 = 42 + 5 = 47
 	};*/
 	
-	private Load load;
-	private ADD add;
-	private MUL mul;
+	private LS bufferLOAD;
+	private RS bufferADD;
+	private RS bufferMUL;
 	private ROB rob;
 	private Registers reg;
 	
-	public Instructions(Semaphore clk, Load load, ADD add, MUL mul, ROB rob, Registers reg) {
+	public Instructions(Semaphore clk, LS bufferLOAD, RS bufferADD, RS bufferMUL, ROB rob, Registers reg) {
 		this.clk = clk;
 		pc = 0;
 		instruction = null;
-		this.load = load;
-		this.add = add;
-		this.mul = mul;
+		this.bufferLOAD = bufferLOAD;
+		this.bufferADD = bufferADD;
+		this.bufferMUL = bufferMUL;
 		this.rob = rob;
 		this.reg = reg;
 	}
@@ -50,7 +50,6 @@ public class Instructions implements Runnable{
 			instruction = getNext();
 			
 			if(instruction != null) {
-				//System.out.println("Instruction...");
 				
 				// 2) Decode Instruction
 				dest = decode_instruction();
@@ -113,44 +112,27 @@ public class Instructions implements Runnable{
 		
 		// If there is an empty slot in the ROB
 		//if(rob.getPlaces() >= 1) {
-		int index = rob.getIndex();
-		rob.getROB(index).acquire();	//Blocks waiting ROB's places
+		int indexROB = rob.getIndex();
+		int indexRS, indexLS;
+		rob.getROB(indexROB).acquire();	//Blocks waiting ROB's places
 		
 		switch (dest) {
-			case "ADD": 
-				// If there is an empty slot in the ADD RS
-				while(add.getFree() == -1) {
-					continue;
-				}
-				//System.out.println("Voy a ACQUIRE-- "+ add.getPlaces() );
-				
-				add.getRS(add.getFree()).acquire();
-				//System.out.println("Ya hice ACQUIRE");
-				//add.getResource();
-				allocate(add,index);
+			case "ADD":
+				// If there is an empty slot in the ADD RS, else block here
+				indexRS = bufferADD.getResource();
+				allocateRS(bufferADD,indexROB,indexRS);
 				allocateROB();
 				break;
 			case "MUL":
-				// If there is an empty slot in the MUL RS	
-				while(mul.getFree() == -1) {
-					continue;
-				}
-				mul.getRS(add.getFree()).acquire();
-				//mul.getResource();
-				allocate(mul,index);
+				// If there is an empty slot in the MUL RS, else block here	
+				indexRS = bufferMUL.getResource();
+				allocateRS(bufferMUL,indexROB,indexRS);
 				allocateROB();
 				break;
 			case "LD":
-				// If there is an empty slot in the LD RS
-				while(load.getFree() == -1) {
-					continue;
-				}
-				load.getRS(load.getFree()).acquire();
-				//load.getResource();
-				int register_index = Character.getNumericValue( instruction[3].charAt(1) );
-				int valor = reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
-				int direction = Integer.parseInt(instruction[2]) + valor;
-				load.setData(index, true, direction, Main.clocks);
+				// If there is an empty slot in the LD RS, else block here
+				indexLS = bufferLOAD.getResource();
+				allocateLS(indexROB,indexLS);
 				allocateROB();
 				break;
 			case "ST":
@@ -160,8 +142,8 @@ public class Instructions implements Runnable{
 		
 		return "ROB and "+dest+" allocated";
 	}
-	
-	private void allocate(Station rs, int index) {
+
+	private void allocateRS(RS rs, int indexROB, int indexRS) {
 		
 		//Renaming
 		String qj = "";
@@ -190,7 +172,16 @@ public class Instructions implements Runnable{
 		}
 		
 		// dest, busy, operation, value j, value k, index qj, index qk
-		rs.setData(index,true, instruction[0], vj, vk, qj, qk, Main.clocks);
+		rs.setData(indexROB,indexRS, true, instruction[0], vj, vk, qj, qk, Main.clocks);
+	}
+	
+	private void allocateLS(int indexROB, int indexLS) {
+		// Calc
+		int register_index = Character.getNumericValue( instruction[3].charAt(1) );
+		int value = reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
+		int direction = Integer.parseInt(instruction[2]) + value;
+		
+		bufferLOAD.setData(indexROB, indexLS, true, direction, Main.clocks);
 	}
 
 	private void allocateROB() {
