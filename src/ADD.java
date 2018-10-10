@@ -2,29 +2,27 @@ import java.util.concurrent.Semaphore;
 
 public class ADD implements Runnable{
 	
-	private Semaphore clk;
+	private Clocks clk;
 	private boolean data;
 	private Bus cdb;
 	private int pos;
 	private RS rs;
-	private int cycles;
 	
-	public ADD(Semaphore clk, RS bufferADD, Bus bus, int cycles_add) {
+	public ADD(Clocks clk, RS bufferADD, Bus bus) {
 		this.clk = clk;
 		cdb = bus;
 		pos = 0;
 		rs = bufferADD;
-		cycles = cycles_add;
 	}
 	
 	@Override
 	public void run() {
-		boolean cdbWrited=false;
+		boolean cdbWrited = false;
 		while(true) {
 			
-			waitClock();
+			clk.waitClockADD();
 			
-			System.out.println("ADD Calculating instructions...");
+			System.out.println("ADD Calculating instructions..."+Clocks.clocks);
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
@@ -38,15 +36,6 @@ public class ADD implements Runnable{
 			readAndReplace();
 			
 		}
-	}
-
-	private void waitClock() {
-		try {
-			clk.acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
 	}
 	
 	private void writingReady() {
@@ -84,20 +73,22 @@ public class ADD implements Runnable{
 		int result;
 		// Try calculate instructions
 		for(int i=ini; i<fin; i++) {
-			pos = i+1; // Save the next index
+			pos = i; // Save the next index
 			// If an instruction exists
 			if( rs.get(i).getBusy() ) {
-				if(checkOperands(i) && (Main.clocks > ( rs.get(i).getClock()+cycles ))) {
-					if(cdb.write_tryAcquire()) {
-						result = calc(i);
-						System.out.println("ADD["+i+"] writing "+result+" CDB...");
-						cdb.set(result, "ROB"+rs.get(i).getDest());
-						delete(i);
-						return true;
-					}
-					else
-						System.out.println("CDB is Busy. Waiting...");
-				}
+				if(checkOperands(i))
+					if(clk.checkCyclesADD())
+						if(cdb.write_tryAcquire()) {
+							pos = i+1;
+							clk.resetCyclesADD();
+							result = calc(i);
+							System.out.println("ADD["+i+"] writing "+result+" CDB...");
+							cdb.set(result, "ROB"+rs.get(i).getDest());
+							delete(i);
+							return true;
+						}
+						else
+							System.out.println("CDB is Busy. ADD Waiting...");
 			}
 		}
 		return false;

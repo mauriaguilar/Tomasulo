@@ -2,29 +2,27 @@ import java.util.concurrent.Semaphore;
 
 public class MUL implements Runnable{
 
-	private Semaphore clk;
+	private Clocks clk;
 	private boolean data;
 	private Bus cdb;
 	private int pos;
 	private RS rs;
-	private int cycles;
 	
-	public MUL(Semaphore clk, RS bufferMUL, Bus bus, int cycles_mul) {
+	public MUL(Clocks clk, RS bufferMUL, Bus bus) {
 		this.clk = clk;
 		rs = bufferMUL;
 		cdb = bus;
 		pos = 0;
-		cycles = cycles_mul;
 	}
 	
 	@Override
 	public void run() {
-		boolean cdbWrited;
+		boolean cdbWrited = false;
 		while(true) {
 			
-			waitClock();
+			clk.waitClockMUL();
 			
-			//System.out.println("MUL Calculating instructions...");
+			System.out.println("MUL Calculating instructions...");
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
@@ -37,16 +35,6 @@ public class MUL implements Runnable{
 			System.out.println("MUL reading CDB...");
 			readAndReplace();		
 		}
-	}
-	
-
-	private void waitClock() {
-		try {
-			clk.acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
 	}
 	
 	private void writingReady() {
@@ -84,20 +72,22 @@ public class MUL implements Runnable{
 		int result;
 		// Try calculate instructions
 		for(int i=ini; i<fin; i++) {
-			pos = i+1; // Save the next index
+			pos = i; // Save the next index
 			// If an instruction exists
 			if( rs.get(i).getBusy() ) {
-				if(checkOperands(i) && (Main.clocks > ( rs.get(i).getClock()+cycles ))) {
-					if(cdb.write_tryAcquire()) {
-						result = calc(i);
-						System.out.println("ADD["+i+"] writing "+result+" CDB...");
-						cdb.set(result, "ROB"+rs.get(i).getDest());
-						delete(i);
-						return true;
-					}
-					else
-						System.out.println("CDB is Busy. Waiting...");
-				}
+				if(checkOperands(i))
+					if(clk.checkCyclesADD())
+						if(cdb.write_tryAcquire()) {
+							pos = i+1;
+							clk.resetCyclesMUL();
+							result = calc(i);
+							System.out.println("ADD["+i+"] writing "+result+" CDB...");
+							cdb.set(result, "ROB"+rs.get(i).getDest());
+							delete(i);
+							return true;
+						}
+						else
+							System.out.println("CDB is Busy. MUL Waiting...");
 			}
 		}
 		return false;

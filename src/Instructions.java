@@ -1,10 +1,9 @@
-import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.concurrent.Semaphore;
 
 public class Instructions implements Runnable{
 
 	private Semaphore clk;
-	private int pc;
+	private static int pc;
 	private String [] instruction;
 	private static String instructions[][];
 	/*= {
@@ -38,11 +37,7 @@ public class Instructions implements Runnable{
 		
 		while(true) {
 			
-			try {
-				clk.acquire();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			waitClock();
 			
 			String dest, result = null;
 			
@@ -68,6 +63,14 @@ public class Instructions implements Runnable{
 			}
 		}
 		
+	}
+	
+	private void waitClock() {
+		try {
+			clk.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public String[] getNext() {
@@ -172,7 +175,7 @@ public class Instructions implements Runnable{
 		}
 		
 		// dest, busy, operation, value j, value k, index qj, index qk
-		rs.setData(indexROB,indexRS, true, instruction[0], vj, vk, qj, qk, Main.clocks);
+		rs.setData(indexROB,indexRS, true, instruction[0], vj, vk, qj, qk, Clocks.clocks);
 	}
 	
 	private void allocateLS(int indexROB, int indexLS) {
@@ -181,7 +184,7 @@ public class Instructions implements Runnable{
 		int value = reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
 		int direction = Integer.parseInt(instruction[2]) + value;
 		
-		bufferLOAD.setData(indexROB, indexLS, true, direction, Main.clocks);
+		bufferLOAD.setData(indexROB, indexLS, true, direction, Clocks.clocks);
 	}
 
 	private void allocateROB() {
@@ -214,7 +217,7 @@ public class Instructions implements Runnable{
 		rob.setData(dest, register_value2, instruction[0], false);
 	}
 
-	public int getPC() {
+	public static int getPC() {
 		return pc;
 	}
 

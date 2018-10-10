@@ -2,22 +2,21 @@ import java.util.concurrent.Semaphore;
 
 public class Load implements Runnable{
 	
-	private Semaphore clk;
+	private Clocks clk;
 	private LS load;
 	private boolean data;
 	private Memory memory;
 	private Registers registers;
 	private Bus cdb;
 	private int pos;
-	private int cycles;
 	
-	public Load(Semaphore clk, LS bufferLOAD, Memory memory, Bus bus, int cycles_load) {
+	
+	public Load(Clocks clk, LS bufferLOAD, Memory memory, Bus bus) {
 		this.clk = clk;
 		load = bufferLOAD;
 		this.memory = memory;
 		cdb = bus;
 		pos = 0;
-		cycles = cycles_load;
 	}
 
 
@@ -26,22 +25,13 @@ public class Load implements Runnable{
 		
 		while(true) {
 			
-			waitClock();
+			clk.waitClockLOAD();
 			
-			//System.out.println("LOAD Calculating instructions...");
+			System.out.println("LOAD Calculating instructions...");
 			tryCalculate();
 
 			writingReady();
 		}
-	}
-
-	private void waitClock() {
-		try {
-			clk.acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
 	}
 	
 	private void tryCalculate() {
@@ -53,13 +43,16 @@ public class Load implements Runnable{
 			index = check(0,pos-1);		
 		
 		// If an instruction exists
-		if(index >= 0  && (Main.clocks > ( load.get(index).getClock()+cycles ))) {
-			if(cdb.write_tryAcquire()) {
-				value =  calc(index);
-				System.out.println("LOAD["+i+"] writing "+value+" CDB...");
-				cdb.set(value, "ROB"+load.get(index).getDest());
-				delete(index);
-			}
+		if(index >= 0) {
+			if(clk.checkCyclesLOAD())
+				if(cdb.write_tryAcquire()) {
+					pos++;
+					clk.resetCyclesLOAD();
+					value =  calc(index);
+					System.out.println("LOAD["+i+"] writing "+value+" CDB...");
+					cdb.set(value, "ROB"+load.get(index).getDest());
+					delete(index);
+				}
 		}
 		
 	}
@@ -72,7 +65,7 @@ public class Load implements Runnable{
 	public int check(int ini, int fin) {
 		int i;
 		for(i=ini; i<fin; i++) {
-			pos = i+1;
+			pos = i;
 			if(load.get(i).getBusy() == true)
 				return i;
 		}
