@@ -33,17 +33,21 @@ public class ROB implements Runnable{
 			clk.waitClockADD();
 			
 			//Write in REG
-			removeNext();
 			if(rob[remove_index].getReady()) {
-				if(rob[remove_index].getDest().contains("R")) {
-					index = Character.getNumericValue( rob[remove_index].getDest().charAt(1) );
-					reg.setData(index, Integer.parseInt(rob[remove_index].getValue()));
+				if(!rob[remove_index].getDest().equals("-1")) {
+					if(rob[remove_index].getDest().contains("R")) {
+						index = Character.getNumericValue( rob[remove_index].getDest().charAt(1) );
+						reg.setData(index, Integer.parseInt(rob[remove_index].getValue()));
+					}
+					else {
+						index = Character.getNumericValue( rob[remove_index].getDest().charAt(0) );
+						mem.setValue(index, Integer.parseInt(rob[remove_index].getValue()));
+					}
+					delete();
+					removeNext();
 				}
-				else {
-					index = Character.getNumericValue( rob[remove_index].getDest().charAt(0) );
-					mem.setValue(index, Integer.parseInt(rob[remove_index].getValue()));
-				}
-				delete();
+				
+
 				//System.out.println("  GET READY  "+remove_index);
 			}
 			
@@ -70,15 +74,18 @@ public class ROB implements Runnable{
 	}
 	
 	private void removeNext() {
-		remove_index++;
-		if(remove_index == rob.length-1)
+	
+		if(remove_index < rob.length-1)
+			remove_index++;
+		else
 			remove_index = 0;
 	}
 	
 	private void putNext() {
-		put_index++;
-		if(put_index == rob.length-1)
-			put_index = 0;
+		if(put_index < rob.length-1)
+			put_index++;
+		else
+			put_index=0;
 	}
 	
 	public int getIndex() {
@@ -133,11 +140,11 @@ public class ROB implements Runnable{
 	
 	public void setData(String dest, String value, String type, boolean ready) {
 		System.out.println("Instructions Writing in ROB["+put_index+"] Station...");
-		putNext();
 		rob[put_index].setDest(dest);
 		rob[put_index].setType(type);
 		rob[put_index].setValue(value);
 		rob[put_index].setReady(ready);
+		putNext();
 	}
 	
 	public ROB_Entry getROB(int i) {
