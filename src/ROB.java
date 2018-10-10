@@ -2,7 +2,7 @@ import java.util.concurrent.Semaphore;
 
 public class ROB implements Runnable{
 	
-	private Semaphore clk;
+	private Clocks clk;
 	private ROB_Entry [] rob;
 	private Bus cdb;
 	private int put_index;	//Indice donde se escriben las instrucciones
@@ -11,7 +11,7 @@ public class ROB implements Runnable{
 	private Memory mem;
 	 
 	
-	public ROB(Semaphore clk, int cap, Bus bus, Registers reg, Memory mem) {
+	public ROB(Clocks clk, int cap, Bus bus, Registers reg, Memory mem) {
 		this.clk = clk;
 		cdb = bus;
 		put_index = 0;
@@ -30,13 +30,10 @@ public class ROB implements Runnable{
 		int index;
 		
 		while(true) {
-			try {
-				clk.acquire();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			clk.waitClockADD();
 			
 			//Write in REG
+			removeNext();
 			if(rob[remove_index].getReady()) {
 				if(rob[remove_index].getDest().contains("R")) {
 					index = Character.getNumericValue( rob[remove_index].getDest().charAt(1) );
@@ -48,10 +45,6 @@ public class ROB implements Runnable{
 				}
 				delete();
 				//System.out.println("  GET READY  "+remove_index);
-				if(remove_index == rob.length)
-					remove_index = 0;
-				else
-					remove_index++;
 			}
 			
 			try {
@@ -76,6 +69,23 @@ public class ROB implements Runnable{
 		}
 	}
 	
+	private void removeNext() {
+		remove_index++;
+		if(remove_index == rob.length-1)
+			remove_index = 0;
+	}
+	
+	private void putNext() {
+		put_index++;
+		if(put_index == rob.length-1)
+			put_index = 0;
+	}
+	
+	public int getIndex() {
+		if(put_index == -1) return 0;
+		else return put_index;
+	}
+
 	public int getPlaces() {
 		int cant = 0;
 		for(int i=0; i<rob.length; i++)
@@ -95,10 +105,6 @@ public class ROB implements Runnable{
 		rob[remove_index] = new ROB_Entry();
 		//System.out.println("ELIMINANDO "+remove_index);
 		rob[remove_index].release();
-	}
-
-	public int getIndex() {
-		return put_index;
 	}
 
 	public int compareOperand(String operand) {
@@ -127,14 +133,11 @@ public class ROB implements Runnable{
 	
 	public void setData(String dest, String value, String type, boolean ready) {
 		System.out.println("Instructions Writing in ROB["+put_index+"] Station...");
+		putNext();
 		rob[put_index].setDest(dest);
 		rob[put_index].setType(type);
 		rob[put_index].setValue(value);
 		rob[put_index].setReady(ready);
-		if(put_index == rob.length)
-			put_index = 0;
-		else
-			put_index++;		
 	}
 	
 	public ROB_Entry getROB(int i) {

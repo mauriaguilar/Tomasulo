@@ -160,4 +160,8 @@ public class Clocks {
 	public void resetCyclesLOAD() {
 		current_cycles_load = 0;
 	}
+
+	public void waitClockROB() {
+		waitClock(clkROB);
+	}
 }

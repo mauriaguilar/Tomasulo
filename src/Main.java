@@ -21,7 +21,7 @@ public class Main {
 	static Load load = new Load(clock, bufferLOAD, mem, cdb);
 	static ADD add = new ADD(clock, bufferADD, cdb);
 	static MUL mul = new MUL(clock, bufferMUL, cdb);
-	static ROB rob = new ROB(clock.clkROB(), 9,cdb, reg, mem);
+	static ROB rob = new ROB(clock, 1,cdb, reg, mem);
 	static Instructions instructions = new Instructions(clock.clkInstruction(),bufferLOAD,bufferADD,bufferMUL,rob,reg);
 
 	// Threads
