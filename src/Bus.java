@@ -43,7 +43,7 @@ public class Bus {
 	}
 	
 	public void write_release() {
-		if(!haveAvailables())
+		if( !haveAvailables() )
 			sem_write.release();
 	}
 
