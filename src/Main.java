@@ -61,8 +61,7 @@ public class Main {
 			clock.take();
 
 			//Release CDB
-			if(!cdb.haveAvailables())
-				cdb.write_release();
+			cdb.write_release();
 			
 			//Time of execution of one clock 
 			Thread.sleep(1 * 1000);

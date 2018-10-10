@@ -43,7 +43,8 @@ public class Bus {
 	}
 	
 	public void write_release() {
-		sem_write.release();
+		if(!haveAvailables())
+			sem_write.release();
 	}
 
 	public void read_acquire(String unit) throws InterruptedException {
