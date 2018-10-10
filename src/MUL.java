@@ -16,7 +16,7 @@ public class MUL implements Runnable{
 	}
 	
 	@Override
-	public void run() {
+	public void run() { 
 		boolean cdbWrited = false;
 		while(true) {
 			

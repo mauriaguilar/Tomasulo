@@ -13,7 +13,7 @@ public class RS_Entry {
 	private Semaphore sem;
 	
 	public RS_Entry() {
-		dest = -1;
+		dest = -1; 
 		busy = false;
 		op = "";
 		vj = 0; //ver

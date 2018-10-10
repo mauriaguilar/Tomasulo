@@ -7,9 +7,9 @@ public class ROB implements Runnable{
 	private Bus cdb;
 	private int put_index;	//Indice donde se escriben las instrucciones
 	private int remove_index;	//Indice que indica instruccion a sacar
-	private Registers reg;
+	private Registers reg; 
 	private Memory mem;
-	
+	 
 	
 	public ROB(Semaphore clk, int cap, Bus bus, Registers reg, Memory mem) {
 		this.clk = clk;

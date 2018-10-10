@@ -37,7 +37,7 @@ public class Instructions implements Runnable{
 		
 		while(true) {
 			
-			waitClock();
+			waitClock(); 
 			
 			String dest, result = null;
 			

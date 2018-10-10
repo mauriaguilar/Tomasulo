@@ -1,7 +1,7 @@
 import java.util.concurrent.Semaphore;
 
 public class Clocks {
-
+ 
 	// Cycles counter
 	public static Integer clocks = 0;
 	// Minimun Cycles for RS

@@ -4,7 +4,7 @@ public class Bus {
 	
 	//private Integer data_bus = new Integer(0);
 	private int data;
-	private String tag;
+	private String tag; 
 	private Semaphore sem_write;
 	private Semaphore sem_read_add;
 	private Semaphore sem_read_mul;

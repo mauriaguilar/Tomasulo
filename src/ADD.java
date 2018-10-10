@@ -69,7 +69,7 @@ public class ADD implements Runnable{
 		}
 	}
 
-	private boolean tryCalculate(int ini,int fin){
+	private boolean tryCalculate(int ini,int fin){ 
 		int result;
 		// Try calculate instructions
 		for(int i=ini; i<fin; i++) {

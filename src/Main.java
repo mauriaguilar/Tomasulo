@@ -40,7 +40,7 @@ public class Main {
 
 		startExecution();
 		
-		while(true) {			
+		while(true) {	 		
 			//Enable the execution of a clock
 			clock.take();
 

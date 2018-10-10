@@ -22,7 +22,7 @@ public class Load implements Runnable{
 
 	@Override
 	public void run() {
-		
+		 
 		while(true) {
 			
 			clk.waitClockLOAD();

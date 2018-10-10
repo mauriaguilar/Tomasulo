@@ -5,12 +5,12 @@ public class RS {
 	private RS_Entry[] rs;
 	private Semaphore available;
 	
-	public RS(int cap) {
+	public RS(int cap) { 
 		rs = new RS_Entry[cap];
 		for(int i=0; i<cap; i++) {
 			rs[i] = new RS_Entry();
 		}
-		available = new Semaphore(cap);
+		available = new Semaphore(cap); 
 	}
 	
 	public int getResource() throws InterruptedException {
