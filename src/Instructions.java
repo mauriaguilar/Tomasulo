@@ -111,12 +111,6 @@ public class Instructions implements Runnable{
 		int indexROB;
 		int indexRS, indexLS;
 		
-		/*indexROB = rob.getIndex();
-		try {
-			rob.getROB(indexROB).acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}*/
 		bufferROB.getResource();
 		indexROB = rob.getIndex();
 		
@@ -210,11 +204,20 @@ public class Instructions implements Runnable{
 			register_value2 = "ROB" + index_operand;
 		}
 		
+		int index_operand1 = rob.compareOperand(instruction[2]);
+		if(index_operand1 == -1) {
+			register_index1 = Character.getNumericValue( instruction[2].charAt(1) );
+			register_value1 = reg.getData(register_index1);	//Convierte el numero a int y lo pasa como argumento
+			dest = ""+ (register_value1 + Character.getNumericValue( instruction[1].charAt(0) ));	
+		}
+		else {
+			dest = ""+instruction[1]+"+"+instruction[2];
+		}
 		//Get dest
-		register_index1 = Character.getNumericValue( instruction[2].charAt(1) );
-		register_value1 = reg.getData(register_index1);	//Convierte el numero a int y lo pasa como argumento
-		dest = ""+ (register_value1 + Character.getNumericValue( instruction[1].charAt(0) ));	
-		
+		//register_index1 = Character.getNumericValue( instruction[2].charAt(1) );
+		//register_value1 = reg.getData(register_index1);	//Convierte el numero a int y lo pasa como argumento
+		//dest = ""+ (register_value1 + Character.getNumericValue( instruction[1].charAt(0) ));	
+		//dest = ""+instruction[1]+"+"+instruction[2];
 		rob.setData(dest, register_value2, instruction[0], false);
 	}
 

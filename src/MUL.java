@@ -28,7 +28,7 @@ public class MUL implements Runnable{
 				tryCalculate(0,pos-1);
 			
 			String UF = "M";
-			//System.out.println("MUL LIBERA...");
+			System.out.println("MUL LIBERA...");
 			writingReady();
 			waitToRead(UF);
 			

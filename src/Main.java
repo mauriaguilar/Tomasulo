@@ -40,11 +40,11 @@ public class Main {
 		Thread.sleep(3 * 1000);
 
 		startExecution();
-		int dead = 0;
+		//int dead = 0;
 		while(true) {	 		
 			//Enable the execution of a clock
 			clock.take();
-dead++;
+			//dead++;
 			//Release CDB
 			cdb.write_release();
 			
@@ -53,7 +53,7 @@ dead++;
 			
 			//Print tables
 			printTables();
-			if( dead == 25 ) break;
+			//if( dead == 25 ) break;
 			if(instructions.isHLT() && rob.isEmpty()) {
 				//Print Registers and Memory tables
 				printMemories();

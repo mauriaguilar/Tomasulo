@@ -22,14 +22,33 @@ public class ROB implements Runnable{
 	
 	@Override
 	public void run() {
-		String tag;
-		int index;
-		
+
 		while(true) {
 			clk.waitClockROB();
 			
 			//Write in REG
-			if(rob.get(remove_index).getReady()) {
+			writeRegMem();
+			
+			String UF = "R";
+			System.out.println("ROB LIBERA...");
+			writingReady(); //ROB termina SU proceso de escritura
+			waitToRead(UF);
+			
+			readAndReplace();
+		}
+	}
+	
+	private void writingReady() {
+		cdb.write_ready();
+	}
+	private void  writeRegMem(){
+		int index;
+		if(rob.get(remove_index).getReady()) {
+			if(rob.get(remove_index).getDest().contains("+")) {
+				String dest = calcDest();
+				rob.get(remove_index).setDest(dest);
+			}
+			else {
 				if(rob.get(remove_index).getDest().contains("R")) {
 					index = Character.getNumericValue( rob.get(remove_index).getDest().charAt(1) );
 					reg.setData(index, Integer.parseInt(rob.get(remove_index).getValue()));
@@ -41,29 +60,44 @@ public class ROB implements Runnable{
 				delete();
 				removeNext();
 			}
-			
-			try {
-				cdb.read_acquire("R");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			
-			System.out.println("ROB reading CDB...");
-			tag = cdb.getTag();
-			if( tag.contains("ROB") ) {
-				// Calculate index of ROB and save
-				index = Character.getNumericValue( tag.charAt(3) );
-				rob.get(index).setValue( ""+cdb.getData() );
-				rob.get(index).setReady(true);
-				System.out.println("ROB["+index+"] getting "+cdb.getData()+" from CDB...");
-				compareValue();
-			}
-			
-			
-			
+		}	
+	}
+	
+	private void waitToRead(String UF) {
+		try {
+			//System.out.println("ADD READ ACQUIRE");
+			cdb.read_acquire(UF);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 	
+	private void readAndReplace() {
+		int index;
+		String tag;
+		System.out.println("ROB reading CDB...");
+		tag = cdb.getTag();
+		if( tag.contains("ROB") ) {
+			// Calculate index of ROB and save
+			index = Character.getNumericValue( tag.charAt(3) );
+			rob.get(index).setValue( ""+cdb.getData() );
+			rob.get(index).setReady(true);
+			System.out.println("ROB["+index+"] getting "+cdb.getData()+" from CDB...");
+			compareValue();
+
+		}	
+	}
+	
+	private String calcDest() {
+		int register_index1;
+		int register_value1;
+		//Get dest
+		register_index1 = Character.getNumericValue( rob.get(remove_index).getDest().charAt(3) );
+		register_value1 = reg.getData(register_index1);	//Convierte el numero a int y lo pasa como argumento
+		String dest = ""+ (register_value1 + Character.getNumericValue( rob.get(remove_index).getDest().charAt(0) ));
+		return dest;
+	}
+
 	private void removeNext() {
 		if(remove_index < rob.length()-1)
 			remove_index++;

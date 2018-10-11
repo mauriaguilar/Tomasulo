@@ -26,8 +26,9 @@ public class ADD implements Runnable{
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
-			//System.out.println("ADD LIBERA...");
+			
 			String UF = "A";
+			System.out.println("ADD LIBERA...");
 			writingReady();
 			waitToRead(UF);
 			//System.out.println("ADD...---");
@@ -96,7 +97,7 @@ public class ADD implements Runnable{
 						}
 					}
 					else {
-						System.out.println("ADD waiting clocks...");
+						//System.out.println("ADD waiting clocks...");
 						return false;
 					}
 			   }

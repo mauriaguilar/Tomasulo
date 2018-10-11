@@ -35,7 +35,8 @@ public class Load implements Runnable{
 
 			System.out.println("LOAD LIBERA...");
 			writingReady();		
-			System.out.println("LOAD reading CDB... AFTER");
+			waitToRead("L");	//solo por sincronizacion
+			//System.out.println("LOAD reading CDB... AFTER");
 		}
 	}
 	
@@ -65,6 +66,14 @@ public class Load implements Runnable{
 		cdb.write_ready();
 	}
 	
+	private void waitToRead(String UF) {
+		try {
+			//System.out.println("MUL READ ACQUIRE");
+			cdb.read_acquire(UF);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 	public boolean tryCalculate(int ini, int fin) {
 		int i, value;
 		// 
