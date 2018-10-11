@@ -6,9 +6,9 @@ public class MUL implements Runnable{
 	private boolean data;
 	private Bus cdb;
 	private int pos;
-	private RS rs;
+	private Reserve_Station rs;
 	
-	public MUL(Clocks clk, RS bufferMUL, Bus bus) {
+	public MUL(Clocks clk, Reserve_Station bufferMUL, Bus bus) {
 		this.clk = clk;
 		rs = bufferMUL;
 		cdb = bus;
@@ -22,30 +22,32 @@ public class MUL implements Runnable{
 			
 			clk.waitClockMUL();
 			
-			System.out.println("MUL Calculating instructions...");
+			//System.out.println("MUL Calculating instructions...");
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
 			
 			String UF = "M";
+			//System.out.println("MUL LIBERA...");
 			writingReady();
 			waitToRead(UF);
 			
 			// Read data bus and replace operands
 			System.out.println("MUL reading CDB...");
 			readAndReplace();		
+			System.out.println("MUL reading CDB... AFTER");
 		}
 	}
 	
 	private void writingReady() {
-		//System.out.println("ADD WRITE READY");
+		//System.out.println("MUL WRITE READY");
 		cdb.write_ready();
 	}
 	
 
 	private void waitToRead(String UF) {
 		try {
-			//System.out.println("ADD READ ACQUIRE");
+			//System.out.println("MUL READ ACQUIRE");
 			cdb.read_acquire(UF);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -56,10 +58,12 @@ public class MUL implements Runnable{
 		for(int j=0; j<rs.length(); j++){
 			if( rs.get(j).getBusy() ) {
 				if( cdb.getTag().equals(rs.get(j).getQj()) ){
+					System.out.println("MUL["+j+"] getting "+cdb.getData()+" from CDB...");
 					rs.get(j).setQj("");
 					rs.get(j).setVj(cdb.getData());
 				}
 				if( cdb.getTag().equals(rs.get(j).getQk()) ){
+					System.out.println("MUL["+j+"] getting "+cdb.getData()+" from CDB...");
 					rs.get(j).setQk("");
 					rs.get(j).setVk(cdb.getData());
 				}
@@ -75,19 +79,27 @@ public class MUL implements Runnable{
 			pos = i; // Save the next index
 			// If an instruction exists
 			if( rs.get(i).getBusy() ) {
-				if(checkOperands(i))
-					if(clk.checkCyclesADD())
+				if(checkOperands(i)) {
+					if(clk.checkCyclesMUL()) {
 						if(cdb.write_tryAcquire()) {
 							pos = i+1;
 							clk.resetCyclesMUL();
 							result = calc(i);
-							System.out.println("ADD["+i+"] writing "+result+" CDB...");
+							System.out.println("MUL["+i+"] writing "+result+" CDB...");
 							cdb.set(result, "ROB"+rs.get(i).getDest());
 							delete(i);
 							return true;
 						}
-						else
+						else{
 							System.out.println("CDB is Busy. MUL Waiting...");
+							return true;
+						}
+					}
+					else {
+						System.out.println("MUL waiting clocks...");
+						return false;
+					}
+				}
 			}
 		}
 		return false;
@@ -131,7 +143,6 @@ public class MUL implements Runnable{
 	}
 	
 	public void print() {
-		System.out.print("===============================================================");
 		String table = "\nMUL\n";
 		table += "N\t|DEST\t|OP\t|Vj\t|Vk\t|Qj\t|Qk\t|Busy";
 		for(int i=0; i<rs.length(); i++)

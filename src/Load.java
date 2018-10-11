@@ -3,7 +3,7 @@ import java.util.concurrent.Semaphore;
 public class Load implements Runnable{
 	
 	private Clocks clk;
-	private LS load;
+	private Load_Station load;
 	private boolean data;
 	private Memory memory;
 	private Registers registers;
@@ -11,7 +11,7 @@ public class Load implements Runnable{
 	private int pos;
 	
 	
-	public Load(Clocks clk, LS bufferLOAD, Memory memory, Bus bus) {
+	public Load(Clocks clk, Load_Station bufferLOAD, Memory memory, Bus bus) {
 		this.clk = clk;
 		load = bufferLOAD;
 		this.memory = memory;
@@ -22,29 +22,32 @@ public class Load implements Runnable{
 
 	@Override
 	public void run() {
-		 
+		boolean cdbWrited = false;
 		while(true) {
+			
 			
 			clk.waitClockLOAD();
 			
-			System.out.println("LOAD Calculating instructions...");
-			tryCalculate();
+			//System.out.println("LOAD Calculating instructions...");
+			cdbWrited = tryCalculate(pos,load.length());
+			if(!cdbWrited) 
+				tryCalculate(0,pos-1);
 
-			writingReady();
+			System.out.println("LOAD LIBERA...");
+			writingReady();		
+			System.out.println("LOAD reading CDB... AFTER");
 		}
 	}
 	
-	private void tryCalculate() {
+	private void check() {
 		int index, value,i=0;
 		
 		// Get position of instruction, if exists
-		index = check(pos,load.length());
-		if(index == -1) 
-			index = check(0,pos-1);		
+		
 		
 		// If an instruction exists
-		if(index >= 0) {
-			if(clk.checkCyclesLOAD())
+		/*if(index >= 0) {
+			if(clk.checkCyclesLOAD()) {
 				if(cdb.write_tryAcquire()) {
 					pos++;
 					clk.resetCyclesLOAD();
@@ -53,23 +56,41 @@ public class Load implements Runnable{
 					cdb.set(value, "ROB"+load.get(index).getDest());
 					delete(index);
 				}
-		}
+			}
+		}*/
 		
 	}
 
 	private void writingReady() {
-		//System.out.println("ADD WRITE READY");
 		cdb.write_ready();
 	}
 	
-	public int check(int ini, int fin) {
-		int i;
+	public boolean tryCalculate(int ini, int fin) {
+		int i, value;
+		// 
 		for(i=ini; i<fin; i++) {
-			pos = i;
-			if(load.get(i).getBusy() == true)
-				return i;
+				pos = i;
+				// 
+				if(load.get(i).getBusy()) {
+					if(clk.checkCyclesLOAD()) {
+						if(cdb.write_tryAcquire()) {
+							pos = i+1;
+							clk.resetCyclesLOAD();
+							value =  calc(i);
+							System.out.println("LOAD["+i+"] writing "+value+" CDB...");
+							cdb.set(value, "ROB"+load.get(i).getDest());
+							delete(i);
+						}
+						return true;
+					}
+					else {
+						System.out.println("LOAD waiting clocks...");
+						return false;
+					}
+				}
+				
 		}
-		return -1;
+		return false;
 	}
 	
 	private int calc(int index) {

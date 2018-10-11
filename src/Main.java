@@ -13,16 +13,17 @@ public class Main {
 	static Memory mem = new Memory(9);
 	static Registers reg = new Registers(9);
 	
-	static RS bufferADD = new RS(3);
-	static RS bufferMUL = new RS(3);
-	static LS bufferLOAD = new LS(3);
+	static Reserve_Station bufferADD = new Reserve_Station(3);
+	static Reserve_Station bufferMUL = new Reserve_Station(3);
+	static Load_Station bufferLOAD = new Load_Station(3);
+	static ROB_Station bufferROB = new ROB_Station(9);
 	
 	// Objects of RS, ROB and Instruction
 	static Load load = new Load(clock, bufferLOAD, mem, cdb);
 	static ADD add = new ADD(clock, bufferADD, cdb);
 	static MUL mul = new MUL(clock, bufferMUL, cdb);
-	static ROB rob = new ROB(clock, 1,cdb, reg, mem);
-	static Instructions instructions = new Instructions(clock.clkInstruction(),bufferLOAD,bufferADD,bufferMUL,rob,reg);
+	static ROB rob = new ROB(clock, bufferROB, cdb, reg, mem);
+	static Instructions instructions = new Instructions(clock.clkInstruction(),bufferLOAD,bufferADD,bufferMUL,bufferROB,rob,reg);
 
 	// Threads
 	static Thread thInstruction = new Thread(instructions);
@@ -39,20 +40,20 @@ public class Main {
 		Thread.sleep(3 * 1000);
 
 		startExecution();
-		
+		int dead = 0;
 		while(true) {	 		
 			//Enable the execution of a clock
 			clock.take();
-
+dead++;
 			//Release CDB
 			cdb.write_release();
 			
 			//Time of execution of one clock 
-			Thread.sleep(1 * 1000);
+			Thread.sleep(1 * 50);
 			
 			//Print tables
 			printTables();
-			
+			if( dead == 25 ) break;
 			if(instructions.isHLT() && rob.isEmpty()) {
 				//Print Registers and Memory tables
 				printMemories();
@@ -61,6 +62,7 @@ public class Main {
 			else {
 				//Release clock
 				clock.release();
+				cdb.delete();
 			}
 		}
 		// Close all threads and exit

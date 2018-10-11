@@ -15,19 +15,21 @@ public class Instructions implements Runnable{
 			{"ADD", "R3", "R4", "R5"},			// R3 = 42 + 5 = 47
 	};*/
 	
-	private LS bufferLOAD;
-	private RS bufferADD;
-	private RS bufferMUL;
+	private Load_Station bufferLOAD;
+	private Reserve_Station bufferADD;
+	private Reserve_Station bufferMUL;
+	private ROB_Station bufferROB;
 	private ROB rob;
 	private Registers reg;
 	
-	public Instructions(Semaphore clk, LS bufferLOAD, RS bufferADD, RS bufferMUL, ROB rob, Registers reg) {
+	public Instructions(Semaphore clk, Load_Station bufferLOAD, Reserve_Station bufferADD, Reserve_Station bufferMUL, ROB_Station bufferROB, ROB rob, Registers reg) {
 		this.clk = clk;
 		pc = 0;
 		instruction = null;
 		this.bufferLOAD = bufferLOAD;
 		this.bufferADD = bufferADD;
 		this.bufferMUL = bufferMUL;
+		this.bufferROB = bufferROB;
 		this.rob = rob;
 		this.reg = reg;
 	}
@@ -39,7 +41,7 @@ public class Instructions implements Runnable{
 			
 			waitClock(); 
 			
-			String dest, result = null;
+			String dest;
 			
 			// 1) Get Instruction
 			instruction = getNext();
@@ -50,11 +52,7 @@ public class Instructions implements Runnable{
 				dest = decode_instruction();
 				
 				// 3) Verify availables slots, renaming and allocate
-				try {
-					result = checkEmptyes(dest);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				checkEmptyes(dest);
 				
 			}
 			else {
@@ -74,7 +72,6 @@ public class Instructions implements Runnable{
 	}
 	
 	public String[] getNext() {
-		//System.out.println("pc:"+pc+"   "+instructions[0]);
 		if(pc < instructions.length) {		//Primero consultamos si hay instrucciones en el buffer
 			return instructions[pc++];
 		}
@@ -101,8 +98,7 @@ public class Instructions implements Runnable{
 				case "MUL":	return "MUL";
 				case "DIV":	return "MUL";
 				case "LD":	return "LD";
-				case "ST":	return "ST"; // ver
-				//case "BNE":	return "ROB"; // ver
+				case "ST":	return "ST";
 				default: return null;
 			}
 		}
@@ -110,14 +106,19 @@ public class Instructions implements Runnable{
 			return null;
 	}
 	
-	private String checkEmptyes(String dest) throws InterruptedException {
-		//int index = -1;
-		
-		// If there is an empty slot in the ROB
-		//if(rob.getPlaces() >= 1) {
-		int indexROB = rob.getIndex();
+	private String checkEmptyes(String dest) {
+		//Blocks waiting ROB's places
+		int indexROB;
 		int indexRS, indexLS;
-		rob.getROB(indexROB).acquire();	//Blocks waiting ROB's places
+		
+		/*indexROB = rob.getIndex();
+		try {
+			rob.getROB(indexROB).acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}*/
+		bufferROB.getResource();
+		indexROB = rob.getIndex();
 		
 		switch (dest) {
 			case "ADD":
@@ -146,7 +147,7 @@ public class Instructions implements Runnable{
 		return "ROB and "+dest+" allocated";
 	}
 
-	private void allocateRS(RS rs, int indexROB, int indexRS) {
+	private void allocateRS(Reserve_Station rs, int indexROB, int indexRS) {
 		
 		//Renaming
 		String qj = "";

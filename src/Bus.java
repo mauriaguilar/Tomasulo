@@ -24,7 +24,7 @@ public class Bus {
 			e.printStackTrace();
 		}
 		counter = 0;
-		data = 0;
+		data = -1;
 		tag = "null";
 		write_acquire();
 	}
@@ -43,8 +43,14 @@ public class Bus {
 	}
 	
 	public void write_release() {
+		//delete();
 		if( !haveAvailables() )
 			sem_write.release();
+	}
+
+	public void delete() {
+		data = -1;
+		tag = "null";
 	}
 
 	public void read_acquire(String unit) throws InterruptedException {

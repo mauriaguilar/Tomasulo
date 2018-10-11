@@ -6,9 +6,9 @@ public class ADD implements Runnable{
 	private boolean data;
 	private Bus cdb;
 	private int pos;
-	private RS rs;
+	private Reserve_Station rs;
 	
-	public ADD(Clocks clk, RS bufferADD, Bus bus) {
+	public ADD(Clocks clk, Reserve_Station bufferADD, Bus bus) {
 		this.clk = clk;
 		cdb = bus;
 		pos = 0;
@@ -22,17 +22,18 @@ public class ADD implements Runnable{
 			
 			clk.waitClockADD();
 			
-			System.out.println("ADD Calculating instructions..."+Clocks.clocks);
+			//System.out.println("ADD Calculating instructions...");
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
-			
+			//System.out.println("ADD LIBERA...");
 			String UF = "A";
 			writingReady();
 			waitToRead(UF);
+			//System.out.println("ADD...---");
 
 			// Read data bus and replace operands
-			System.out.println("ADD reading CDB...");
+			//System.out.println("ADD reading CDB...");
 			readAndReplace();
 			
 		}
@@ -58,16 +59,18 @@ public class ADD implements Runnable{
 		for(int j=0; j<rs.length(); j++){
 			if( rs.get(j).getBusy() ) {
 				if( cdb.getTag().equals(rs.get(j).getQj()) ){
+					System.out.println("ADD["+j+"] getting "+cdb.getData()+" from CDB...");
 					rs.get(j).setQj("");
 					rs.get(j).setVj(cdb.getData());
 				}
 				if( cdb.getTag().equals(rs.get(j).getQk()) ){
+					System.out.println("ADD["+j+"] getting "+cdb.getData()+" from CDB...");
 					rs.get(j).setQk("");
 					rs.get(j).setVk(cdb.getData());
 				}
 			}
 		}
-	}
+	} 
 
 	private boolean tryCalculate(int ini,int fin){ 
 		int result;
@@ -76,8 +79,8 @@ public class ADD implements Runnable{
 			pos = i; // Save the next index
 			// If an instruction exists
 			if( rs.get(i).getBusy() ) {
-				if(checkOperands(i))
-					if(clk.checkCyclesADD())
+				if(checkOperands(i)) {
+					if(clk.checkCyclesADD()) {
 						if(cdb.write_tryAcquire()) {
 							pos = i+1;
 							clk.resetCyclesADD();
@@ -87,8 +90,16 @@ public class ADD implements Runnable{
 							delete(i);
 							return true;
 						}
-						else
+						else {
 							System.out.println("CDB is Busy. ADD Waiting...");
+							return true;
+						}
+					}
+					else {
+						System.out.println("ADD waiting clocks...");
+						return false;
+					}
+			   }
 			}
 		}
 		return false;
