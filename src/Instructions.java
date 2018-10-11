@@ -193,6 +193,7 @@ public class Instructions implements Runnable{
 		String register_value2;
 		String dest;
 		
+		//Verifica si el registro a guardar se encuentra como destino en bufferROB
 		int index_operand = rob.compareOperand(instruction[3]);
 		
 		if(index_operand == -1) {
@@ -204,6 +205,8 @@ public class Instructions implements Runnable{
 			register_value2 = "ROB" + index_operand;
 		}
 		
+		//Verifica si el registro para calcular la direccion donde guardar, se modifica antes
+		//de hacer COMMIT en STORE.
 		int index_operand1 = rob.compareOperand(instruction[2]);
 		if(index_operand1 == -1) {
 			register_index1 = Character.getNumericValue( instruction[2].charAt(1) );
@@ -213,11 +216,11 @@ public class Instructions implements Runnable{
 		else {
 			dest = ""+instruction[1]+"+"+instruction[2];
 		}
-		//Get dest
-		//register_index1 = Character.getNumericValue( instruction[2].charAt(1) );
-		//register_value1 = reg.getData(register_index1);	//Convierte el numero a int y lo pasa como argumento
-		//dest = ""+ (register_value1 + Character.getNumericValue( instruction[1].charAt(0) ));	
-		//dest = ""+instruction[1]+"+"+instruction[2];
+			//Get dest
+			//register_index1 = Character.getNumericValue( instruction[2].charAt(1) );
+			//register_value1 = reg.getData(register_index1);	//Convierte el numero a int y lo pasa como argumento
+			//dest = ""+ (register_value1 + Character.getNumericValue( instruction[1].charAt(0) ));	
+			//dest = ""+instruction[1]+"+"+instruction[2];
 		rob.setData(dest, register_value2, instruction[0], false);
 	}
 
