@@ -63,7 +63,7 @@ public class Main {
 			else {
 				//Release clock
 				clock.release();
-				cdb.delete();
+				//cdb.delete();
 			}
 		}
 		// Close all threads and exit

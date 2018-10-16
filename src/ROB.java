@@ -34,7 +34,7 @@ public class ROB implements Runnable{
 			//System.out.println("ROB escribio");
 			String UF = "R";
 			//System.out.println("ROB LIBERA...");
-			writingReady(); //ROB termina su proceso de escritura
+			//writingReady(); //ROB termina su proceso de escritura
 			//System.out.println("ROB esperando lectura");
 			waitToRead(UF);
 			
@@ -189,7 +189,7 @@ public class ROB implements Runnable{
 	}
 	
 	public void print() {
-		String table = "\nROB\n";
+		String table = "\nROB\tput->"+put_index+"\tremove->"+remove_index+"\n";
 		table += "N\t|DEST\t|VALUE\t|TYPE\t|READY";
 		for(int i=0; i<rob.length(); i++)
 			if(rob.get(i).getDest() != "-1") {

@@ -10,19 +10,19 @@ public class Bus {
 	private Semaphore sem_read_mul;
 	private Semaphore sem_read_rob;
 	private int counter;
-	private Semaphore sem_read_load;
+	//private Semaphore sem_read_load;
 
 	public Bus() {
 		sem_write = new Semaphore(1);
 		sem_read_add = new Semaphore(1);
 		sem_read_mul = new Semaphore(1);
 		sem_read_rob = new Semaphore(1);
-		sem_read_load = new Semaphore(1);
+		//sem_read_load = new Semaphore(1);
 		try {
 			sem_read_add.acquire();
 			sem_read_mul.acquire();
 			sem_read_rob.acquire();
-			sem_read_load.acquire();
+			//sem_read_load.acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -67,19 +67,20 @@ public class Bus {
 		case "R":
 			sem_read_rob.acquire();
 			break;
-		case "L":
-			sem_read_load.acquire();
-			break;
+		//case "L":
+		//	sem_read_load.acquire();
+		//	break;
 		}
 	}
 	
 	public void write_ready() {
 		counter++;
-		if(counter==4) {
+		//if(counter==4) {
+		if(counter==3) {
 			sem_read_add.release();
 			sem_read_mul.release();
 			sem_read_rob.release();
-			sem_read_load.release();
+			//sem_read_load.release();
 			counter=0;
 		}
 	}	

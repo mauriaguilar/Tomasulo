@@ -39,8 +39,8 @@ public class Load implements Runnable{
 			//System.out.println("LOAD LIBERA...");
 			writingReady();	
 			//System.out.println("LOAD esperando lectura");
-			waitToRead("L");	//solo por sincronizacion
-			System.out.println("LOAD reading CDB...");
+			//waitToRead("L");	//solo por sincronizacion
+			//System.out.println("LOAD reading CDB...");
 		}
 	}
 	
