@@ -35,21 +35,22 @@ public class Main {
 	public static void main (String [ ] args) throws InterruptedException, FileNotFoundException {
 		
 		ProgramLoader program = new ProgramLoader();
-		String[][] instructions_list = program.getInstrucions(1);
+		String[][] instructions_list = program.getInstrucions(4);
 		Instructions.setInstruction(instructions_list);
-		Thread.sleep(3 * 1000);
+		Thread.sleep(2 * 1000);
 
 		startExecution();
 		//int dead = 0;
 		while(true) {	 		
 			//Enable the execution of a clock
 			clock.take();
+			//Thread.sleep(1 * 50);
 			//dead++;
 			//Release CDB
 			cdb.write_release();
 			
 			//Time of execution of one clock 
-			Thread.sleep(1 * 50);
+			Thread.sleep(1 * 1000);
 			
 			//Print tables
 			printTables();

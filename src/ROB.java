@@ -24,16 +24,21 @@ public class ROB implements Runnable{
 	public void run() {
 
 		while(true) {
+			//System.out.println("ROB pide clock");
 			clk.waitClockROB();
-			
+			//System.out.println("ROB obtuvo clock");
 			//Write in REG
-			writeRegMem();
 			
+			//System.out.println("ROB va a escribir");
+			writeRegMem();
+			//System.out.println("ROB escribio");
 			String UF = "R";
-			System.out.println("ROB LIBERA...");
-			writingReady(); //ROB termina SU proceso de escritura
+			//System.out.println("ROB LIBERA...");
+			writingReady(); //ROB termina su proceso de escritura
+			//System.out.println("ROB esperando lectura");
 			waitToRead(UF);
 			
+			System.out.println("ROB reading CDB...");
 			readAndReplace();
 		}
 	}
@@ -43,6 +48,7 @@ public class ROB implements Runnable{
 	}
 	private void  writeRegMem(){
 		int index;
+		String value;
 		if(rob.get(remove_index).getReady()) {
 			if(rob.get(remove_index).getDest().contains("+")) {
 				String dest = calcDest();
@@ -51,16 +57,25 @@ public class ROB implements Runnable{
 			else {
 				if(rob.get(remove_index).getDest().contains("R")) {
 					index = Character.getNumericValue( rob.get(remove_index).getDest().charAt(1) );
+					System.out.println("ROB["+remove_index+"] write in Registers["+index+"]");
 					reg.setData(index, Integer.parseInt(rob.get(remove_index).getValue()));
 				}
 				else {
 					index = Character.getNumericValue( rob.get(remove_index).getDest().charAt(0) );
+					System.out.println("ROB["+remove_index+"] write in Memory["+index+"]");
 					mem.setValue(index, Integer.parseInt(rob.get(remove_index).getValue()));
 				}
 				delete();
 				removeNext();
 			}
-		}	
+		}
+		//Agrego esto para controlar valores ya cargados y setear Ready a true
+		else {
+			value = rob.get(remove_index).getValue();
+			if( !(value.equals("-1")) && !(value.contains("ROB")) ) {
+				rob.get(remove_index).setReady(true);
+			}
+		}
 	}
 	
 	private void waitToRead(String UF) {
@@ -75,7 +90,7 @@ public class ROB implements Runnable{
 	private void readAndReplace() {
 		int index;
 		String tag;
-		System.out.println("ROB reading CDB...");
+		//System.out.println("ROB reading CDB...");
 		tag = cdb.getTag();
 		if( tag.contains("ROB") ) {
 			// Calculate index of ROB and save

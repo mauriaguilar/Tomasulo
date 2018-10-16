@@ -53,7 +53,5 @@ public class Reserve_Station {
 		rs[indexRS].setVj(vj);
 		rs[indexRS].setVk(vk);
 		rs[indexRS].setClock(clock);
-	}
-	
-	
+	}	
 }

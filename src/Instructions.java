@@ -112,24 +112,28 @@ public class Instructions implements Runnable{
 		int indexRS, indexLS;
 		
 		bufferROB.getResource();
+		System.out.println("Hay lugar en ROB");
 		indexROB = rob.getIndex();
 		
 		switch (dest) {
 			case "ADD":
 				// If there is an empty slot in the ADD RS, else block here
 				indexRS = bufferADD.getResource();
+				System.out.println("Hay lugar en ADD");
 				allocateRS(bufferADD,indexROB,indexRS);
 				allocateROB();
 				break;
 			case "MUL":
 				// If there is an empty slot in the MUL RS, else block here	
 				indexRS = bufferMUL.getResource();
+				System.out.println("Hay lugar en MUL");
 				allocateRS(bufferMUL,indexROB,indexRS);
 				allocateROB();
 				break;
 			case "LD":
 				// If there is an empty slot in the LD RS, else block here
 				indexLS = bufferLOAD.getResource();
+				System.out.println("Hay lugar en LOAD");
 				allocateLS(indexROB,indexLS);
 				allocateROB();
 				break;
@@ -157,8 +161,14 @@ public class Instructions implements Runnable{
 			//System.out.println("Register_index: "+register_index+ " --------------- vj: "+vj);
 		}
 		else {
+			if(rob.getROB(index_operand1).getValue().equals("-1")) {
+				qj = "ROB" + index_operand1;
+			}
+			else {
+				vj = Integer.parseInt(rob.getROB(index_operand1).getValue());
+			}
 			//System.out.println("Renombrado*******************************");
-			qj = "ROB" + index_operand1;
+			
 		}
 		
 		if(index_operand2 == -1) {
@@ -166,7 +176,12 @@ public class Instructions implements Runnable{
 			vk= reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
 		}
 		else {
-			qk = "ROB" + index_operand2;
+			if(rob.getROB(index_operand2).getValue().equals("-1")) {
+				qk = "ROB" + index_operand2;
+			}
+			else {
+				vk = Integer.parseInt(rob.getROB(index_operand2).getValue());
+			}
 		}
 		
 		// dest, busy, operation, value j, value k, index qj, index qk

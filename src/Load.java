@@ -25,18 +25,22 @@ public class Load implements Runnable{
 		boolean cdbWrited = false;
 		while(true) {
 			
-			
+			//System.out.println("LOAD pide clock");
 			clk.waitClockLOAD();
+			//System.out.println("LOAD obtuvo clock");
 			
+			//System.out.println("LOAD va a escribir");
 			//System.out.println("LOAD Calculating instructions...");
 			cdbWrited = tryCalculate(pos,load.length());
 			if(!cdbWrited) 
 				tryCalculate(0,pos-1);
+			//System.out.println("LOAD escribio");
 
-			System.out.println("LOAD LIBERA...");
-			writingReady();		
+			//System.out.println("LOAD LIBERA...");
+			writingReady();	
+			//System.out.println("LOAD esperando lectura");
 			waitToRead("L");	//solo por sincronizacion
-			//System.out.println("LOAD reading CDB... AFTER");
+			System.out.println("LOAD reading CDB...");
 		}
 	}
 	
@@ -74,30 +78,34 @@ public class Load implements Runnable{
 			e.printStackTrace();
 		}
 	}
+	
 	public boolean tryCalculate(int ini, int fin) {
 		int i, value;
 		// 
 		for(i=ini; i<fin; i++) {
-				pos = i;
-				// 
-				if(load.get(i).getBusy()) {
-					if(clk.checkCyclesLOAD()) {
-						if(cdb.write_tryAcquire()) {
-							pos = i+1;
-							clk.resetCyclesLOAD();
-							value =  calc(i);
-							System.out.println("LOAD["+i+"] writing "+value+" CDB...");
-							cdb.set(value, "ROB"+load.get(i).getDest());
-							delete(i);
-						}
+			pos = i;
+			// If an instruction exists
+			if(load.get(i).getBusy()) {
+				if(clk.checkCyclesLOAD()) {
+					if(cdb.write_tryAcquire()) {
+						pos = i+1;
+						clk.resetCyclesLOAD();
+						value =  calc(i);
+						System.out.println("LOAD["+i+"] writing "+value+" CDB...");
+						cdb.set(value, "ROB"+load.get(i).getDest());
+						delete(i);
 						return true;
 					}
 					else {
-						System.out.println("LOAD waiting clocks...");
-						return false;
+						System.out.println("CDB is Busy. LOAD["+i+"] Waiting...");
+						return true;
 					}
 				}
-				
+				else {
+					System.out.println("LOAD["+i+"] waiting clocks...");
+					return false;
+				}
+			}		
 		}
 		return false;
 	}

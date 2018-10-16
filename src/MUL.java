@@ -19,23 +19,28 @@ public class MUL implements Runnable{
 	public void run() { 
 		boolean cdbWrited = false;
 		while(true) {
-			
+			//System.out.println("MUL pide clock");
 			clk.waitClockMUL();
-			
+			//System.out.println("MUL obtuvo clock");
+
 			//System.out.println("MUL Calculating instructions...");
+			//System.out.println("MUL va a escribir");
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
-			
+			//System.out.println("MUL escribio");
+
 			String UF = "M";
-			System.out.println("MUL LIBERA...");
-			writingReady();
+			//System.out.println("MUL LIBERA...");
+
+			writingReady();			
+			//System.out.println("MUL esperando lectura");
 			waitToRead(UF);
 			
 			// Read data bus and replace operands
 			System.out.println("MUL reading CDB...");
 			readAndReplace();		
-			System.out.println("MUL reading CDB... AFTER");
+			//System.out.println("MUL reading CDB... AFTER");
 		}
 	}
 	
@@ -91,12 +96,12 @@ public class MUL implements Runnable{
 							return true;
 						}
 						else{
-							System.out.println("CDB is Busy. MUL Waiting...");
+							System.out.println("CDB is Busy. MUL["+i+"] Waiting...");
 							return true;
 						}
 					}
 					else {
-						System.out.println("MUL waiting clocks...");
+						System.out.println("MUL["+i+"] waiting clocks...");
 						return false;
 					}
 				}
