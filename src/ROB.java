@@ -48,7 +48,7 @@ public class ROB implements Runnable{
 				e.printStackTrace();
 			}
 			
-			System.out.println("ROB reading CDB...");
+			//System.out.println("ROB reading CDB...");
 			tag = cdb.getTag();
 			if( tag.contains("ROB") ) {
 				// Calculate index of ROB and save
@@ -57,7 +57,11 @@ public class ROB implements Runnable{
 				rob.get(index).setReady(true);
 				System.out.println("ROB["+index+"] getting "+cdb.getData()+" from CDB...");
 				compareValue();
+			}else {
+				System.out.println("ROB no econtro nada en el CDB...");
 			}
+			
+			cdb.tryDeleteCDB(); // Delete CDB
 			
 			
 			

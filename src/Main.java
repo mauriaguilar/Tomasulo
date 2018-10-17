@@ -15,11 +15,11 @@ public class Main {
 	
 	static Reserve_Station bufferADD = new Reserve_Station(3);
 	static Reserve_Station bufferMUL = new Reserve_Station(3);
-	static Load_Station bufferLOAD = new Load_Station(3);
+	static LOAD_Station bufferLOAD = new LOAD_Station(3);
 	static ROB_Station bufferROB = new ROB_Station(9);
 	
 	// Objects of RS, ROB and Instruction
-	static Load load = new Load(clock, bufferLOAD, mem, cdb);
+	static LOAD load = new LOAD(clock, bufferLOAD, mem, cdb);
 	static ADD add = new ADD(clock, bufferADD, cdb);
 	static MUL mul = new MUL(clock, bufferMUL, cdb);
 	static ROB rob = new ROB(clock, bufferROB, cdb, reg, mem);
@@ -37,19 +37,19 @@ public class Main {
 		ProgramLoader program = new ProgramLoader();
 		String[][] instructions_list = program.getInstrucions(1);
 		Instructions.setInstruction(instructions_list);
-		Thread.sleep(3 * 1000);
+		Thread.sleep(1 * 1000);
 
 		startExecution();
 		int dead = 0;
 		while(true) {	 		
 			//Enable the execution of a clock
 			clock.take();
-dead++;
+			dead++;
 			//Release CDB
 			cdb.write_release();
 			
 			//Time of execution of one clock 
-			Thread.sleep(1 * 50);
+			Thread.sleep(1 * 150);
 			
 			//Print tables
 			printTables();
@@ -62,6 +62,9 @@ dead++;
 			else {
 				//Release clock
 				clock.release();
+				System.out.println("antes acquireDelete");
+				cdb.acquireDelete(3);
+				System.out.println("despues acquireDelete");
 				cdb.delete();
 			}
 		}

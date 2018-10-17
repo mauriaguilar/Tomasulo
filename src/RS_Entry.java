@@ -11,6 +11,7 @@ public class RS_Entry {
 	private String qj,qk;
 	private int clock;
 	private Semaphore sem;
+	private boolean ready;
 	
 	public RS_Entry() {
 		dest = -1; 
@@ -94,6 +95,14 @@ public class RS_Entry {
 	
 	public int getClock() {
 		return clock;
+	}
+
+	public void setReady(boolean b) {
+		ready = b;
+	}
+
+	public boolean getReady() {
+		return ready;
 	}
 
 }

@@ -7,6 +7,7 @@ public class Load_Entry {
 	private int dir;
 	private int clock;
 	private Semaphore sem;
+	private boolean ready;
 	
 	public Load_Entry() {
 		//System.out.println("Creando LB");
@@ -55,5 +56,13 @@ public class Load_Entry {
 	
 	public int getClock() {
 		return clock;
+	}
+
+	public void setReady(boolean b) {
+		ready = b;
+	}
+
+	public boolean getReady() {
+		return ready;
 	}
 }

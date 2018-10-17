@@ -15,14 +15,14 @@ public class Instructions implements Runnable{
 			{"ADD", "R3", "R4", "R5"},			// R3 = 42 + 5 = 47
 	};*/
 	
-	private Load_Station bufferLOAD;
+	private LOAD_Station bufferLOAD;
 	private Reserve_Station bufferADD;
 	private Reserve_Station bufferMUL;
 	private ROB_Station bufferROB;
 	private ROB rob;
 	private Registers reg;
 	
-	public Instructions(Semaphore clk, Load_Station bufferLOAD, Reserve_Station bufferADD, Reserve_Station bufferMUL, ROB_Station bufferROB, ROB rob, Registers reg) {
+	public Instructions(Semaphore clk, LOAD_Station bufferLOAD, Reserve_Station bufferADD, Reserve_Station bufferMUL, ROB_Station bufferROB, ROB rob, Registers reg) {
 		this.clk = clk;
 		pc = 0;
 		instruction = null;

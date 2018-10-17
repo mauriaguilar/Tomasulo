@@ -33,9 +33,11 @@ public class MUL implements Runnable{
 			waitToRead(UF);
 			
 			// Read data bus and replace operands
-			System.out.println("MUL reading CDB...");
+			//System.out.println("MUL reading CDB...");
 			readAndReplace();		
-			System.out.println("MUL reading CDB... AFTER");
+			//System.out.println("MUL reading CDB... AFTER");
+			
+			cdb.tryDeleteCDB(); // Delete CDB
 		}
 	}
 	
@@ -57,6 +59,8 @@ public class MUL implements Runnable{
 	private void readAndReplace() {
 		for(int j=0; j<rs.length(); j++){
 			if( rs.get(j).getBusy() ) {
+				
+				// Replacing operands
 				if( cdb.getTag().equals(rs.get(j).getQj()) ){
 					System.out.println("MUL["+j+"] getting "+cdb.getData()+" from CDB...");
 					rs.get(j).setQj("");
@@ -67,6 +71,10 @@ public class MUL implements Runnable{
 					rs.get(j).setQk("");
 					rs.get(j).setVk(cdb.getData());
 				}
+				
+				// Setting ready for instructions in station
+				if( !rs.get(j).getReady() )
+					rs.get(j).setReady(true);
 			}
 		}
 	}
@@ -78,7 +86,8 @@ public class MUL implements Runnable{
 		for(int i=ini; i<fin; i++) {
 			pos = i; // Save the next index
 			// If an instruction exists
-			if( rs.get(i).getBusy() ) {
+			if( rs.get(i).getBusy() && rs.get(i).getReady()) {
+			//if( rs.get(i).getBusy() ) {
 				if(checkOperands(i)) {
 					if(clk.checkCyclesMUL()) {
 						if(cdb.write_tryAcquire()) {
@@ -96,7 +105,7 @@ public class MUL implements Runnable{
 						}
 					}
 					else {
-						System.out.println("MUL waiting clocks...");
+						System.out.println("MUL["+i+"] waiting clocks...");
 						return false;
 					}
 				}

@@ -22,19 +22,26 @@ public class ADD implements Runnable{
 			
 			clk.waitClockADD();
 			
+			//cdb.acquireToWrite();
+			
 			//System.out.println("ADD Calculating instructions...");
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
-			//System.out.println("ADD LIBERA...");
+			
+			//cdb.releaseWrite();
+			
+			
+			//cdb.acquireToRead();
+						
 			String UF = "A";
-			writingReady();
-			waitToRead(UF);
-			//System.out.println("ADD...---");
-
+			writingReady();  // ++ release
+			waitToRead(UF); // case acquire
 			// Read data bus and replace operands
 			//System.out.println("ADD reading CDB...");
 			readAndReplace();
+			
+			cdb.tryDeleteCDB(); // Delete CDB
 			
 		}
 	}
@@ -58,6 +65,8 @@ public class ADD implements Runnable{
 	private void readAndReplace() {
 		for(int j=0; j<rs.length(); j++){
 			if( rs.get(j).getBusy() ) {
+				
+				// Replacing operands
 				if( cdb.getTag().equals(rs.get(j).getQj()) ){
 					System.out.println("ADD["+j+"] getting "+cdb.getData()+" from CDB...");
 					rs.get(j).setQj("");
@@ -68,6 +77,10 @@ public class ADD implements Runnable{
 					rs.get(j).setQk("");
 					rs.get(j).setVk(cdb.getData());
 				}
+				
+				// Setting ready for instructions in station
+				if( !rs.get(j).getReady() )
+					rs.get(j).setReady(true);
 			}
 		}
 	} 
@@ -78,7 +91,8 @@ public class ADD implements Runnable{
 		for(int i=ini; i<fin; i++) {
 			pos = i; // Save the next index
 			// If an instruction exists
-			if( rs.get(i).getBusy() ) {
+			if( rs.get(i).getBusy() && rs.get(i).getReady()) {
+			//if( rs.get(i).getBusy() ) {
 				if(checkOperands(i)) {
 					if(clk.checkCyclesADD()) {
 						if(cdb.write_tryAcquire()) {
@@ -96,7 +110,7 @@ public class ADD implements Runnable{
 						}
 					}
 					else {
-						System.out.println("ADD waiting clocks...");
+						System.out.println("ADD["+i+"] waiting clocks...");
 						return false;
 					}
 			   }

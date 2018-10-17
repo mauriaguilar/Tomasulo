@@ -1,12 +1,12 @@
 import java.util.concurrent.Semaphore;
 
-public class Load_Station {
+public class LOAD_Station {
 
 	private Load_Entry[] ls;
 	private Semaphore available;
 	private int cap;
 	
-	public Load_Station(int cap) {
+	public LOAD_Station(int cap) {
 		ls = new Load_Entry[cap];
 		for(int i=0; i<cap; i++) {
 			ls[i] = new Load_Entry();
@@ -52,6 +52,7 @@ public class Load_Station {
 		ls[indexLS].setBusy(busy);
 		ls[indexLS].setDir(dir);
 		ls[indexLS].setClock(clock);
+		ls[indexLS].setReady(false);
 	}
 
 }

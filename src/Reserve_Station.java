@@ -44,7 +44,7 @@ public class Reserve_Station {
 	}
 
 	public void setData(int dest, int indexRS, boolean busy, String op, int vj, int vk, String qj, String qk, int clock) {
-		System.out.println("Instructions Writing in ADD["+indexRS+"] Station...");
+		System.out.println("Instructions Writing in RS["+indexRS+"] Station...");
 		rs[indexRS].setDest(dest);
 		rs[indexRS].setBusy(busy);
 		rs[indexRS].setOp(op);
@@ -53,6 +53,7 @@ public class Reserve_Station {
 		rs[indexRS].setVj(vj);
 		rs[indexRS].setVk(vk);
 		rs[indexRS].setClock(clock);
+		rs[indexRS].setReady(false);
 	}
 	
 	

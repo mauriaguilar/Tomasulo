@@ -48,6 +48,7 @@ public class Clocks {
 	}
 	
 	public void releaseClocks() {
+		System.out.println("-------release---------");
 		releaseThis(clkInstruction);
 		releaseThis(clkLoad);
 		releaseThis(clkADD);
