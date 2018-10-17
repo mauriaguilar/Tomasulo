@@ -19,11 +19,12 @@ public class Main {
 	static ROB_Station bufferROB = new ROB_Station(9);
 	
 	// Objects of RS, ROB and Instruction
+	static ProgramLoader loader = new ProgramLoader(1);
 	static LOAD load = new LOAD(clock, bufferLOAD, mem, cdb);
 	static ADD add = new ADD(clock, bufferADD, cdb);
 	static MUL mul = new MUL(clock, bufferMUL, cdb);
 	static ROB rob = new ROB(clock, bufferROB, cdb, reg, mem);
-	static Instructions instructions = new Instructions(clock.clkInstruction(),bufferLOAD,bufferADD,bufferMUL,bufferROB,rob,reg);
+	static Instructions instructions = new Instructions(clock.clkInstruction(),bufferLOAD,bufferADD,bufferMUL,bufferROB,rob,reg,loader);
 
 	// Threads
 	static Thread thInstruction = new Thread(instructions);
@@ -34,26 +35,27 @@ public class Main {
 	
 	public static void main (String [ ] args) throws InterruptedException, FileNotFoundException {
 		
-		ProgramLoader program = new ProgramLoader();
-		String[][] instructions_list = program.getInstrucions(1);
-		Instructions.setInstruction(instructions_list);
-		Thread.sleep(1 * 1000);
+		Thread.sleep(3 * 1000);
 
 		startExecution();
 		int dead = 0;
-		while(true) {	 		
+		
+		while(true) {
+			
 			//Enable the execution of a clock
 			clock.take();
 			dead++;
+			
 			//Release CDB
 			cdb.write_release();
 			
 			//Time of execution of one clock 
-			Thread.sleep(1 * 150);
+			//Thread.sleep(1 * 150);
 			
 			//Print tables
 			printTables();
 			if( dead == 25 ) break;
+			
 			if(instructions.isHLT() && rob.isEmpty()) {
 				//Print Registers and Memory tables
 				printMemories();

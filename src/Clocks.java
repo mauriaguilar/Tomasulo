@@ -54,6 +54,7 @@ public class Clocks {
 		releaseThis(clkADD);
 		releaseThis(clkMUL);
 		releaseThis(clkROB);
+		System.out.println("-------release--------- DESPUES");
 	}
 
 	public void take() throws InterruptedException {

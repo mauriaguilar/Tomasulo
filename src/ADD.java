@@ -19,12 +19,12 @@ public class ADD implements Runnable{
 	public void run() {
 		boolean cdbWrited = false;
 		while(true) {
-			
+			System.out.println("ADD Calculating instructions... ANTES CLOCK");
 			clk.waitClockADD();
 			
 			//cdb.acquireToWrite();
 			
-			//System.out.println("ADD Calculating instructions...");
+			System.out.println("ADD Calculating instructions...");
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);

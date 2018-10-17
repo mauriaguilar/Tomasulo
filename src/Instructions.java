@@ -21,8 +21,10 @@ public class Instructions implements Runnable{
 	private ROB_Station bufferROB;
 	private ROB rob;
 	private Registers reg;
+	private ProgramLoader loader;
+	private boolean loadInstructions;
 	
-	public Instructions(Semaphore clk, LOAD_Station bufferLOAD, Reserve_Station bufferADD, Reserve_Station bufferMUL, ROB_Station bufferROB, ROB rob, Registers reg) {
+	public Instructions(Semaphore clk, LOAD_Station bufferLOAD, Reserve_Station bufferADD, Reserve_Station bufferMUL, ROB_Station bufferROB, ROB rob, Registers reg, ProgramLoader loader) {
 		this.clk = clk;
 		pc = 0;
 		instruction = null;
@@ -32,12 +34,15 @@ public class Instructions implements Runnable{
 		this.bufferROB = bufferROB;
 		this.rob = rob;
 		this.reg = reg;
+		this.loader = loader;
 	}
 	
 	//@Override
 	public void run() {
 		
 		while(true) {
+			
+			loadInstructions();
 			
 			waitClock(); 
 			
@@ -63,6 +68,13 @@ public class Instructions implements Runnable{
 		
 	}
 	
+	private void loadInstructions() {
+		if(!loadInstructions){
+			instructions = loader.getInstrucions();
+			loadInstructions = true;
+		}
+	}
+
 	private void waitClock() {
 		try {
 			clk.acquire();
