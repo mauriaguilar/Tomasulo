@@ -73,6 +73,7 @@ public class LOAD implements Runnable{
 				if( rs.get(i).getBusy() && rs.get(i).getReady()) {
 				//if( rs.get(i).getBusy() ) {
 					if(clk.checkCyclesLOAD()) {
+						//System.out.println("LOAD Disponibles: "+cdb.haveAvailables());
 						if(cdb.write_tryAcquire()) {
 							pos = i+1;
 							clk.resetCyclesLOAD();
@@ -81,10 +82,13 @@ public class LOAD implements Runnable{
 							cdb.set(value, "ROB"+rs.get(i).getDest());
 							delete(i);
 						}
+						else {
+							System.out.println("CDB is Busy. LOAD["+i+"] Waiting...\"");
+						}
 						return true;
 					}
 					else {
-						System.out.println("LOAD waiting clocks...");
+						System.out.println("LOAD["+i+"] waiting clocks...");
 						return false;
 					}
 				}

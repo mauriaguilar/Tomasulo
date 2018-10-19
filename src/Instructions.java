@@ -61,7 +61,7 @@ public class Instructions implements Runnable{
 				
 			}
 			else {
-				System.out.println("Instructions HLT");
+				System.out.println("Instructions readed a HALT. The program was loaded correctly");
 				break;
 			}
 		}
@@ -88,12 +88,12 @@ public class Instructions implements Runnable{
 			return instructions[pc++];
 		}
 		else
-			System.out.println("No hay mas instrucciones en el buffer");
+			//System.out.println("Instructions readed a HALT. The program was loaded correctly");
 			return null;
 	}
 	
 	public boolean isHLT() {
-		if(instruction == null) {
+		if(loadInstructions && instruction == null) {
 			//System.out.println("instruccion NULLLL");
 			return true;
 		}

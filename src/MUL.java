@@ -90,6 +90,7 @@ public class MUL implements Runnable{
 			//if( rs.get(i).getBusy() ) {
 				if(checkOperands(i)) {
 					if(clk.checkCyclesMUL()) {
+						//System.out.println("MUL Disponibles: "+cdb.haveAvailables());
 						if(cdb.write_tryAcquire()) {
 							pos = i+1;
 							clk.resetCyclesMUL();
@@ -100,7 +101,7 @@ public class MUL implements Runnable{
 							return true;
 						}
 						else{
-							System.out.println("CDB is Busy. MUL Waiting...");
+							System.out.println("CDB is Busy. MUL["+i+"] Waiting...");
 							return true;
 						}
 					}

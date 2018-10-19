@@ -19,12 +19,12 @@ public class ADD implements Runnable{
 	public void run() {
 		boolean cdbWrited = false;
 		while(true) {
-			System.out.println("ADD Calculating instructions... ANTES CLOCK");
+			//System.out.println("ADD Calculating instructions... ANTES CLOCK");
 			clk.waitClockADD();
 			
 			//cdb.acquireToWrite();
 			
-			System.out.println("ADD Calculating instructions...");
+			//System.out.println("ADD Calculating instructions...");
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
@@ -95,6 +95,7 @@ public class ADD implements Runnable{
 			//if( rs.get(i).getBusy() ) {
 				if(checkOperands(i)) {
 					if(clk.checkCyclesADD()) {
+						//System.out.println("ADD Disponibles: "+cdb.haveAvailables());
 						if(cdb.write_tryAcquire()) {
 							pos = i+1;
 							clk.resetCyclesADD();
@@ -105,7 +106,7 @@ public class ADD implements Runnable{
 							return true;
 						}
 						else {
-							System.out.println("CDB is Busy. ADD Waiting...");
+							System.out.println("CDB is Busy. ADD["+i+"] Waiting...");
 							return true;
 						}
 					}

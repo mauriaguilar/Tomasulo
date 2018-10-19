@@ -58,7 +58,7 @@ public class ROB implements Runnable{
 				System.out.println("ROB["+index+"] getting "+cdb.getData()+" from CDB...");
 				compareValue();
 			}else {
-				System.out.println("ROB no econtro nada en el CDB...");
+				//System.out.println("ROB no encontro nada en el CDB...");
 			}
 			
 			cdb.tryDeleteCDB(); // Delete CDB

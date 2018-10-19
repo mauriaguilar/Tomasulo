@@ -1,4 +1,5 @@
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class Bus {
 	
@@ -50,14 +51,24 @@ public class Bus {
 	}
 	
 	public boolean write_tryAcquire() {
-		boolean result = sem_write.tryAcquire();
+		boolean result = false;
+		result = sem_write.tryAcquire();
+		//System.out.println("Result write_tryAcquire: "+result);
 		return result;
 	}
 	
 	public void write_release() {
 		//delete();
-		if( !haveAvailables() )
+		if( !haveAvailables() ) {
+			//System.out.println("Write_release");
 			sem_write.release();
+		}
+	}
+	
+	public boolean haveAvailables() {
+		//System.out.println("Disponibles: "+sem_write.availablePermits());
+		if(sem_write.availablePermits() > 0) return true;
+		else return false;
 	}
 
 	public void delete() {
@@ -108,9 +119,7 @@ public class Bus {
 			sem_read_add.release();
 			sem_read_mul.release();
 			sem_read_rob.release();
-		}
-			
-		
+		}		
 	}	
 	
 	public void set(int data, String tag) {
@@ -126,11 +135,6 @@ public class Bus {
 		return tag;
 	}
 
-	public boolean haveAvailables() {
-		if(sem_write.availablePermits() > 0) return true;
-		else return false;
-	}
-
 	public void tryDeleteCDB() {
 		/*reads++;
 		System.out.println("reads++");
@@ -139,12 +143,12 @@ public class Bus {
 			reads = 0;
 			System.out.println("CDB borrado");
 		}*/
-		System.out.println("sem_del.release(1);");
+		//System.out.println("sem_del.release(1);");
 		sem_del.release(1);
 	}
 
 	public void acquireDelete(int i) {
-		System.out.println("acquireDelete PERMITS "+sem_del.availablePermits());
+		//System.out.println("acquireDelete PERMITS "+sem_del.availablePermits());
 		try {
 			sem_del.acquire(i);
 		} catch (InterruptedException e) {

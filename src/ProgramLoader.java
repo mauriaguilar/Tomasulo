@@ -16,43 +16,61 @@ public class ProgramLoader {
 		}
 
 		public String[][] getInstrucions() {
-			
 			String fichero = "program"+programNumber+".txt";
+			//Scanner scan = new Scanner(fichero);
+			//System.out.println("LALALALALALADASDSAHLFSDJKLHSDFKL--------");
+			//System.out.println(""+scan.next());
+			//scan.close();
+			
 			String[] words;
 			String line;
 			int numLines=0;
 			
 			// Get number of instruction
-			File input = new File(fichero);
+			/*File input = new File(fichero);
 			Scanner iterate;
 			try {
+				System.out.println("Print 1");
 				iterate = new Scanner(input);
+				System.out.println("Print 2");
 				while(iterate.hasNextLine()) {
-					//String currLine=iterate.nextLine();
+					//String currLine=iterate.nextLine();.
 					numLines++; 
 				}
+				iterate.close();
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
 			}
+			*/
+			try {			
+				FileReader fr = new FileReader(fichero);
+				BufferedReader br = new BufferedReader(fr);
+
+				while((line = br.readLine()) != null) {
+					numLines++;
+				}
+				fr.close();
+			} catch(Exception e) {
+				System.out.println("Excepcion reading file "+ fichero + ": " + e);
+		    }
 			
 			instructions_list = new String[numLines][4];
-			int j = 0, k = 0;
-			try {
-				      FileReader fr = new FileReader(fichero);
-				      BufferedReader br = new BufferedReader(fr);
-				 
-				      System.out.println("PROGRAM "+programNumber+": ");
-				      while((line = br.readLine()) != null) {
-				    	  System.out.println(line);
-				    	  words = line.split(" ");
-				    	  instructions_list[k++] = words;
-				      }
 
-				      fr.close();
+			int k = 0;
+			try {			
+				FileReader fr = new FileReader(fichero);
+				BufferedReader br = new BufferedReader(fr);
+				 
+				System.out.println("PROGRAM "+programNumber+": ");
+				while((line = br.readLine()) != null) {
+					System.out.println(line);
+					words = line.split(" ");
+					instructions_list[k++] = words;
 				}
-			    catch(Exception e) {
-			      System.out.println("Excepcion reading file "+ fichero + ": " + e);
-			    }
+				fr.close();
+			} catch(Exception e) {
+				System.out.println("Excepcion reading file "+ fichero + ": " + e);
+		    }
 			
 			return instructions_list;
 		}
