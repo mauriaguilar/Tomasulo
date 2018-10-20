@@ -123,12 +123,6 @@ public class Instructions implements Runnable{
 		int indexROB;
 		int indexRS, indexLS;
 		
-		/*indexROB = rob.getIndex();
-		try {
-			rob.getROB(indexROB).acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}*/
 		bufferROB.getResource();
 		indexROB = rob.getIndex();
 		
@@ -175,8 +169,12 @@ public class Instructions implements Runnable{
 			//System.out.println("Register_index: "+register_index+ " --------------- vj: "+vj);
 		}
 		else {
-			//System.out.println("Renombrado*******************************");
-			qj = "ROB" + index_operand1;
+			if(rob.getROB(index_operand1).getValue().equals("-1")) {
+				qj = "ROB" + index_operand1;
+			}
+			else {
+				vj = Integer.parseInt(rob.getROB(index_operand1).getValue());
+			}
 		}
 		
 		if(index_operand2 == -1) {
@@ -184,8 +182,16 @@ public class Instructions implements Runnable{
 			vk= reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
 		}
 		else {
-			qk = "ROB" + index_operand2;
+			if(rob.getROB(index_operand2).getValue().equals("-1")) {
+				qk = "ROB" + index_operand2;
+			}
+			else {
+				vk = Integer.parseInt(rob.getROB(index_operand2).getValue());
+			}
 		}
+		/*else {
+			qk = "ROB" + index_operand2;
+		}*/
 		
 		// dest, busy, operation, value j, value k, index qj, index qk
 		rs.setData(indexROB,indexRS, true, instruction[0], vj, vk, qj, qk, Clocks.clocks);
@@ -222,10 +228,21 @@ public class Instructions implements Runnable{
 			register_value2 = "ROB" + index_operand;
 		}
 		
+		//Verifica si el registro para calcular la direccion donde guardar, se modifica antes
+		//de hacer COMMIT en STORE.
+		int index_operand1 = rob.compareOperand(instruction[2]);
+		if(index_operand1 == -1) {
+			register_index1 = Character.getNumericValue( instruction[2].charAt(1) );
+			register_value1 = reg.getData(register_index1);	//Convierte el numero a int y lo pasa como argumento
+			dest = ""+ (register_value1 + Character.getNumericValue( instruction[1].charAt(0) ));	
+		}
+		else {
+			dest = ""+instruction[1]+"+"+instruction[2];
+		}
 		//Get dest
-		register_index1 = Character.getNumericValue( instruction[2].charAt(1) );
-		register_value1 = reg.getData(register_index1);	//Convierte el numero a int y lo pasa como argumento
-		dest = ""+ (register_value1 + Character.getNumericValue( instruction[1].charAt(0) ));	
+		//register_index1 = Character.getNumericValue( instruction[2].charAt(1) );
+		//register_value1 = reg.getData(register_index1);	//Convierte el numero a int y lo pasa como argumento
+		//dest = ""+ (register_value1 + Character.getNumericValue( instruction[1].charAt(0) ));	
 		
 		rob.setData(dest, register_value2, instruction[0], false);
 	}
