@@ -32,33 +32,34 @@ public class LOAD implements Runnable{
 				tryCalculate(0,pos-1);
 
 			//System.out.println("LOAD LIBERA...");
-			writingReady();		
+			String UF="L";
+			writingReady();	
+			waitToRead(UF); // case acquire
+
 			//System.out.println("LOAD reading CDB... AFTER");
 			
 			readAndReplace();
+			
+			cdb.tryDeleteCDB(); // Delete CDB
+
 		}
 	}
 	
-	private void check() {
-		int index, value,i=0;
-		
-		// Get position of instruction, if exists
-		
-		
-		// If an instruction exists
-		/*if(index >= 0) {
-			if(clk.checkCyclesLOAD()) {
-				if(cdb.write_tryAcquire()) {
-					pos++;
-					clk.resetCyclesLOAD();
-					value =  calc(index);
-					System.out.println("LOAD["+i+"] writing "+value+" CDB...");
-					cdb.set(value, "ROB"+load.get(index).getDest());
-					delete(index);
-				}
-			}
-		}*/
-		
+	private void waitToRead(String UF) {
+		try {
+			//System.out.println("ADD READ ACQUIRE");
+			cdb.read_acquire(UF);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	private boolean checkOperands(int i) {
+		if(rs.get(i).getShiftTag().equals(""))
+			return true;
+		else
+			return false;
 	}
 
 	private void writingReady() {
@@ -70,26 +71,27 @@ public class LOAD implements Runnable{
 		// 
 		for(i=ini; i<fin; i++) {
 				pos = i;
-				if( rs.get(i).getBusy() && rs.get(i).getReady()) {
-				//if( rs.get(i).getBusy() ) {
-					if(clk.checkCyclesLOAD()) {
-						//System.out.println("LOAD Disponibles: "+cdb.haveAvailables());
-						if(cdb.write_tryAcquire()) {
-							pos = i+1;
-							clk.resetCyclesLOAD();
-							value =  calc(i);
-							System.out.println("LOAD["+i+"] writing "+value+" CDB...");
-							cdb.set(value, "ROB"+rs.get(i).getDest());
-							delete(i);
+				if( rs.get(i).getBusy() ) {//&& rs.get(i).getReady()) {
+					if(checkOperands(i)) {
+						if(clk.checkCyclesLOAD()) {
+							//System.out.println("LOAD Disponibles: "+cdb.haveAvailables());
+							if(cdb.write_tryAcquire()) {
+								pos = i+1;
+								clk.resetCyclesLOAD();
+								value =  calc(i);
+								System.out.println("LOAD["+i+"] writing "+value+" CDB...");
+								cdb.set(value, "ROB"+rs.get(i).getDest());
+								delete(i);
+							}
+							else {
+							System.out.println("CDB is Busy. LOAD["+i+"] Waiting...\"");
+							}
+							return true;
 						}
 						else {
-							System.out.println("CDB is Busy. LOAD["+i+"] Waiting...\"");
+							System.out.println("LOAD["+i+"] waiting clocks...");
+							return false;
 						}
-						return true;
-					}
-					else {
-						System.out.println("LOAD["+i+"] waiting clocks...");
-						return false;
 					}
 				}
 				
@@ -98,8 +100,10 @@ public class LOAD implements Runnable{
 	}
 	
 	private int calc(int index) {
-		int dir = rs.get(index).getDir();
-		return memory.getValue( dir );
+		int dir = rs.get(index).getBase() + rs.get(index).getShift();
+		rs.get(index).setDir(dir);
+		int value = memory.getValue(dir);
+		return value;
 	}
 	
 	public boolean getData() {
@@ -125,7 +129,12 @@ public class LOAD implements Runnable{
 	private void readAndReplace() {
 		for(int j=0; j<rs.length(); j++){
 			if( rs.get(j).getBusy() ) {
-				
+				// Replacing operands
+				if( cdb.getTag().equals(rs.get(j).getShiftTag()) ){
+					System.out.println("LOAD["+j+"] getting "+cdb.getData()+" from CDB...");
+					rs.get(j).setShiftTag("");
+					rs.get(j).setShift(cdb.getData());
+				}
 				// Setting ready for instructions in station
 				if( !rs.get(j).getReady() )
 					rs.get(j).setReady(true);
@@ -135,11 +144,12 @@ public class LOAD implements Runnable{
 
 	public void print() {
 		String table = "\nLOAD\n";
-		table += "N\t|DEST\t|DIR\t|Busy";
+		table += "N\t|DEST\t|BASE\t|SHIFT\t|TAG\t|Busy";
 		for(int i=0; i<rs.length(); i++)
 			if(rs.get(i).getBusy()) {
 				table += ("\n" + i + "\t|" + rs.get(i).getDest() + "\t|" 
-					+ rs.get(i).getDir() + "\t|" + rs.get(i).getBusy());
+					+ rs.get(i).getBase() + "\t|" + rs.get(i).getShift() + "\t|" 
+					+ rs.get(i).getShiftTag() + "\t|" + rs.get(i).getBusy());
 			}
 		System.out.println(table);
 	}

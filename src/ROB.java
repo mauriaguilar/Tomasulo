@@ -9,6 +9,7 @@ public class ROB implements Runnable{
 	private int remove_index;	//Indice que indica instruccion a sacar
 	private Registers reg; 
 	private Memory mem;
+	private int pos;
 	
 	public ROB(Clocks clk, ROB_Station bufferROB, Bus bus, Registers reg, Memory mem) {
 		this.clk = clk;
@@ -18,6 +19,7 @@ public class ROB implements Runnable{
 		this.reg = reg;
 		this.mem = mem;
 		this.rob = bufferROB;
+		pos = 0;
 	}
 	
 	@Override
@@ -159,13 +161,33 @@ public class ROB implements Runnable{
 	}
 
 	public int compareOperand(String operand) {
-		for(int i=0; i<rob.length(); i++) {
+		int index = -1;
+
+		boolean founded = false;
+		System.out.println("Primer for -> i="+remove_index+" hasta i<"+rob.length());
+		for(int i=remove_index; i<rob.length(); i++) {
 			if(rob.get(i).getDest().equals(operand)) {
-				//System.out.println("Comparacion entre: "+operand+" y "+rob.get(i).getDest());
-				return i;
+				System.out.println("Son iguales! En ROB["+i+"] encontre a "+rob.get(i).getDest());
+				index = i;
+				founded = true;
+				//pos = i+1;
 			}
 		}
-		return -1;
+		
+		//if(!founded) {
+		if(remove_index > put_index) {
+			System.out.println("Segundo for -> i="+0+" hasta i<"+put_index);
+			for(int i=0; i<put_index; i++) {
+				
+				if(rob.get(i).getDest().equals(operand)) {
+					System.out.println("Son iguales! En ROB["+i+"] encontre a "+rob.get(i).getDest());
+					index = i;
+					//pos = i+1;
+					//return i;
+				}
+			}
+		}
+		return index;
 	}
 	
 	private void compareValue() {

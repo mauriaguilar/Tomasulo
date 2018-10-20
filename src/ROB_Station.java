@@ -4,6 +4,7 @@ public class ROB_Station {
 
 		private ROB_Entry [] rob;
 		private Semaphore available;
+		private Semaphore rdWrTable;
 		private int cap;
 		
 		public ROB_Station(int cap){
@@ -11,7 +12,8 @@ public class ROB_Station {
 			for(int i=0; i<cap; i++) {
 				rob[i] = new ROB_Entry();
 			}
-			available = new Semaphore(cap); 
+			available = new Semaphore(cap);
+			rdWrTable = new Semaphore(1);
 			this.cap = cap;
 		}
 		
@@ -40,5 +42,21 @@ public class ROB_Station {
 		public void del(int index) {
 			rob[index] = new ROB_Entry();
 			releaseResource();
+		}
+		
+		public void getTable() {
+			try {
+				rdWrTable.acquire();
+				System.out.println("Obtuvo tabla");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		public void releaseTable() {
+			if(!(rdWrTable.availablePermits()>0)) {
+				rdWrTable.release();
+				System.out.println("Libera tabla");
+			}
 		}
 }

@@ -19,7 +19,7 @@ public class Main {
 	static ROB_Station bufferROB = new ROB_Station(9);
 	
 	// Objects of RS, ROB and Instruction
-	static ProgramLoader loader = new ProgramLoader(4);
+	static ProgramLoader loader = new ProgramLoader(1);
 	static LOAD load = new LOAD(clock, bufferLOAD, mem, cdb);
 	static ADD add = new ADD(clock, bufferADD, cdb);
 	static MUL mul = new MUL(clock, bufferMUL, cdb);
@@ -36,7 +36,7 @@ public class Main {
 	public static void main (String [ ] args) throws InterruptedException, FileNotFoundException {
 		
 		
-		thInstruction.start();
+		//thInstruction.start();
 		Thread.sleep(1 * 1000);
 		startExecution();
 		
@@ -66,7 +66,7 @@ public class Main {
 				//Release clock
 				clock.release();
 				//System.out.println("antes acquireDelete");
-				cdb.acquireDelete(3);
+				cdb.acquireDelete(4);
 				//System.out.println("despues acquireDelete");
 				cdb.delete();
 			}
@@ -78,7 +78,7 @@ public class Main {
 	
 
 	private static void startExecution() {
-		//thInstruction.start();
+		thInstruction.start();
 		thLoad.start();
 		thAdd.start();
 		thMul.start();

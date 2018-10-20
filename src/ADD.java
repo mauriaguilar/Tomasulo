@@ -79,8 +79,8 @@ public class ADD implements Runnable{
 				}
 				
 				// Setting ready for instructions in station
-				if( !rs.get(j).getReady() )
-					rs.get(j).setReady(true);
+				//if( !rs.get(j).getReady() )
+				//	rs.get(j).setReady(true);
 			}
 		}
 	} 
@@ -91,7 +91,7 @@ public class ADD implements Runnable{
 		for(int i=ini; i<fin; i++) {
 			pos = i; // Save the next index
 			// If an instruction exists
-			if( rs.get(i).getBusy() && rs.get(i).getReady()) {
+			if( rs.get(i).getBusy()){// && rs.get(i).getReady()) {
 			//if( rs.get(i).getBusy() ) {
 				if(checkOperands(i)) {
 					if(clk.checkCyclesADD()) {

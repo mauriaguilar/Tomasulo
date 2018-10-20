@@ -125,7 +125,7 @@ public class Clocks {
 	public boolean checkCyclesADD() {
 		if(current_cycles_add <= cycles_add)
 			current_cycles_add++;
-		return (current_cycles_add >= cycles_add);
+		return (current_cycles_add > cycles_add);
 	}
 	
 	public void resetCyclesADD() {
@@ -140,7 +140,7 @@ public class Clocks {
 	public boolean checkCyclesMUL() {
 		if(current_cycles_mul <= cycles_mul)
 			current_cycles_mul++;
-		return (current_cycles_mul >= cycles_mul);
+		return (current_cycles_mul > cycles_mul);
 	}
 	
 	public void resetCyclesMUL() {
@@ -153,9 +153,13 @@ public class Clocks {
 	}
 
 	public boolean checkCyclesLOAD() {
-		if(current_cycles_load <= cycles_load)
+		if(current_cycles_load <= cycles_load) {
+			//System.out.println("LOAD -> "+current_cycles_load);
 			current_cycles_load++;
-		return (current_cycles_load >= cycles_load);
+			//System.out.println("LOAD++ -> "+current_cycles_load);
+		}
+			
+		return (current_cycles_load > cycles_load);
 		//return checkCycles(current_cycles_load,cycles_load);
 	}
 	

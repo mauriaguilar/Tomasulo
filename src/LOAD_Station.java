@@ -46,11 +46,14 @@ public class LOAD_Station {
 		releaseResource();
 	}
 
-	public void setData(int indexROB, int indexLS, boolean busy, int dir, int clock) {
+	public void setData(int indexROB, int indexLS, boolean busy, int dir, int base, int shift, String shift_tag, int clock) {
 		System.out.println("Instructions Writing in LOAD["+indexLS+"] Station...");
 		ls[indexLS].setDest(indexROB);
 		ls[indexLS].setBusy(busy);
 		ls[indexLS].setDir(dir);
+		ls[indexLS].setBase(base);
+		ls[indexLS].setShift(shift);
+		ls[indexLS].setShiftTag(shift_tag);
 		ls[indexLS].setClock(clock);
 		ls[indexLS].setReady(false);
 	}

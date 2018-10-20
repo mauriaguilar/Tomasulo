@@ -86,7 +86,7 @@ public class MUL implements Runnable{
 		for(int i=ini; i<fin; i++) {
 			pos = i; // Save the next index
 			// If an instruction exists
-			if( rs.get(i).getBusy() && rs.get(i).getReady()) {
+			if( rs.get(i).getBusy() ){//&& rs.get(i).getReady()) {
 			//if( rs.get(i).getBusy() ) {
 				if(checkOperands(i)) {
 					if(clk.checkCyclesMUL()) {

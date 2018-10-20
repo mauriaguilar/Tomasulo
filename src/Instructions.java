@@ -198,12 +198,30 @@ public class Instructions implements Runnable{
 	}
 	
 	private void allocateLS(int indexROB, int indexLS) {
-		// Calc
-		int register_index = Character.getNumericValue( instruction[3].charAt(1) );
-		int value = reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
-		int direction = Integer.parseInt(instruction[2]) + value;
+		String tag = "";
+		int shift = -1;
+		int base = -1;
+		int index_operand = rob.compareOperand(instruction[3]);
 		
-		bufferLOAD.setData(indexROB, indexLS, true, direction, Clocks.clocks);
+		if(index_operand == -1) {
+			int register_index = Character.getNumericValue( instruction[3].charAt(1) );
+			shift = reg.getData(register_index);
+		}
+		else {
+			if(rob.getROB(index_operand).getValue().equals("-1")) {
+				tag = "ROB" + index_operand;
+			}
+			else {
+				shift = Integer.parseInt(rob.getROB(index_operand).getValue());
+			}
+		}
+		// Calc
+		//int register_index = Character.getNumericValue( instruction[3].charAt(1) );
+		//int value = reg.getData(register_index);	//Convierte el numero a int y lo pasa como argumento
+		//int direction = Integer.parseInt(instruction[2]) + value;
+		base = Integer.parseInt(instruction[2]);
+		
+		bufferLOAD.setData(indexROB, indexLS, true, -1, base, shift, tag,  Clocks.clocks);
 	}
 
 	private void allocateROB() {
