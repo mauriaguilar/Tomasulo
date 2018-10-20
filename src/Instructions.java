@@ -35,6 +35,7 @@ public class Instructions implements Runnable{
 		this.rob = rob;
 		this.reg = reg;
 		this.loader = loader;
+		Clocks.loading = false;
 	}
 	
 	//@Override
@@ -44,7 +45,10 @@ public class Instructions implements Runnable{
 			
 			loadInstructions();
 			
-			waitClock(); 
+			waitClock();
+			Clocks.loading = true;
+			
+			System.out.println("INSTRUCTIONS PASO CLOCK"); 
 			
 			String dest;
 			
@@ -58,12 +62,12 @@ public class Instructions implements Runnable{
 				
 				// 3) Verify availables slots, renaming and allocate
 				checkEmptyes(dest);
-				
 			}
 			else {
 				System.out.println("Instructions readed a HALT. The program was loaded correctly");
 				break;
 			}
+			Clocks.loading = false;
 		}
 		
 	}
@@ -122,26 +126,34 @@ public class Instructions implements Runnable{
 		//Blocks waiting ROB's places
 		int indexROB;
 		int indexRS, indexLS;
-		
+
+		System.out.println("INSTRUCTIONS PIDE LUGAR EN ROB");
 		bufferROB.getResource();
+		System.out.println("INSTRUCTIONS OBTUVO LUGAR EN ROB");
 		indexROB = rob.getIndex();
 		
 		switch (dest) {
 			case "ADD":
 				// If there is an empty slot in the ADD RS, else block here
+				System.out.println("INSTRUCTIONS PIDE LUGAR EN ADD");
 				indexRS = bufferADD.getResource();
+				System.out.println("INSTRUCTIONS OBTIVO LUGAR EN ADD");
 				allocateRS(bufferADD,indexROB,indexRS);
 				allocateROB();
 				break;
 			case "MUL":
-				// If there is an empty slot in the MUL RS, else block here	
+				// If there is an empty slot in the MUL RS, else block here
+				System.out.println("INSTRUCTIONS PIDE LUGAR EN MUL");
 				indexRS = bufferMUL.getResource();
+				System.out.println("INSTRUCTIONS OBTUVO LUGAR EN MUL");
 				allocateRS(bufferMUL,indexROB,indexRS);
 				allocateROB();
 				break;
 			case "LD":
 				// If there is an empty slot in the LD RS, else block here
+				System.out.println("INSTRUCTIONS PIDE LUGAR EN LD");
 				indexLS = bufferLOAD.getResource();
+				System.out.println("INSTRUCTIONS OBTUVO LUGAR EN LD");
 				allocateLS(indexROB,indexLS);
 				allocateROB();
 				break;

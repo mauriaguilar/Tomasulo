@@ -4,6 +4,7 @@ public class Reserve_Station {
 
 	private RS_Entry[] rs;
 	private Semaphore available;
+	private int cap;
 	
 	public Reserve_Station(int cap) { 
 		rs = new RS_Entry[cap];
@@ -11,6 +12,7 @@ public class Reserve_Station {
 			rs[i] = new RS_Entry();
 		}
 		available = new Semaphore(cap); 
+		this.cap = cap;
 	}
 	
 	public int getResource() {
@@ -27,7 +29,8 @@ public class Reserve_Station {
 	}
 	
 	public void releaseResource() {
-		available.release();
+		if(available.availablePermits() < cap)
+			available.release();
 	}
 
 	public int length() {

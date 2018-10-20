@@ -4,6 +4,7 @@ public class Clocks {
  
 	// Cycles counter
 	public static Integer clocks = 0;
+	public static boolean loading;
 	// Minimun Cycles for RS
 	private int cycles_add = 3;
 	private int cycles_load = 2;
@@ -43,13 +44,15 @@ public class Clocks {
 	}
 	
 	private void releaseThis(Semaphore sem) {
-		if(sem.availablePermits() == 0)
+		if(sem.availablePermits() == 0) 
 			sem.release();
 	}
 	
 	public void releaseClocks() {
 		//System.out.println("-------release---------");
-		releaseThis(clkInstruction);
+		System.out.println("AVAILABLES INSTR "+clkInstruction.availablePermits());
+		if(!loading)
+			releaseThis(clkInstruction);
 		releaseThis(clkLoad);
 		releaseThis(clkADD);
 		releaseThis(clkMUL);
