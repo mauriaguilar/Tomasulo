@@ -19,71 +19,24 @@ public class ADD implements Runnable{
 	public void run() {
 		boolean cdbWrited = false;
 		while(true) {
-			//System.out.println("ADD Calculating instructions... ANTES CLOCK");
+			
 			clk.waitClockADD();
 			
-			//cdb.acquireToWrite();
-			
-			//System.out.println("ADD Calculating instructions...");
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
-				tryCalculate(0,pos-1);
-			
-			//cdb.releaseWrite();
-			
-			
-			//cdb.acquireToRead();
-						
-			String UF = "A";
+				tryCalculate(0,pos-1);			
 			writingReady();  // ++ release
+			
+			String UF = "A";
 			waitToRead(UF); // case acquire
 			// Read data bus and replace operands
-			//System.out.println("ADD reading CDB...");
 			readAndReplace();
 			
 			cdb.tryDeleteCDB(); // Delete CDB
 			
 		}
 	}
-	
-	private void writingReady() {
-		//System.out.println("ADD WRITE READY");
-		cdb.write_ready();
-	}
-	
 
-	private void waitToRead(String UF) {
-		try {
-			//System.out.println("ADD READ ACQUIRE");
-			cdb.read_acquire(UF);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
-
-	private void readAndReplace() {
-		for(int j=0; j<rs.length(); j++){
-			if( rs.get(j).getBusy() ) {
-				
-				// Replacing operands
-				if( cdb.getTag().equals(rs.get(j).getQj()) ){
-					System.out.println("ADD["+j+"] getting "+cdb.getData()+" from CDB...");
-					rs.get(j).setQj("");
-					rs.get(j).setVj(cdb.getData());
-				}
-				if( cdb.getTag().equals(rs.get(j).getQk()) ){
-					System.out.println("ADD["+j+"] getting "+cdb.getData()+" from CDB...");
-					rs.get(j).setQk("");
-					rs.get(j).setVk(cdb.getData());
-				}
-				
-				// Setting ready for instructions in station
-				//if( !rs.get(j).getReady() )
-				//	rs.get(j).setReady(true);
-			}
-		}
-	} 
 
 	private boolean tryCalculate(int ini,int fin){ 
 		int result;
@@ -140,6 +93,48 @@ public class ADD implements Runnable{
 	private void delete(int index) {
 		rs.del(index);
 	}
+	
+
+	private void writingReady() {
+		cdb.write_ready();
+	}
+	
+
+	private void waitToRead(String UF) {
+		try {
+			cdb.read_acquire(UF);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void readAndReplace() {
+		for(int j=0; j<rs.length(); j++){
+			if( rs.get(j).getBusy() ) {
+				
+				// Replacing operands
+				if( cdb.getTag().equals(rs.get(j).getQj()) ){
+					System.out.println("ADD["+j+"] getting "+cdb.getData()+" from CDB...");
+					rs.get(j).setQj("");
+					rs.get(j).setVj(cdb.getData());
+				}
+				if( cdb.getTag().equals(rs.get(j).getQk()) ){
+					System.out.println("ADD["+j+"] getting "+cdb.getData()+" from CDB...");
+					rs.get(j).setQk("");
+					rs.get(j).setVk(cdb.getData());
+				}
+				
+				// Setting ready for instructions in station
+				//if( !rs.get(j).getReady() )
+				//	rs.get(j).setReady(true);
+			}
+		}
+	} 
+	
+	
+	
+	
+	
 	
 	public boolean getData() {
 		data = false;

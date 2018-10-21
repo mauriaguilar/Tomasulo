@@ -17,37 +17,19 @@ public class ProgramLoader {
 
 		public String[][] getInstrucions() {
 			String fichero = "program"+programNumber+".txt";
-			//Scanner scan = new Scanner(fichero);
-			//System.out.println("LALALALALALADASDSAHLFSDJKLHSDFKL--------");
-			//System.out.println(""+scan.next());
-			//scan.close();
 			
 			String[] words;
 			String line;
 			int numLines=0;
 			
-			// Get number of instruction
-			/*File input = new File(fichero);
-			Scanner iterate;
-			try {
-				System.out.println("Print 1");
-				iterate = new Scanner(input);
-				System.out.println("Print 2");
-				while(iterate.hasNextLine()) {
-					//String currLine=iterate.nextLine();.
-					numLines++; 
-				}
-				iterate.close();
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-			}
-			*/
+			// Get number of instructions
 			try {			
 				FileReader fr = new FileReader(fichero);
 				BufferedReader br = new BufferedReader(fr);
 
 				while((line = br.readLine()) != null) {
-					numLines++;
+					if(!line.contains("#") && !line.equals(""))
+						numLines++;
 				}
 				fr.close();
 			} catch(Exception e) {
@@ -63,9 +45,11 @@ public class ProgramLoader {
 				 
 				System.out.println("PROGRAM "+programNumber+": ");
 				while((line = br.readLine()) != null) {
-					System.out.println(line);
-					words = line.split(" ");
-					instructions_list[k++] = words;
+					if(!line.contains("#") && !line.equals("")) {
+						System.out.println(line);
+						words = line.split(" ");
+						instructions_list[k++] = words;
+					}
 				}
 				fr.close();
 			} catch(Exception e) {

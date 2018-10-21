@@ -157,13 +157,10 @@ public class Clocks {
 
 	public boolean checkCyclesLOAD() {
 		if(current_cycles_load <= cycles_load) {
-			//System.out.println("LOAD -> "+current_cycles_load);
 			current_cycles_load++;
-			//System.out.println("LOAD++ -> "+current_cycles_load);
 		}
 			
 		return (current_cycles_load > cycles_load);
-		//return checkCycles(current_cycles_load,cycles_load);
 	}
 	
 	public void resetCyclesLOAD() {

@@ -1,5 +1,4 @@
-import java.io.FileNotFoundException;
-import java.util.concurrent.Semaphore;
+
 
 public class Main {
 
@@ -19,7 +18,8 @@ public class Main {
 	static ROB_Station bufferROB = new ROB_Station(9);
 	
 	// Objects of RS, ROB and Instruction
-	static ProgramLoader loader = new ProgramLoader(4);
+	static int programNumber = 5;
+	static ProgramLoader loader = new ProgramLoader(programNumber);
 	static LOAD load = new LOAD(clock, bufferLOAD, mem, cdb);
 	static ADD add = new ADD(clock, bufferADD, cdb);
 	static MUL mul = new MUL(clock, bufferMUL, cdb);
@@ -33,7 +33,7 @@ public class Main {
 	static Thread thMul = new Thread(mul);
 	static Thread thROB = new Thread(rob);
 	
-	public static void main (String [ ] args) throws InterruptedException, FileNotFoundException {
+	public static void main (String [ ] args) throws InterruptedException {
 		
 		startExecution();
 		

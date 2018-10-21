@@ -26,18 +26,13 @@ public class LOAD implements Runnable{
 			
 			clk.waitClockLOAD();
 			
-			//System.out.println("LOAD Calculating instructions...");
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited) 
 				tryCalculate(0,pos-1);
-
-			//System.out.println("LOAD LIBERA...");
-			String UF="L";
 			writingReady();	
-			waitToRead(UF); // case acquire
-
-			//System.out.println("LOAD reading CDB... AFTER");
 			
+			String UF="L";
+			waitToRead(UF); // case acquire
 			readAndReplace();
 			
 			cdb.tryDeleteCDB(); // Delete CDB
@@ -47,7 +42,6 @@ public class LOAD implements Runnable{
 	
 	private void waitToRead(String UF) {
 		try {
-			//System.out.println("ADD READ ACQUIRE");
 			cdb.read_acquire(UF);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -74,7 +68,6 @@ public class LOAD implements Runnable{
 				if( rs.get(i).getBusy() ) {//&& rs.get(i).getReady()) {
 					if(checkOperands(i)) {
 						if(clk.checkCyclesLOAD()) {
-							//System.out.println("LOAD Disponibles: "+cdb.haveAvailables());
 							if(cdb.write_tryAcquire()) {
 								pos = i+1;
 								clk.resetCyclesLOAD();

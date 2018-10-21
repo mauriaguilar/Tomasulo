@@ -98,29 +98,6 @@ public class Bus {
 	}
 	
 	public void write_ready() {
-		/*counter++;
-		System.out.println("COUNTER++ "+counter);
-		if(counter==3) {
-			sem_read_add.release();
-			sem_read_mul.release();
-			sem_read_rob.release();
-			counter=0;
-		}*/
-		
-		//sem_read.release();
-		//System.out.println("sem_read.availablePermits()++ "+sem_read.availablePermits());
-		/*if(sem_read.availablePermits() == 3) {
-			try {
-				sem_read.acquire(3);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			sem_read_add.release();
-			sem_read_mul.release();
-			sem_read_rob.release();
-			
-		}*/
-		
 		sem_read.release();		
 		if(sem_read.tryAcquire(3)) {
 			sem_read_add.release();
@@ -144,19 +121,10 @@ public class Bus {
 	}
 
 	public void tryDeleteCDB() {
-		/*reads++;
-		System.out.println("reads++");
-		if(reads == 3) {
-			delete();
-			reads = 0;
-			System.out.println("CDB borrado");
-		}*/
-		//System.out.println("sem_del.release(1);");
 		sem_del.release(1);
 	}
 
 	public void acquireDelete(int i) {
-		//System.out.println("acquireDelete PERMITS "+sem_del.availablePermits());
 		try {
 			sem_del.acquire(i);
 		} catch (InterruptedException e) {

@@ -22,34 +22,27 @@ public class MUL implements Runnable{
 			
 			clk.waitClockMUL();
 			
-			//System.out.println("MUL Calculating instructions...");
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
+			writingReady();
 			
 			String UF = "M";
-			//System.out.println("MUL LIBERA...");
-			writingReady();
 			waitToRead(UF);
-			
 			// Read data bus and replace operands
-			//System.out.println("MUL reading CDB...");
-			readAndReplace();		
-			//System.out.println("MUL reading CDB... AFTER");
+			readAndReplace();
 			
 			cdb.tryDeleteCDB(); // Delete CDB
 		}
 	}
 	
 	private void writingReady() {
-		//System.out.println("MUL WRITE READY");
 		cdb.write_ready();
 	}
 	
 
 	private void waitToRead(String UF) {
 		try {
-			//System.out.println("MUL READ ACQUIRE");
 			cdb.read_acquire(UF);
 		} catch (InterruptedException e) {
 			e.printStackTrace();

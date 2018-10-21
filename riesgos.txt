@@ -1,0 +1,9 @@
+# RAW			Fowarding: Riesgo de que la lectura utilice datos antiguos y no el nuevo de la escritura
+ADD R1 R2 R3
+MUL R4 R5 R1
+# WAR			Renaming: Riesgo de que la lectura utilice el nuevo valor y no el antiguo
+LD R6 1 R7
+MUL R7 R8 R8
+# WAW			Renaming: Riesgo de que la primer escritura termine despues que la segunda
+ADD R0 R1 R2
+ADD R0 R3 R4
