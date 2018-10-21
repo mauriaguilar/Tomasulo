@@ -48,7 +48,7 @@ public class Instructions implements Runnable{
 			waitClock();
 			Clocks.loading = true;
 			
-			System.out.println("INSTRUCTIONS PASO CLOCK"); 
+			//System.out.println("INSTRUCTIONS PASO CLOCK"); 
 			
 			String dest;
 			
@@ -127,46 +127,41 @@ public class Instructions implements Runnable{
 		int indexROB;
 		int indexRS, indexLS;
 
-		System.out.println("INSTRUCTIONS PIDE LUGAR EN ROB");
 		bufferROB.getResource();
-		System.out.println("INSTRUCTIONS OBTUVO LUGAR EN ROB");
 		indexROB = rob.getIndex();
 		
 		switch (dest) {
 			case "ADD":
 				// If there is an empty slot in the ADD RS, else block here
-				System.out.println("INSTRUCTIONS PIDE LUGAR EN ADD");
 				indexRS = bufferADD.getResource();
-				System.out.println("INSTRUCTIONS OBTIVO LUGAR EN ADD");
-				allocateRS(bufferADD,indexROB,indexRS);
 				allocateROB();
+				rob.acquire();	//Take semaphore to write RS
+				allocateRS(bufferADD,indexROB,indexRS);
 				break;
 			case "MUL":
 				// If there is an empty slot in the MUL RS, else block here
-				System.out.println("INSTRUCTIONS PIDE LUGAR EN MUL");
 				indexRS = bufferMUL.getResource();
-				System.out.println("INSTRUCTIONS OBTUVO LUGAR EN MUL");
-				allocateRS(bufferMUL,indexROB,indexRS);
 				allocateROB();
+				rob.acquire();	//Take semaphore to write RS
+				allocateRS(bufferMUL,indexROB,indexRS);
 				break;
 			case "LD":
 				// If there is an empty slot in the LD RS, else block here
-				System.out.println("INSTRUCTIONS PIDE LUGAR EN LD");
 				indexLS = bufferLOAD.getResource();
-				System.out.println("INSTRUCTIONS OBTUVO LUGAR EN LD");
-				allocateLS(indexROB,indexLS);
 				allocateROB();
+				rob.acquire();	//Take semaphore to write RS
+				allocateLS(indexROB,indexLS);
 				break;
 			case "ST":
 				allocateSTinROB();
 				break;
 		}
-		
+		rob.release();		//Free semaphore 
 		return "ROB and "+dest+" allocated";
 	}
 
 	private void allocateRS(Reserve_Station rs, int indexROB, int indexRS) {
-		
+		//rob.acquire();	//Take semaphore to write RS
 		//Renaming
 		String qj = "";
 		String qk = "";
@@ -210,6 +205,8 @@ public class Instructions implements Runnable{
 	}
 	
 	private void allocateLS(int indexROB, int indexLS) {
+		//rob.acquire(); 		//Take semaphore to write LS
+
 		String tag = "";
 		int shift = -1;
 		int base = -1;
@@ -242,6 +239,7 @@ public class Instructions implements Runnable{
 	
 	private void allocateSTinROB() {
 		// ST 10,R3,R5
+		//rob.acquireWrite();
 		int register_index1,register_index2;
 		int register_value1;
 		String register_value2;

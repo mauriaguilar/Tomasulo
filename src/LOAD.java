@@ -79,7 +79,7 @@ public class LOAD implements Runnable{
 								pos = i+1;
 								clk.resetCyclesLOAD();
 								value =  calc(i);
-								System.out.println("LOAD["+i+"] writing "+value+" CDB...");
+								System.out.println("LOAD["+i+"] writing "+value+" in CDB...");
 								cdb.set(value, "ROB"+rs.get(i).getDest());
 								delete(i);
 							}

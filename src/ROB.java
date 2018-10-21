@@ -10,6 +10,9 @@ public class ROB implements Runnable{
 	private Registers reg; 
 	private Memory mem;
 	private int pos;
+	//private boolean readReady;
+	//private Semaphore readBusReady;
+	private Semaphore sem;
 	
 	public ROB(Clocks clk, ROB_Station bufferROB, Bus bus, Registers reg, Memory mem) {
 		this.clk = clk;
@@ -20,6 +23,9 @@ public class ROB implements Runnable{
 		this.mem = mem;
 		this.rob = bufferROB;
 		pos = 0;
+		//readBusReady = new Semaphore(1);
+		sem = new Semaphore(1);
+		//readReady = false;
 	}
 	
 	@Override
@@ -28,31 +34,35 @@ public class ROB implements Runnable{
 		int index;
 		
 		while(true) {
-			clk.waitClockROB();
 			
+			clk.waitClockROB();
+			acquire();		//Take semaphore to read bus and update ROB's buffer
 			//Write in REG
 			writeRegMem();
-
-			/*if(rob.get(remove_index).getReady()) {
-				if(rob.get(remove_index).getDest().contains("R")) {
-					index = Character.getNumericValue( rob.get(remove_index).getDest().charAt(1) );
-					reg.setData(index, Integer.parseInt(rob.get(remove_index).getValue()));
-				}
-				else {
-					index = Character.getNumericValue( rob.get(remove_index).getDest().charAt(0) );
-					mem.setValue(index, Integer.parseInt(rob.get(remove_index).getValue()));
-				}
-				delete();
-				removeNext();
-			}
-			*/
 			
 			String UF = "R";
 			waitToRead(UF);
 			
+			System.out.println("ROB reading CDB...");
 			readAndReplace();
-			
-			cdb.tryDeleteCDB(); // Delete CDB	
+			cdb.tryDeleteCDB(); // Delete CDB
+			//readReady = true;
+			release();		//Free semaphore to Instructions update RS's buffer
+		}
+	}
+	
+	public void acquire() {
+		try {
+			sem.acquire();
+			//System.out.println("ROB toma readBusReady");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void release() {
+		if(sem.availablePermits() == 0) {
+			sem.release();
 		}
 	}
 	
@@ -82,12 +92,12 @@ public class ROB implements Runnable{
 			else {
 				if(rob.get(remove_index).getDest().contains("R")) {
 					index = Character.getNumericValue( rob.get(remove_index).getDest().charAt(1) );
-					System.out.println("ROB["+remove_index+"] write in Registers["+index+"]");
+					System.out.println("ROB["+remove_index+"] write "+rob.get(remove_index).getValue()+" in Registers["+index+"]");
 					reg.setData(index, Integer.parseInt(rob.get(remove_index).getValue()));
 				}
 				else {
 					index = Character.getNumericValue( rob.get(remove_index).getDest().charAt(0) );
-					System.out.println("ROB["+remove_index+"] write in Memory["+index+"]");
+					System.out.println("ROB["+remove_index+"] write "+rob.get(remove_index).getValue()+" in Memory["+index+"]");
 					mem.setValue(index, Integer.parseInt(rob.get(remove_index).getValue()));
 				}
 				delete();
@@ -164,10 +174,10 @@ public class ROB implements Runnable{
 		int index = -1;
 
 		boolean founded = false;
-		System.out.println("Primer for -> i="+remove_index+" hasta i<"+rob.length());
+		//System.out.println("Primer for -> i="+remove_index+" hasta i<"+rob.length());
 		for(int i=remove_index; i<rob.length(); i++) {
 			if(rob.get(i).getDest().equals(operand)) {
-				System.out.println("Son iguales! En ROB["+i+"] encontre a "+rob.get(i).getDest());
+				//System.out.println("Son iguales! En ROB["+i+"] encontre a "+rob.get(i).getDest());
 				index = i;
 				founded = true;
 				//pos = i+1;
@@ -176,11 +186,11 @@ public class ROB implements Runnable{
 		
 		//if(!founded) {
 		if(remove_index > put_index) {
-			System.out.println("Segundo for -> i="+0+" hasta i<"+put_index);
+			//System.out.println("Segundo for -> i="+0+" hasta i<"+put_index);
 			for(int i=0; i<put_index; i++) {
 				
 				if(rob.get(i).getDest().equals(operand)) {
-					System.out.println("Son iguales! En ROB["+i+"] encontre a "+rob.get(i).getDest());
+					//System.out.println("Son iguales! En ROB["+i+"] encontre a "+rob.get(i).getDest());
 					index = i;
 					//pos = i+1;
 					//return i;

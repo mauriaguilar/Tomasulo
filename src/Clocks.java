@@ -50,7 +50,7 @@ public class Clocks {
 	
 	public void releaseClocks() {
 		//System.out.println("-------release---------");
-		System.out.println("AVAILABLES INSTR "+clkInstruction.availablePermits());
+		//System.out.println("AVAILABLES INSTR "+clkInstruction.availablePermits());
 		if(!loading)
 			releaseThis(clkInstruction);
 		releaseThis(clkLoad);
