@@ -9,9 +9,6 @@ public class ROB implements Runnable{
 	private int remove_index;	//Indice que indica instruccion a sacar
 	private Registers reg; 
 	private Memory mem;
-	private int pos;
-	//private boolean readReady;
-	//private Semaphore readBusReady;
 	private Semaphore sem;
 	
 	public ROB(Clocks clk, ROB_Station bufferROB, Bus bus, Registers reg, Memory mem) {
@@ -22,16 +19,11 @@ public class ROB implements Runnable{
 		this.reg = reg;
 		this.mem = mem;
 		this.rob = bufferROB;
-		pos = 0;
-		//readBusReady = new Semaphore(1);
 		sem = new Semaphore(1);
-		//readReady = false;
 	}
 	
 	@Override
 	public void run() {
-		String tag;
-		int index;
 		
 		while(true) {
 			
@@ -172,29 +164,15 @@ public class ROB implements Runnable{
 
 	public int compareOperand(String operand) {
 		int index = -1;
-
-		boolean founded = false;
-		//System.out.println("Primer for -> i="+remove_index+" hasta i<"+rob.length());
 		for(int i=remove_index; i<rob.length(); i++) {
-			if(rob.get(i).getDest().equals(operand)) {
-				//System.out.println("Son iguales! En ROB["+i+"] encontre a "+rob.get(i).getDest());
-				index = i;
-				founded = true;
-				//pos = i+1;
-			}
+			if(rob.get(i).getDest().equals(operand)) 
+				index = i;	
 		}
 		
-		//if(!founded) {
 		if(remove_index > put_index) {
-			//System.out.println("Segundo for -> i="+0+" hasta i<"+put_index);
 			for(int i=0; i<put_index; i++) {
-				
-				if(rob.get(i).getDest().equals(operand)) {
-					//System.out.println("Son iguales! En ROB["+i+"] encontre a "+rob.get(i).getDest());
-					index = i;
-					//pos = i+1;
-					//return i;
-				}
+				if(rob.get(i).getDest().equals(operand)) 
+					index = i;	
 			}
 		}
 		return index;

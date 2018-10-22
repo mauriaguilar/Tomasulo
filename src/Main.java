@@ -18,7 +18,7 @@ public class Main {
 	static ROB_Station bufferROB = new ROB_Station(9);
 	
 	// Objects of RS, ROB and Instruction
-	static int programNumber = 5;
+	static int programNumber = 1;
 	static ProgramLoader loader = new ProgramLoader(programNumber);
 	static LOAD load = new LOAD(clock, bufferLOAD, mem, cdb);
 	static ADD add = new ADD(clock, bufferADD, cdb);
