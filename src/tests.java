@@ -3,7 +3,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 class tests {
-	
+	  
 	/*
 	 * Test del estado del ROB luego de que Instructions leyó una instruccion.
 	 * Debe cargar la instruccion en ROB y en la RS correspondiente
