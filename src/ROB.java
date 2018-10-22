@@ -35,7 +35,7 @@ public class ROB implements Runnable{
 			String UF = "R";
 			waitToRead(UF);
 			
-			System.out.println("ROB reading CDB...");
+			//System.out.println("ROB reading CDB...");
 			readAndReplace();
 			cdb.tryDeleteCDB(); // Delete CDB
 			//readReady = true;
