@@ -16,7 +16,7 @@ class tests {
 		
 		Registers reg = new Registers(9);
 		Memory mem = new Memory(9);
-		
+		 
 		Reserve_Station bufferADD = new Reserve_Station(3);
 		Reserve_Station bufferMUL = new Reserve_Station(3);
 		LOAD_Station bufferLOAD = new LOAD_Station(3);
