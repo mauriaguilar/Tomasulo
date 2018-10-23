@@ -205,6 +205,10 @@ public class ROB implements Runnable{
 		return rob.get(i);
 	}
 	
+	public int getRemoveIndex() {
+		return remove_index;
+	}
+	
 	public void print() {
 		String table = "\nROB\tput->"+put_index+"\tremove->"+remove_index+"\n";
 		table += "N\t|DEST\t|VALUE\t|TYPE\t|READY";

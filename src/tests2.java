@@ -129,6 +129,60 @@ class tests2 {
 		assertTrue(reg.getData(0)==3);
 	}
 	
+	
+	/*
+	 * Test de escritura en orden de Rob. Cuando una instruccion se completo, pero no 
+	 * se encuentra en la cabecera de Rob, no debe escribirse en registro o memoria segun corresponda,
+	 * hasta que la se encuentre en la cabecera de Rob.
+	 */
+	
+	@Test
+	void testRobOrderWrite( ) throws InterruptedException {
+		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tROB_WRITE_IN_ORDER\n::::::::::::::::::::::::::::::\n");
+		
+		int sizeRob = 9;
+		int programNumber = 6;
+		initialize(sizeRob,programNumber);
+		start();
+		
+		int clocks = 0;
+		while(clocks < 14) {
+			clocks++;
+			cdb.write_release();
+			clock.take();
+			Thread.sleep(1 * 100);
+			clock.release();
+			cdb.acquireDelete(4);
+			cdb.delete();
+			rob.print();
+			
+			if(clocks == 3) {
+				assertTrue(rob.getRemoveIndex()==0);
+				assertTrue(rob.getROB(0).getType().equals("ADD") && rob.getROB(0).getReady()==false);
+				assertTrue(rob.getROB(1).getType().equals("MUL") && rob.getROB(1).getReady()==false);
+				assertTrue(rob.getROB(2).getType().equals("LD") && rob.getROB(2).getReady()==false);
+			}
+			if(clocks == 6) {
+				assertTrue(rob.getRemoveIndex()==1);
+				assertTrue(rob.getROB(1).getType().equals("MUL") && rob.getROB(1).getReady()==false);
+				assertTrue(rob.getROB(2).getType().equals("LD") && rob.getROB(2).getReady()==true);
+			}
+			if(clocks == 11) {
+				assertTrue(rob.getRemoveIndex()==1);
+				assertTrue(rob.getROB(1).getType().equals("MUL") && rob.getROB(1).getReady()==true);
+				assertTrue(rob.getROB(2).getType().equals("LD") && rob.getROB(2).getReady()==true);
+			}
+			if(clocks == 12) {
+				assertTrue(rob.getRemoveIndex()==2);
+				assertTrue(rob.getROB(2).getType().equals("LD") && rob.getROB(2).getReady()==true);
+			}
+			if(clocks == 13) {
+				assertTrue(rob.getRemoveIndex()==3);
+				assertFalse(rob.getROB(2).getType().equals("LD") && rob.getROB(2).getReady()==true);
+			}
+		}
+	}
+	
 	/*
 	 * Test que ejecuta un programa en particular, y verifica que el resultado
 	 * final de los registros y memoria sea el correcto.
