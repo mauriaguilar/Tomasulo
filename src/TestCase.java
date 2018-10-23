@@ -2,7 +2,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-class tests2 {
+class TestCase {
 	
 	private Clocks clock;
 	private Bus cdb;
@@ -25,11 +25,13 @@ class tests2 {
 	private Thread thRob;
 	
 	/*
+	 * TEST_01
 	 * Test del estado del ROB luego de que Instructions leyó una instruccion.
 	 * Debe cargar la instruccion en ROB y en la RS correspondiente
 	 */
 	@Test
-	void testPutInROB() throws InterruptedException {
+	//void testPutInROB() throws InterruptedException {
+	void test_01() throws InterruptedException {
 		System.out.println("::::::::::::::::::::::::::::::\n\t\tPUT_IN_ROB\n::::::::::::::::::::::::::::::\n");
 				
 		int sizeRob = 9;
@@ -60,12 +62,14 @@ class tests2 {
 	
 
 	/*
+	 * TEST_02
 	 * Test del bloqueo de la carga de instrucciones cuando el buffer de ROB
 	 * se llenó. 
 	 * Se debe esperar a que se liberer un lugar para luego cargar otra instruccion.
 	 */
 	@Test
-	void testFullROB() throws InterruptedException {
+	//void testFullROB() throws InterruptedException {
+	void test_02() throws InterruptedException {
 		System.out.println("::::::::::::::::::::::::::::::\n\t\tFULL_ROB\n::::::::::::::::::::::::::::::\n");
 
 		int sizeRob = 1;
@@ -98,12 +102,13 @@ class tests2 {
 	}
 	
 	/*
+	 * TEST_03
 	 * Test de escritura de Rob en Registers. Cuando Rob tiene la entrada de la cabecera
 	 * con valor y flag Ready en True, debe escribir el valor en el registro correspondiente.
 	 */
-	
 	@Test
-	void testRobWriteReg( ) throws InterruptedException {
+	//void testRobWriteReg( ) throws InterruptedException {
+	void test_03( ) throws InterruptedException {
 		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tROB_WRITE_IN_REG\n::::::::::::::::::::::::::::::\n");
 		
 		int sizeRob = 9;
@@ -131,13 +136,15 @@ class tests2 {
 	
 	
 	/*
+	 * TEST_04
 	 * Test de escritura en orden de Rob. Cuando una instruccion se completo, pero no 
 	 * se encuentra en la cabecera de Rob, no debe escribirse en registro o memoria segun corresponda,
 	 * hasta que la se encuentre en la cabecera de Rob.
 	 */
 	
 	@Test
-	void testRobOrderWrite( ) throws InterruptedException {
+	//void testRobOrderWrite( ) throws InterruptedException {
+	void test_04( ) throws InterruptedException {
 		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tROB_WRITE_IN_ORDER\n::::::::::::::::::::::::::::::\n");
 		
 		int sizeRob = 9;
@@ -188,7 +195,8 @@ class tests2 {
 	 * final de los registros y memoria sea el correcto.
 	 */
 	@Test
-	void testProgramFinishGood() throws InterruptedException {
+	//void testProgramFinishGood() throws InterruptedException {
+	void test_05() throws InterruptedException {
 		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tPROGRAM_FINISH_GOOD\n::::::::::::::::::::::::::::::\n");
 		
 		int sizeRob = 9;
