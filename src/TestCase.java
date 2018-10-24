@@ -135,71 +135,17 @@ class TestCase {
 	}
 	
 	
-	/*
-	 * TEST_04: Commits
-	 * Test de escritura en orden del ROB. Cuando una instruccion se completo, pero no 
-	 * se encuentra en la cabecera de ROB, no debe escribirse en registro o memoria segun corresponda,
-	 * hasta que se la encuentre en la cabecera de ROB.
-	 */
-	
-	@Test
-	//void testRobOrderWrite( ) throws InterruptedException {
-	void test_04( ) throws InterruptedException {
-		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tROB_WRITE_IN_ORDER\n::::::::::::::::::::::::::::::\n");
-		
-		int sizeRob = 9;
-		int programNumber = 6;
-		initialize(sizeRob,programNumber);
-		start();
-		
-		int clocks = 0;
-		while(clocks < 14) {
-			clocks++;
-			cdb.write_release();
-			clock.take();
-			Thread.sleep(1 * 100);
-			clock.release();
-			cdb.acquireDelete(4);
-			cdb.delete();
-			rob.print();
-			
-			if(clocks == 3) {
-				assertTrue(rob.getRemoveIndex()==0);
-				assertTrue(rob.getROB(0).getType().equals("ADD") && rob.getROB(0).getReady()==false);
-				assertTrue(rob.getROB(1).getType().equals("MUL") && rob.getROB(1).getReady()==false);
-				assertTrue(rob.getROB(2).getType().equals("LD") && rob.getROB(2).getReady()==false);
-			}
-			if(clocks == 6) {
-				assertTrue(rob.getRemoveIndex()==1);
-				assertTrue(rob.getROB(1).getType().equals("MUL") && rob.getROB(1).getReady()==false);
-				assertTrue(rob.getROB(2).getType().equals("LD") && rob.getROB(2).getReady()==true);
-			}
-			if(clocks == 11) {
-				assertTrue(rob.getRemoveIndex()==1);
-				assertTrue(rob.getROB(1).getType().equals("MUL") && rob.getROB(1).getReady()==true);
-				assertTrue(rob.getROB(2).getType().equals("LD") && rob.getROB(2).getReady()==true);
-			}
-			if(clocks == 12) {
-				assertTrue(rob.getRemoveIndex()==2);
-				assertTrue(rob.getROB(2).getType().equals("LD") && rob.getROB(2).getReady()==true);
-			}
-			if(clocks == 13) {
-				assertTrue(rob.getRemoveIndex()==3);
-				assertFalse(rob.getROB(2).getType().equals("LD") && rob.getROB(2).getReady()==true);
-			}
-		}
-	}
 	
 	/*
-	 * TEST_04 B: Lectura y Ejecucion en orden.
+	 * TEST_04: Lectura y Ejecucion en orden.
 	 * Test que comprueba que las instrucciones commiteadas en el ROB,
 	 * se realizan en el mismo orden en el que fueron leidas. 
 	 */
 	
 	@Test
 	//void testRobOrderWrite( ) throws InterruptedException {
-	void test_04B( ) throws InterruptedException {
-		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tROB_WRITE_IN_ORDER B\n::::::::::::::::::::::::::::::\n");
+	void test_04() throws InterruptedException {
+		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tROB_WRITE_IN_ORDER\n::::::::::::::::::::::::::::::\n");
 		
 		int sizeRob = 9;
 		int programNumber = 2;
