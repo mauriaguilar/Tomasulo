@@ -25,8 +25,8 @@ class TestCase {
 	private Thread thRob;
 	
 	/*
-	 * TEST_01
-	 * Test del estado del ROB luego de que Instructions leyó una instruccion.
+	 * TEST_01: Carga en ROB
+	 * Test del estado del ROB luego de que Instructions leyo una instruccion.
 	 * Debe cargar la instruccion en ROB y en la RS correspondiente
 	 */
 	@Test
@@ -41,7 +41,7 @@ class TestCase {
 
 		clock.take();
 		Thread.sleep(1 * 100);
-		clock.release();
+		//clock.release();
 		
 		add.print();
 		rob.print();
@@ -62,10 +62,10 @@ class TestCase {
 	
 
 	/*
-	 * TEST_02
+	 * TEST_02: STALL
 	 * Test del bloqueo de la carga de instrucciones cuando el buffer de ROB
-	 * se llenó. 
-	 * Se debe esperar a que se liberer un lugar para luego cargar otra instruccion.
+	 * se lleno. 
+	 * Se debe esperar a que se libere un lugar para luego cargar otra instruccion.
 	 */
 	@Test
 	//void testFullROB() throws InterruptedException {
@@ -102,8 +102,8 @@ class TestCase {
 	}
 	
 	/*
-	 * TEST_03
-	 * Test de escritura de Rob en Registers. Cuando Rob tiene la entrada de la cabecera
+	 * TEST_03: Escritura en Registros
+	 * Test de escritura de ROB en Registers. Cuando ROB tiene la entrada de la cabecera
 	 * con valor y flag Ready en True, debe escribir el valor en el registro correspondiente.
 	 */
 	@Test
@@ -136,10 +136,10 @@ class TestCase {
 	
 	
 	/*
-	 * TEST_04
-	 * Test de escritura en orden de Rob. Cuando una instruccion se completo, pero no 
-	 * se encuentra en la cabecera de Rob, no debe escribirse en registro o memoria segun corresponda,
-	 * hasta que la se encuentre en la cabecera de Rob.
+	 * TEST_04: Commits
+	 * Test de escritura en orden del ROB. Cuando una instruccion se completo, pero no 
+	 * se encuentra en la cabecera de ROB, no debe escribirse en registro o memoria segun corresponda,
+	 * hasta que se la encuentre en la cabecera de ROB.
 	 */
 	
 	@Test
@@ -191,6 +191,59 @@ class TestCase {
 	}
 	
 	/*
+	 * TEST_04 B: Lectura y Ejecucion en orden.
+	 * Test que comprueba que las instrucciones commiteadas en el ROB,
+	 * se realizan en el mismo orden en el que fueron leidas. 
+	 */
+	
+	@Test
+	//void testRobOrderWrite( ) throws InterruptedException {
+	void test_04B( ) throws InterruptedException {
+		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tROB_WRITE_IN_ORDER B\n::::::::::::::::::::::::::::::\n");
+		
+		int sizeRob = 9;
+		int programNumber = 2;
+		initialize(sizeRob,programNumber);
+		start();
+		
+		int pc = 0;
+		ROB_Entry instruction_to_remove;
+		String instruction;
+		
+		int clocks = 0;
+		while(clocks < 14) {
+			clocks++;
+			cdb.write_release();
+			clock.take();
+			Thread.sleep(1 * 100);
+			clock.release();
+			cdb.acquireDelete(4);
+			cdb.delete();
+			rob.print();
+			
+			instruction_to_remove = rob.getROB(rob.getRemoveIndex());	// ROB
+			instruction = instructions.getInstruction(pc)[0];			// Instructions
+			
+			System.out.println("GET READY "+instruction_to_remove.getReady());
+			System.out.println("INSTRUCTION "+instruction);
+			System.out.println("GET TYPE  "+instruction_to_remove.getType());
+			
+			// If instruction to remove is Ready
+			if(	instruction_to_remove.getReady() ) {
+				assertTrue(
+						// Check if this ROB instruction match with the order on the Instructions instruction
+						instruction.equals( instruction_to_remove.getType() )
+				);
+				
+				pc++;
+			}
+		}
+		
+
+	}
+	
+	/*
+	 * TEST 05: Resultados
 	 * Test que ejecuta un programa en particular, y verifica que el resultado
 	 * final de los registros y memoria sea el correcto.
 	 */

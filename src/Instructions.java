@@ -283,4 +283,8 @@ public class Instructions implements Runnable{
 		instructions = instructions_list;
 		//System.out.println(instructions);
 	}
+	
+	public String[] getInstruction(int i) {
+		return instructions[i];
+	}
 }

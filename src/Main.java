@@ -37,7 +37,7 @@ public class Main {
 		
 		startExecution();
 		
-		int dead = 0;
+		//int dead = 0;
 		
 		while(true) {
 			
