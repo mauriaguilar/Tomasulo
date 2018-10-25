@@ -1,27 +1,42 @@
 import java.util.concurrent.Semaphore;
 
-public class Clocks {
+public class Clocks implements Runnable{
  
 	// Cycles counter
 	public static Integer clocks = 0;
 	public static boolean loading;
 	// Minimun Cycles for RS
-	private int cycles_add = 3;
-	private int cycles_load = 2;
-	private int cycles_mul = 5;
+	private static int cycles_add = 3;
+	private static int cycles_load = 2;
+	private static int cycles_mul = 5;
 	// Current cycles
-	private int current_cycles_add = 0;
-	private int current_cycles_load = 0;
-	private int current_cycles_mul = 0;
+	private static int current_cycles_add = 0;
+	private static int current_cycles_load = 0;
+	private static int current_cycles_mul = 0;
 	// Semaphores for sync
 	private Semaphore clk;
-	private Semaphore clkInstruction;
-	private Semaphore clkLoad;
-	private Semaphore clkADD;
-	private Semaphore clkMUL;
-	private Semaphore clkROB;
+	private static Semaphore clkInstruction;
+	private static Semaphore clkLoad;
+	private static Semaphore clkADD;
+	private static Semaphore clkMUL;
+	private static Semaphore clkROB;
+	private Bus cdb;
+	private Instructions instructions;
+	private static ADD add;
+	private static MUL mul;
+	private static LOAD load;
+	private static ROB rob;
+	private static Registers reg;
+	private static Memory mem;
+		
+	// Threads
+	static Thread thInstruction;
+	static Thread thLoad;
+	static Thread thAdd;
+	static Thread thMul;
+	static Thread thROB;
 	
-	public Clocks() {
+	public Clocks(Bus cdb, Instructions instructions, ADD add, MUL mul, LOAD load, ROB rob, Registers reg, Memory mem) {
 		clk = new Semaphore(1);
 		clkInstruction = new Semaphore(1);
 		clkLoad = new Semaphore(1);
@@ -29,6 +44,79 @@ public class Clocks {
 		clkMUL = new Semaphore(1);
 		clkROB = new Semaphore(1);
 		takeClocks();
+		this.cdb = cdb;
+		this.instructions = instructions;
+		this.add = add;
+		this.mul = mul;
+		this.load = load;
+		this.rob = rob;
+		this.reg = reg;
+		this.mem = mem;
+		// Threads
+		thInstruction = new Thread(instructions);
+		thLoad = new Thread(load);
+		thAdd = new Thread(add);
+		thMul = new Thread(mul);
+		thROB = new Thread(rob);
+	}
+	
+
+	@Override
+	public void run() {
+		
+		startExecution();
+		
+		//int dead = 0;
+		
+		while(true) {
+			
+			//Release CDB
+			cdb.write_release();
+			
+			//Enable the execution of a clock
+			take();
+			
+			//Time of execution of one clock 
+			pause(150);
+			
+			//Print tables
+			printTables();
+			
+			//Security Control
+			//if( dead++ == 100 ) break;
+			
+			if(instructions.isHLT() && rob.isEmpty()) {
+				//Print Registers and Memory tables
+				printMemories();
+				break;
+			}
+			else {
+				//Release clock
+				release();
+				cdb.acquireDelete(4);
+				cdb.delete();
+			}
+		}
+		
+		// Close all threads and exit
+		System.exit(0);	
+	}
+	
+
+	private static void startExecution() {
+		thInstruction.start();
+		thLoad.start();
+		thAdd.start();
+		thMul.start();
+		thROB.start();
+	}
+	
+	private void pause(int i) {
+		try {
+			Thread.sleep(i);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void takeClocks() {
@@ -60,11 +148,15 @@ public class Clocks {
 		//System.out.println("-------release--------- DESPUES");
 	}
 
-	public void take() throws InterruptedException {
+	public void take() {
 		clockNext();
 		print();
 		
-		clk.acquire();
+		try {
+			clk.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		
 		//Release all clocks
 		releaseClocks();
@@ -106,7 +198,7 @@ public class Clocks {
 		System.out.println("\n---------------------Clock: "+clocks+"   PC: "+Instructions.getPC()+"---------------------");
 	}
 
-	private void waitClock(Semaphore sem) {
+	private static void waitClock(Semaphore sem) {
 		try {
 			sem.acquire();
 		} catch (InterruptedException e) {
@@ -121,41 +213,41 @@ public class Clocks {
 	}
 	
 	// ADD Methods
-	public void waitClockADD() {
+	public static void waitClockADD() {
 		waitClock(clkADD);
 	}
 
-	public boolean checkCyclesADD() {
+	public static boolean checkCyclesADD() {
 		if(current_cycles_add <= cycles_add)
 			current_cycles_add++;
 		return (current_cycles_add > cycles_add);
 	}
 	
-	public void resetCyclesADD() {
+	public static void resetCyclesADD() {
 		current_cycles_add = 0;
 	}
 	
 	// MUL Methods
-	public void waitClockMUL() {
+	public static void waitClockMUL() {
 		waitClock(clkMUL);
 	}
 
-	public boolean checkCyclesMUL() {
+	public static boolean checkCyclesMUL() {
 		if(current_cycles_mul <= cycles_mul)
 			current_cycles_mul++;
 		return (current_cycles_mul > cycles_mul);
 	}
 	
-	public void resetCyclesMUL() {
+	public static void resetCyclesMUL() {
 		current_cycles_mul = 0;
 	}
 	
 	// LOAD Methods
-	public void waitClockLOAD() {
+	public static void waitClockLOAD() {
 		waitClock(clkLoad);
 	}
 
-	public boolean checkCyclesLOAD() {
+	public static boolean checkCyclesLOAD() {
 		if(current_cycles_load <= cycles_load) {
 			current_cycles_load++;
 		}
@@ -163,11 +255,34 @@ public class Clocks {
 		return (current_cycles_load > cycles_load);
 	}
 	
-	public void resetCyclesLOAD() {
+	public static void resetCyclesLOAD() {
 		current_cycles_load = 0;
 	}
-
-	public void waitClockROB() {
+	
+	// ROB Methods
+	public static void waitClockROB() {
 		waitClock(clkROB);
 	}
+	
+	// Instructions Methods
+	public static void waitClockInstructions() {
+		waitClock(clkInstruction);
+	}
+
+	
+	
+	static void printTables() {
+		add.print();
+		mul.print();
+		load.print();
+		rob.print(); 
+	}
+	
+	static void printMemories() {
+		reg.print();
+		mem.print();
+		System.out.println("\n\nThat's all");
+		System.out.println("************************************************************");
+	}
+
 }

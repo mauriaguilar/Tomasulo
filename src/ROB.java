@@ -2,7 +2,6 @@ import java.util.concurrent.Semaphore;
 
 public class ROB implements Runnable{
 	
-	private Clocks clk;
 	private ROB_Station rob;
 	private Bus cdb;
 	private int put_index;		//Indice que indica lugar a escribir
@@ -11,8 +10,7 @@ public class ROB implements Runnable{
 	private Memory mem;
 	private Semaphore sem;
 	
-	public ROB(Clocks clk, ROB_Station bufferROB, Bus bus, Registers reg, Memory mem) {
-		this.clk = clk;
+	public ROB(ROB_Station bufferROB, Bus bus, Registers reg, Memory mem) {
 		cdb = bus;
 		put_index = 0;
 		remove_index = 0;
@@ -27,7 +25,7 @@ public class ROB implements Runnable{
 		
 		while(true) {
 			
-			clk.waitClockROB();
+			Clocks.waitClockROB();
 			acquire();		//Take semaphore to read bus and update ROB's buffer
 			//Write in REG
 			writeRegMem();

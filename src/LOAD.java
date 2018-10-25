@@ -1,6 +1,5 @@
 public class LOAD implements Runnable{
 	
-	private Clocks clk;
 	private LOAD_Station rs;
 	private boolean data;
 	private Memory memory;
@@ -9,8 +8,7 @@ public class LOAD implements Runnable{
 	private int pos;
 	
 	
-	public LOAD(Clocks clk, LOAD_Station bufferLOAD, Memory memory, Bus bus) {
-		this.clk = clk;
+	public LOAD(LOAD_Station bufferLOAD, Memory memory, Bus bus) {
 		rs = bufferLOAD;
 		this.memory = memory;
 		cdb = bus;
@@ -24,7 +22,7 @@ public class LOAD implements Runnable{
 		while(true) {
 			
 			
-			clk.waitClockLOAD();
+			Clocks.waitClockLOAD();
 			
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited) 
@@ -67,10 +65,10 @@ public class LOAD implements Runnable{
 				pos = i;
 				if( rs.get(i).getBusy() ) {//&& rs.get(i).getReady()) {
 					if(checkOperands(i)) {
-						if(clk.checkCyclesLOAD()) {
+						if(Clocks.checkCyclesLOAD()) {
 							if(cdb.write_tryAcquire()) {
 								pos = i+1;
-								clk.resetCyclesLOAD();
+								Clocks.resetCyclesLOAD();
 								value =  calc(i);
 								System.out.println("LOAD["+i+"] writing "+value+" in CDB...");
 								cdb.set(value, "ROB"+rs.get(i).getDest());

@@ -23,6 +23,7 @@ class TestCase {
 	private Thread thAdd;
 	private Thread thMul;
 	private Thread thRob;
+	private Thread thClock;
 	
 	/*
 	 * TEST_01: Carga en ROB
@@ -37,7 +38,7 @@ class TestCase {
 		int sizeRob = 9;
 		int programNumber = 1;
 		initialize(sizeRob,programNumber);
-		start();
+		thClock.start();
 
 		clock.take();
 		Thread.sleep(1 * 100);
@@ -75,7 +76,7 @@ class TestCase {
 		int sizeRob = 1;
 		int programNumber = 1;
 		initialize(sizeRob,programNumber);
-		start();
+		thClock.start();
 		
 		int clocks = 0;
 		while(clocks < 6) {
@@ -114,7 +115,7 @@ class TestCase {
 		int sizeRob = 9;
 		int programNumber = 1;
 		initialize(sizeRob,programNumber);
-		start();
+		thClock.start();
 		
 		int clocks = 0;
 		while(clocks < 7) {
@@ -150,7 +151,7 @@ class TestCase {
 		int sizeRob = 9;
 		int programNumber = 2;
 		initialize(sizeRob,programNumber);
-		start();
+		thClock.start();
 		
 		int pc = 0;
 		ROB_Entry instruction_to_remove;
@@ -201,7 +202,7 @@ class TestCase {
 		int sizeRob = 9;
 		int programNumber = 4;
 		initialize(sizeRob,programNumber);
-		start();
+		thClock.start();
 		
 		while(true) {
 			//Release CDB
@@ -211,11 +212,11 @@ class TestCase {
 			//Time of execution of one clock 
 			Thread.sleep(1 * 150);
 			//Print tables
-			printTables();
+			Clocks.printTables();
 			
 			if(instructions.isHLT() && rob.isEmpty()) {
 				//Print Registers and Memory tables
-				printMemories();
+				Clocks.printMemories();
 				break;
 			}
 			else {
@@ -313,51 +314,31 @@ class TestCase {
 	}
 	
 	private void initialize(int robSize, int programNumber) {
-		clock = new Clocks();
+
+		// Common Data Bus
 		cdb = new Bus();
 		
+		// Memory and Registers
 		reg = new Registers(9);
 		mem = new Memory(9);
-		 
+		
+		// Reserve Stations
 		bufferADD = new Reserve_Station(3);
 		bufferMUL = new Reserve_Station(3);
 		bufferLOAD = new LOAD_Station(3);
 		bufferROB = new ROB_Station(robSize);
-		
-		loader = new ProgramLoader(programNumber);
-		load = new LOAD(clock, bufferLOAD, mem, cdb);
-		add = new ADD(clock, bufferADD, cdb);
-		mul = new MUL(clock, bufferMUL, cdb);
-		rob = new ROB(clock, bufferROB, cdb, reg, mem);
-		instructions = new Instructions(clock.clkInstruction(),bufferLOAD,bufferADD,bufferMUL,bufferROB,rob,reg,loader);
 
-		thInstruction = new Thread(instructions);
-		thLoad = new Thread(load);
-		thAdd = new Thread(add);
-		thMul = new Thread(mul);
-		thRob = new Thread(rob);
-	}
-	
-	private void start() {
-		thInstruction.start();
-		thLoad.start();
-		thAdd.start();
-		thMul.start();
-		thRob.start();
-	}
-	
-	private void printTables() {
-		add.print();
-		mul.print();
-		load.print();
-		rob.print(); 
-	}
-	
-	private void printMemories() {
-		reg.print();
-		mem.print();
-		System.out.println("\n\nThat's all");
-		System.out.println("************************************************************");
+		// Functional Units
+		loader = new ProgramLoader(programNumber);
+		load = new LOAD(bufferLOAD, mem, cdb);
+		add = new ADD(bufferADD, cdb);
+		mul = new MUL(bufferMUL, cdb);
+		rob = new ROB(bufferROB, cdb, reg, mem);
+		instructions = new Instructions(bufferLOAD,bufferADD,bufferMUL,bufferROB,rob,reg,loader);		
+
+		// Clock Unit
+		clock = new Clocks(cdb, instructions, add, mul, load, rob, reg, mem);
+		thClock = new Thread(clock);
 	}
 	
 }

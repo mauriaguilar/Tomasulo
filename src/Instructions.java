@@ -5,16 +5,7 @@ public class Instructions implements Runnable{
 	private Semaphore clk;
 	private static int pc;
 	private String [] instruction;
-	private static String instructions[][];
-	/*= {
-			{"ADD", "R0", "R1", "R2"},			// R0 = R1 + R2 = 1 + 2 = 3
-			{"LD", "R1", "1", "R2"},			// R1 = 1 + (R2) = 1 + 2 = M(3) = 3 
-			{"ADD", "R2", "R1", "R4"},			// R2 = 3 + 4 = 7
-			{"ST", "1", "R4", "R1"},			// M5 = 3
-			{"MUL", "R4", "R6", "R2"},			// R4 = 6 * 7 = 42
-			{"ADD", "R3", "R4", "R5"},			// R3 = 42 + 5 = 47
-	};*/
-	
+	private static String instructions[][];	
 	private LOAD_Station bufferLOAD;
 	private Reserve_Station bufferADD;
 	private Reserve_Station bufferMUL;
@@ -24,8 +15,7 @@ public class Instructions implements Runnable{
 	private ProgramLoader loader;
 	private boolean loadInstructions;
 	
-	public Instructions(Semaphore clk, LOAD_Station bufferLOAD, Reserve_Station bufferADD, Reserve_Station bufferMUL, ROB_Station bufferROB, ROB rob, Registers reg, ProgramLoader loader) {
-		this.clk = clk;
+	public Instructions(LOAD_Station bufferLOAD, Reserve_Station bufferADD, Reserve_Station bufferMUL, ROB_Station bufferROB, ROB rob, Registers reg, ProgramLoader loader) {
 		pc = 0;
 		instruction = null;
 		this.bufferLOAD = bufferLOAD;
@@ -45,7 +35,7 @@ public class Instructions implements Runnable{
 			
 			loadInstructions();
 			
-			waitClock();
+			Clocks.waitClockInstructions();
 			Clocks.loading = true;
 			
 			//System.out.println("INSTRUCTIONS PASO CLOCK"); 
@@ -79,14 +69,6 @@ public class Instructions implements Runnable{
 		}
 	}
 
-	private void waitClock() {
-		try {
-			clk.acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public String[] getNext() {
 		if(pc < instructions.length) {		//Primero consultamos si hay instrucciones en el buffer
 			return instructions[pc++];

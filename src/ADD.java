@@ -2,14 +2,12 @@ import java.util.concurrent.Semaphore;
 
 public class ADD implements Runnable{
 	
-	private Clocks clk;
 	private boolean data;
 	private Bus cdb;
 	private int pos;
 	private Reserve_Station rs;
 	
-	public ADD(Clocks clk, Reserve_Station bufferADD, Bus bus) {
-		this.clk = clk;
+	public ADD(Reserve_Station bufferADD, Bus bus) {
 		cdb = bus;
 		pos = 0;
 		rs = bufferADD;
@@ -20,7 +18,7 @@ public class ADD implements Runnable{
 		boolean cdbWrited = false;
 		while(true) {
 			
-			clk.waitClockADD();
+			Clocks.waitClockADD();
 			
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
@@ -47,11 +45,11 @@ public class ADD implements Runnable{
 			if( rs.get(i).getBusy()){// && rs.get(i).getReady()) {
 			//if( rs.get(i).getBusy() ) {
 				if(checkOperands(i)) {
-					if(clk.checkCyclesADD()) {
+					if(Clocks.checkCyclesADD()) {
 						//System.out.println("ADD Disponibles: "+cdb.haveAvailables());
 						if(cdb.write_tryAcquire()) {
 							pos = i+1;
-							clk.resetCyclesADD();
+							Clocks.resetCyclesADD();
 							result = calc(i);
 							System.out.println("ADD["+i+"] writing "+result+" CDB...");
 							cdb.set(result, "ROB"+rs.get(i).getDest());

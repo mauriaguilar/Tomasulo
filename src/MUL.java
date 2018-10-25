@@ -2,14 +2,12 @@ import java.util.concurrent.Semaphore;
 
 public class MUL implements Runnable{
 
-	private Clocks clk;
 	private boolean data;
 	private Bus cdb;
 	private int pos;
 	private Reserve_Station rs;
 	
-	public MUL(Clocks clk, Reserve_Station bufferMUL, Bus bus) {
-		this.clk = clk;
+	public MUL(Reserve_Station bufferMUL, Bus bus) {
 		rs = bufferMUL;
 		cdb = bus;
 		pos = 0;
@@ -20,7 +18,7 @@ public class MUL implements Runnable{
 		boolean cdbWrited = false;
 		while(true) {
 			
-			clk.waitClockMUL();
+			Clocks.waitClockMUL();
 			
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
@@ -82,11 +80,11 @@ public class MUL implements Runnable{
 			if( rs.get(i).getBusy() ){//&& rs.get(i).getReady()) {
 			//if( rs.get(i).getBusy() ) {
 				if(checkOperands(i)) {
-					if(clk.checkCyclesMUL()) {
+					if(Clocks.checkCyclesMUL()) {
 						//System.out.println("MUL Disponibles: "+cdb.haveAvailables());
 						if(cdb.write_tryAcquire()) {
 							pos = i+1;
-							clk.resetCyclesMUL();
+							Clocks.resetCyclesMUL();
 							result = calc(i);
 							System.out.println("MUL["+i+"] writing "+result+" CDB...");
 							cdb.set(result, "ROB"+rs.get(i).getDest());
