@@ -66,18 +66,12 @@ public class Clocks implements Runnable{
 		done = false;
 	}
 	
-
 	@Override
 	public void run() {
-		
-		clocks = 0;
-		
+		clocks = 0;		
 		startExecution();
-		
 		//int dead = 0;
-		
-		while(true) {
-			
+		while(true) {			
 			//Release CDB
 			cdb.write_release();
 			
@@ -103,8 +97,6 @@ public class Clocks implements Runnable{
 				//Release clock
 				if(!isATest)
 					release();
-				cdb.acquireDelete(4);
-				cdb.delete();
 			}
 		}
 		

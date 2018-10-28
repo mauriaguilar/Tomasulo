@@ -39,6 +39,8 @@ public class ROB implements Runnable{
 			cdb.tryDeleteCDB(); // Delete CDB
 			//readReady = true;
 			release();		//Free semaphore to Instructions update RS's buffer
+			cdb.acquireDelete(4);
+			cdb.delete();
 		}
 	}
 	
