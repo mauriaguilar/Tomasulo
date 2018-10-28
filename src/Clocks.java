@@ -22,6 +22,10 @@ public class Clocks implements Runnable{
 	private static Semaphore clkROB;
 	private Bus cdb;
 	private Instructions instructions;
+	// For Testing
+	private boolean isATest;
+	private boolean done;
+	
 	private static ADD add;
 	private static MUL mul;
 	private static LOAD load;
@@ -58,11 +62,15 @@ public class Clocks implements Runnable{
 		thAdd = new Thread(add);
 		thMul = new Thread(mul);
 		thROB = new Thread(rob);
+		isATest = false;
+		done = false;
 	}
 	
 
 	@Override
 	public void run() {
+		
+		clocks = 0;
 		
 		startExecution();
 		
@@ -88,18 +96,21 @@ public class Clocks implements Runnable{
 			if(instructions.isHLT() && rob.isEmpty()) {
 				//Print Registers and Memory tables
 				printMemories();
+				done = true;
 				break;
 			}
 			else {
 				//Release clock
-				release();
+				if(!isATest)
+					release();
 				cdb.acquireDelete(4);
 				cdb.delete();
 			}
 		}
 		
 		// Close all threads and exit
-		System.exit(0);	
+		if(!isATest)
+			System.exit(0);	
 	}
 	
 
@@ -269,6 +280,13 @@ public class Clocks implements Runnable{
 		waitClock(clkInstruction);
 	}
 
+	public void setModeTest(boolean b) {
+		isATest = b;
+	}
+	
+	public boolean getDone() {
+		return done;
+	}
 	
 	
 	static void printTables() {
@@ -285,4 +303,5 @@ public class Clocks implements Runnable{
 		System.out.println("************************************************************");
 	}
 
+	
 }

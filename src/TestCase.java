@@ -76,20 +76,14 @@ class TestCase {
 		int sizeRob = 1;
 		int programNumber = 1;
 		initialize(sizeRob,programNumber);
+		
+		clock.setModeTest(true);
 		thClock.start();
 		
 		int clocks = 0;
 		while(clocks < 6) {
 			clocks++;
-			cdb.write_release();
-			clock.take();
-			Thread.sleep(1 * 100);
-			clock.release();
-			cdb.acquireDelete(4);
-			cdb.delete();
-			add.print();
-			load.print();
-			rob.print();
+			pause(250);
 			
 			if(clocks==1) {
 				assertTrue(rob.getROB(0).getDest().equals("R0") && rob.getROB(0).getType().equals("ADD") &&
@@ -99,6 +93,12 @@ class TestCase {
 				assertTrue(rob.getROB(0).getDest().equals("R1") && rob.getROB(0).getType().equals("LD") &&
 						rob.getROB(0).getReady()==false && rob.getROB(0).getValue().equals("-1"));
 			}
+
+			clock.release();
+			
+			add.print();
+			load.print();
+			rob.print();
 		}	
 	}
 	
@@ -151,6 +151,7 @@ class TestCase {
 		int sizeRob = 9;
 		int programNumber = 2;
 		initialize(sizeRob,programNumber);
+		clock.setModeTest(true);
 		thClock.start();
 		
 		int pc = 0;
@@ -160,12 +161,7 @@ class TestCase {
 		int clocks = 0;
 		while(clocks < 14) {
 			clocks++;
-			cdb.write_release();
-			clock.take();
-			Thread.sleep(1 * 100);
-			clock.release();
-			cdb.acquireDelete(4);
-			cdb.delete();
+			pause(250);
 			rob.print();
 			
 			instruction_to_remove = rob.getROB(rob.getRemoveIndex());	// ROB
@@ -184,6 +180,8 @@ class TestCase {
 				
 				pc++;
 			}
+
+			clock.release();
 		}
 		
 
@@ -200,32 +198,19 @@ class TestCase {
 		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tPROGRAM_FINISH_GOOD\n::::::::::::::::::::::::::::::\n");
 		
 		int sizeRob = 9;
-		int programNumber = 4;
+		int programNumber = 1;
 		initialize(sizeRob,programNumber);
+		clock.setModeTest(true);
 		thClock.start();
 		
-		while(true) {
-			//Release CDB
-			cdb.write_release();
-			//Enable the execution of a clock
-			clock.take();
-			//Time of execution of one clock 
-			Thread.sleep(1 * 150);
-			//Print tables
-			Clocks.printTables();
-			
-			if(instructions.isHLT() && rob.isEmpty()) {
-				//Print Registers and Memory tables
-				Clocks.printMemories();
-				break;
-			}
-			else {
-				//Release clock
-				clock.release();
-				cdb.acquireDelete(4);
-				cdb.delete();
-			}
+		while(!clock.getDone()) {
+			pause(250);
+						
+			clock.release();	
+			System.out.print(":");
 		}
+
+		System.out.print("______________________________________");
 		
 		if(programNumber==1) {
 			assertTrue(reg.getData(0)==3);
@@ -341,4 +326,12 @@ class TestCase {
 		thClock = new Thread(clock);
 	}
 	
+	
+	private void pause(int i) {
+		try {
+			Thread.sleep(i);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 }

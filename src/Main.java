@@ -13,9 +13,11 @@ public class Main {
 	static LOAD_Station bufferLOAD = new LOAD_Station(3);
 	static ROB_Station bufferROB = new ROB_Station(9);
 	
-	// Functional Units
+	// Program Loader
 	static int programNumber = 1;
 	static ProgramLoader loader = new ProgramLoader(programNumber);
+	
+	// Functional Units
 	static LOAD load = new LOAD(bufferLOAD, mem, cdb);
 	static ADD add = new ADD(bufferADD, cdb);
 	static MUL mul = new MUL(bufferMUL, cdb);
