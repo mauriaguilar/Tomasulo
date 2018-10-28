@@ -27,23 +27,28 @@ public class LOAD implements Runnable{
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited) 
 				tryCalculate(0,pos-1);
-			writingReady();	
+			write_ready();
 			
-			String UF="L";
-			waitToRead(UF); // case acquire
+			waitToRead(); // case acquire
 			readAndReplace();
 			
+			read_ready();
 			cdb.tryDeleteCDB(); // Delete CDB
 
 		}
 	}
-	
-	private void waitToRead(String UF) {
+
+
+	private void waitToRead() {
 		try {
-			cdb.read_acquire(UF);
+			cdb.read_acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void read_ready() {
+		cdb.read_release();
 	}
 
 
@@ -54,7 +59,7 @@ public class LOAD implements Runnable{
 			return false;
 	}
 
-	private void writingReady() {
+	private void write_ready() {
 		cdb.write_ready();
 	}
 	

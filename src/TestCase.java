@@ -18,11 +18,6 @@ class TestCase {
 	private MUL mul;
 	private ROB rob;
 	private Instructions instructions;
-	private Thread thInstruction;
-	private Thread thLoad;
-	private Thread thAdd;
-	private Thread thMul;
-	private Thread thRob;
 	private Thread thClock;
 	
 	/*

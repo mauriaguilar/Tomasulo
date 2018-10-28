@@ -23,28 +23,30 @@ public class MUL implements Runnable{
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);
-			writingReady();
+			write_ready();
 			
-			String UF = "M";
-			waitToRead(UF);
+			waitToRead();
 			// Read data bus and replace operands
 			readAndReplace();
 			
+			read_ready();
 			cdb.tryDeleteCDB(); // Delete CDB
 		}
 	}
-	
-	private void writingReady() {
+	private void write_ready() {
 		cdb.write_ready();
 	}
 	
-
-	private void waitToRead(String UF) {
+	private void waitToRead() {
 		try {
-			cdb.read_acquire(UF);
+			cdb.read_acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void read_ready() {
+		cdb.read_release();
 	}
 
 	private void readAndReplace() {

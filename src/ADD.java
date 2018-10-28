@@ -23,12 +23,13 @@ public class ADD implements Runnable{
 			cdbWrited = tryCalculate(pos,rs.length());
 			if(!cdbWrited)
 				tryCalculate(0,pos-1);			
-			writingReady();  // ++ release
+			write_ready();  // ++ release
 			
-			String UF = "A";
-			waitToRead(UF); // case acquire
+			waitToRead(); // case acquire
 			// Read data bus and replace operands
 			readAndReplace();
+			
+			read_ready();
 			
 			cdb.tryDeleteCDB(); // Delete CDB
 			
@@ -93,14 +94,18 @@ public class ADD implements Runnable{
 	}
 	
 
-	private void writingReady() {
+	private void write_ready() {
 		cdb.write_ready();
 	}
 	
+	private void read_ready() {
+		cdb.read_release();
+	}
+	
 
-	private void waitToRead(String UF) {
+	private void waitToRead() {
 		try {
-			cdb.read_acquire(UF);
+			cdb.read_acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

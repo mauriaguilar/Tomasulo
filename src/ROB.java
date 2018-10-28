@@ -30,17 +30,22 @@ public class ROB implements Runnable{
 			//Write in REG
 			writeRegMem();
 			
-			String UF = "R";
-			waitToRead(UF);
+			waitToRead();
 			
 			//System.out.println("ROB reading CDB...");
 			readAndReplace();
+			read_ready();
+			
 			cdb.tryDeleteCDB(); // Delete CDB
 			//readReady = true;
 			release();		//Free semaphore to Instructions update RS's buffer
 		}
 	}
 	
+	private void read_ready() {
+		cdb.read_release();
+	}
+
 	public void acquire() {
 		try {
 			sem.acquire();
@@ -103,10 +108,10 @@ public class ROB implements Runnable{
 		}
 	}
 	
-	private void waitToRead(String UF) {
+	private void waitToRead() {
 		try {
 			//System.out.println("ADD READ ACQUIRE");
-			cdb.read_acquire(UF);
+			cdb.read_acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
