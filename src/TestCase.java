@@ -110,20 +110,12 @@ class TestCase {
 		int sizeRob = 9;
 		int programNumber = 1;
 		initialize(sizeRob,programNumber);
+		clock.setModeTest(true);
 		thClock.start();
 		
-		int clocks = 0;
-		while(clocks < 7) {
-			clocks++;
-			cdb.write_release();
-			clock.take();
-			Thread.sleep(1 * 100);
+		while(!clock.getDone()) {
+			pause(250);
 			clock.release();
-			cdb.acquireDelete(4);
-			cdb.delete();
-			//add.print();
-			//load.print();
-			//rob.print();
 		}
 		
 		reg.print();
@@ -193,7 +185,7 @@ class TestCase {
 		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tPROGRAM_FINISH_GOOD\n::::::::::::::::::::::::::::::\n");
 		
 		int sizeRob = 9;
-		int programNumber = 1;
+		int programNumber = 2;
 		initialize(sizeRob,programNumber);
 		clock.setModeTest(true);
 		thClock.start();
@@ -201,11 +193,8 @@ class TestCase {
 		while(!clock.getDone()) {
 			pause(250);
 						
-			clock.release();	
-			System.out.print(":");
+			clock.release();
 		}
-
-		System.out.print("______________________________________");
 		
 		if(programNumber==1) {
 			assertTrue(reg.getData(0)==3);
@@ -244,7 +233,7 @@ class TestCase {
 			assertTrue(mem.getValue(2)==2);
 			assertTrue(mem.getValue(3)==3);
 			assertTrue(mem.getValue(4)==4);
-			assertTrue(mem.getValue(5)==3);
+			assertTrue(mem.getValue(5)==5);
 			assertTrue(mem.getValue(6)==6);
 			assertTrue(mem.getValue(7)==7);
 			assertTrue(mem.getValue(8)==8);

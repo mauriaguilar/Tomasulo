@@ -14,7 +14,7 @@ public class Main {
 	static ROB_Station bufferROB = new ROB_Station(9);
 	
 	// Program Loader
-	static int programNumber = 2;
+	static int programNumber = 1;
 	static ProgramLoader loader = new ProgramLoader(programNumber);
 	
 	// Functional Units

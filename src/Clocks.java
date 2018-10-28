@@ -68,9 +68,11 @@ public class Clocks implements Runnable{
 	
 	@Override
 	public void run() {
+		
 		clocks = 0;		
 		startExecution();
 		//int dead = 0;
+		
 		while(true) {			
 			//Release CDB
 			cdb.write_release();
