@@ -75,11 +75,14 @@ class TestCase {
 		clock.setModeTest(true);
 		thClock.start();
 		
+		int pcClock2 = -1, pcClock3;
+		
 		int clocks = 0;
 		while(clocks < 6) {
 			clocks++;
-			pause(250);
+			pause(150);
 			
+			// Test 1
 			if(clocks==1) {
 				assertTrue(rob.getROB(0).getDest().equals("R0") && rob.getROB(0).getType().equals("ADD") &&
 						rob.getROB(0).getReady()==false && rob.getROB(0).getValue().equals("-1"));
@@ -87,6 +90,16 @@ class TestCase {
 			if(clocks==6) {
 				assertTrue(rob.getROB(0).getDest().equals("R1") && rob.getROB(0).getType().equals("LD") &&
 						rob.getROB(0).getReady()==false && rob.getROB(0).getValue().equals("-1"));
+			}
+			
+			// Test 2
+			if(clocks==2) {
+				pcClock2 = Instructions.getPC();
+			}
+			if(clocks==3) {
+				pcClock3 = Instructions.getPC();
+				System.out.println("__________________pc2 = "+pcClock2+" pc3 = "+pcClock3+"________________");
+				assertTrue(pcClock2 == pcClock3);
 			}
 
 			clock.release();
@@ -185,7 +198,7 @@ class TestCase {
 		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tPROGRAM_FINISH_GOOD\n::::::::::::::::::::::::::::::\n");
 		
 		int sizeRob = 9;
-		int programNumber = 2;
+		int programNumber = 1;
 		initialize(sizeRob,programNumber);
 		clock.setModeTest(true);
 		thClock.start();
