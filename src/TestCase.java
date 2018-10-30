@@ -121,7 +121,7 @@ class TestCase {
 		System.out.println("\n::::::::::::::::::::::::::::::\n\t\tROB_WRITE_IN_REG\n::::::::::::::::::::::::::::::\n");
 		
 		int sizeRob = 9;
-		int programNumber = 1;
+		int programNumber = 2;
 		initialize(sizeRob,programNumber);
 		clock.setModeTest(true);
 		thClock.start();
@@ -136,7 +136,7 @@ class TestCase {
 	}
 	
 	
-	
+	 
 	/*
 	 * TEST_04: Lectura y Ejecucion en orden.
 	 * Test que comprueba que las instrucciones commiteadas en el ROB,
@@ -155,33 +155,34 @@ class TestCase {
 		thClock.start();
 		
 		int pc = 0;
+		int number_of_instructions = 5;
 		ROB_Entry instruction_to_remove;
 		String instruction;
 		
-		int clocks = 0;
-		while(clocks < 14) {
-			clocks++;
+		while(!clock.getDone()) {
 			pause(250);
 			rob.print();
 			
-			instruction_to_remove = rob.getROB(rob.getRemoveIndex());	// ROB
-			instruction = instructions.getInstruction(pc)[0];			// Instructions
-			
-			System.out.println("GET READY "+instruction_to_remove.getReady());
-			System.out.println("INSTRUCTION "+instruction);
-			System.out.println("GET TYPE  "+instruction_to_remove.getType());
-			
-			// If instruction to remove is Ready
-			if(	instruction_to_remove.getReady() ) {
-				assertTrue(
-						// Check if this ROB instruction match with the order on the Instructions instruction
-						instruction.equals( instruction_to_remove.getType() )
-				);
+			if(pc < number_of_instructions) {
+				instruction_to_remove = rob.getROB(rob.getRemoveIndex());	// ROB
+				instruction = instructions.getInstruction(pc)[0];			// Instructions
 				
-				pc++;
+				System.out.println("GET READY "+instruction_to_remove.getReady());
+				System.out.println("INSTRUCTION "+instruction);
+				System.out.println("GET TYPE  "+instruction_to_remove.getType());
+				
+				// If instruction to remove is Ready
+				if(	instruction_to_remove.getReady() ) {
+					assertTrue(
+							// Check if this ROB instruction match with the order on the Instructions instruction
+							instruction.equals( instruction_to_remove.getType() )
+					);
+					
+					pc++;
+				}			
 			}
-
 			clock.release();
+			
 		}
 		
 

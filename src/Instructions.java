@@ -269,4 +269,8 @@ public class Instructions implements Runnable{
 	public String[] getInstruction(int i) {
 		return instructions[i];
 	}
+	
+	public int getSizeProgram() {
+		return instructions.length;
+	}
 }
